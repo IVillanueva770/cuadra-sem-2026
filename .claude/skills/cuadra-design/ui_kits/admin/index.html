@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuadra · Panel Admin Muni</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--gray-50); }
+  #app { display: flex; height: 100vh; overflow: hidden; }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .content { flex: 1; overflow-y: auto; background: var(--bg); }
+  .leaflet-container { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div id="app" data-screen-label="Admin Muni"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="text/babel" src="primitives.jsx"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="views.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+const SEMANA = [
+  { l: 'Lun', v: 142 }, { l: 'Mar', v: 168 }, { l: 'Mié', v: 155 },
+  { l: 'Jue', v: 184, hi: true }, { l: 'Vie', v: 210, hi: true }, { l: 'Sáb', v: 96 }, { l: 'Dom', v: 38 },
+];
+const RANKING = [
+  { ini: 'RG', name: 'Ramón Gómez', cuadra: 'Balcarce 200', sesiones: 64, monto: 32000 },
+  { ini: 'EM', name: 'Elsa Medina', cuadra: 'España 500', sesiones: 58, monto: 29000 },
+  { ini: 'JS', name: 'Jorge Sosa', cuadra: 'Alvarado 700', sesiones: 51, monto: 25500 },
+  { ini: 'MC', name: 'María Cruz', cuadra: 'Caseros 600', sesiones: 44, monto: 22000 },
+  { ini: 'LP', name: 'Luis Paz', cuadra: 'Güemes 100', sesiones: 39, monto: 19500 },
+];
+
+function Resumen() {
+  return (
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div style={{ display: 'flex', gap: 16 }}>
+        <StatCard label="Recaudación de hoy" value="$ 184.500" delta="+12% vs. ayer" up icon="cash" />
+        <StatCard label="Sesiones activas" value="237" delta="+8 ahora" up icon="car" />
+        <StatCard label="Permisionarios activos" value="42" delta="de 48 habilitados" up icon="users" />
+        <StatCard label="Tasa de cobro digital" value="71%" delta="+5 pts" up icon="wallet" />
+      </div>
+      <BarChart data={SEMANA} />
+      <RankingTable rows={RANKING} />
+    </div>
+  );
+}
+
+function App() {
+  const [view, setView] = useState('resumen');
+  const titles = { resumen: 'Resumen', permisionarios: 'Permisionarios', mapa: 'Mapa de cuadras', config: 'Configuración' };
+  return (
+    <>
+      <Sidebar active={view} onNav={setView} />
+      <div className="main">
+        <AdminTopBar title={titles[view]} />
+        <div className="content">
+          {view === 'resumen' && <Resumen />}
+          {view === 'permisionarios' && <div style={{ padding: 24, display: 'flex', gap: 20 }}><FilterPanel /><div style={{ flex: 1 }}><RankingTable rows={RANKING} /></div></div>}
+          {view === 'mapa' && <MapaCuadras />}
+          {view === 'config' && <Configuracion />}
+        </div>
+      </div>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+</body>
+</html>

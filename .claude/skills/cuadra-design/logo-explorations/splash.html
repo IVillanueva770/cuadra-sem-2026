@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuadra · Splash</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root { --blue:#145FB0; --blue-d:#0F4A8B; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: #1f2937; display: grid; place-items: center; font-family: 'DM Sans', sans-serif; }
+
+  /* Marco de teléfono para contexto */
+  .phone { width: 360px; height: 740px; border-radius: 40px; background: var(--blue); box-shadow: 0 30px 70px rgba(16,24,40,.45), 0 0 0 11px #111827; overflow: hidden; position: relative; }
+
+  .splash { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 38px; }
+
+  .stage { width: 168px; height: 168px; position: relative; }
+  svg.sign { width: 100%; height: 100%; overflow: visible; display: block; }
+
+  /* el cuadrado se dibuja */
+  .sq-outline {
+    fill: none; stroke: #fff; stroke-width: 5; rx: 36;
+    stroke-dasharray: 560; stroke-dashoffset: 560;
+    animation: draw 0.7s 0.2s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  .sq-fill {
+    fill: #fff; opacity: 0;
+    animation: fillin 0.45s 0.8s ease-out forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fillin { to { opacity: 1; } }
+
+  /* el auto entra y se estaciona */
+  .car {
+    opacity: 0; transform: translateX(-150px);
+    animation: park 0.95s 1.05s cubic-bezier(.34,1.32,.5,1) forwards;
+  }
+  @keyframes park {
+    0%   { opacity: 0; transform: translateX(-150px); }
+    25%  { opacity: 1; }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  /* la línea del piso aparece al frenar */
+  .ground { opacity: 0; animation: fade 0.4s 1.75s ease-out forwards; }
+  @keyframes fade { to { opacity: 0.5; } }
+
+  /* wordmark */
+  .word {
+    opacity: 0; transform: translateY(12px);
+    animation: rise 0.55s 1.95s cubic-bezier(.2,.7,.3,1) forwards;
+    font-weight: 700; font-size: 40px; letter-spacing: -0.02em; color: #fff;
+  }
+  .tag {
+    opacity: 0; transform: translateY(10px);
+    animation: rise 0.55s 2.2s cubic-bezier(.2,.7,.3,1) forwards;
+    font-weight: 500; font-size: 14px; letter-spacing: .01em; color: #DBE9F8; margin-top: 10px;
+  }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .label { position: fixed; top: 22px; left: 50%; transform: translateX(-50%); color: #9ca3af; font-size: 13px; font-weight: 600; }
+  .replay { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); border: none; background: #fff; color: var(--blue); font: 600 15px 'DM Sans'; padding: 12px 22px; border-radius: 9999px; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sq-outline { animation: none; stroke-dashoffset: 0; }
+    .sq-fill, .car, .ground, .word, .tag { animation: none; opacity: 1; transform: none; }
+    .ground { opacity: .5; }
+  }
+</style>
+</head>
+<body>
+<span class="label">Cuadra · animación de apertura</span>
+<div class="phone">
+  <div class="splash" id="splash">
+    <div class="stage">
+      <svg class="sign" viewBox="0 0 168 168">
+        <!-- cuadrado: trazo que se dibuja, luego relleno blanco -->
+        <rect class="sq-outline" x="6" y="6" width="156" height="156" rx="36" pathLength="560"/>
+        <rect class="sq-fill" x="6" y="6" width="156" height="156" rx="36"/>
+        <!-- auto (azul sobre el cuadrado blanco) que se estaciona -->
+        <g class="car" fill="var(--blue)">
+          <path d="M40 100 v-9 a6.5 6.5 0 0 1 4.6 -6.2 l6 -1.6 l9.2 -12.4 a11 11 0 0 1 8.7 -4.3 h27.3 a11 11 0 0 1 8.2 3.7 l9.7 11 l8.2 2.4 a6.5 6.5 0 0 1 4.6 6.2 V100 a5.5 5.5 0 0 1 -5.5 5.5 H45.5 A5.5 5.5 0 0 1 40 100 Z"/>
+        </g>
+        <!-- ventanilla calada (blanco para que se vea el fondo del cartel) -->
+        <path class="car" d="M70 76 h23 a5 5 0 0 1 3.8 1.7 l6.4 7.3 h-40 l4 -7.3 a5 5 0 0 1 2.8 -1.7 Z" fill="#fff"/>
+        <!-- ruedas -->
+        <g class="car">
+          <circle cx="66" cy="104" r="9.5" fill="var(--blue)"/><circle cx="66" cy="104" r="4" fill="#fff"/>
+          <circle cx="108" cy="104" r="9.5" fill="var(--blue)"/><circle cx="108" cy="104" r="4" fill="#fff"/>
+        </g>
+        <!-- línea del lugar -->
+        <rect class="ground" x="50" y="118" width="68" height="7" rx="3.5" fill="var(--blue)"/>
+      </svg>
+    </div>
+    <div style="text-align:center">
+      <div class="word">Cuadra</div>
+      <div class="tag">El estacionamiento medido de Salta</div>
+    </div>
+  </div>
+</div>
+<button class="replay" onclick="(function(){var s=document.getElementById('splash');var c=s.cloneNode(true);s.parentNode.replaceChild(c,s);c.id='splash';})()">Volver a reproducir ▸</button>
+</body>
+</html>

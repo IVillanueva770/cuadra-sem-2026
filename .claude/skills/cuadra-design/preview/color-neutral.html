@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 20px; background: var(--gray-0); }
+  .row { display: flex; gap: 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-1); }
+  .sw { flex: 1; height: 84px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px 10px; }
+  .sw .hex { font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+  .sw .name { font-size: 11px; font-weight: 600; opacity: .9; }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 10px; }
+</style>
+</head>
+<body>
+  <p class="lbl">Neutros — gris carbón (texto, bordes, fondos)</p>
+  <div class="row">
+    <div class="sw" style="background:#FFFFFF;color:#1F2937;box-shadow:inset 0 0 0 1px #E5E7EB"><span class="name">0 · blanco</span><span class="hex">#FFFFFF</span></div>
+    <div class="sw" style="background:#FAFAF9;color:#1F2937"><span class="name">25 · off-white</span><span class="hex">#FAFAF9</span></div>
+    <div class="sw" style="background:#F3F4F6;color:#1F2937"><span class="name">50</span><span class="hex">#F3F4F6</span></div>
+    <div class="sw" style="background:#E5E7EB;color:#1F2937"><span class="name">100</span><span class="hex">#E5E7EB</span></div>
+    <div class="sw" style="background:#D1D5DB;color:#1F2937"><span class="name">200</span><span class="hex">#D1D5DB</span></div>
+    <div class="sw" style="background:#9CA3AF;color:#fff"><span class="name">300</span><span class="hex">#9CA3AF</span></div>
+    <div class="sw" style="background:#4B5563;color:#fff"><span class="name">500 · sec.</span><span class="hex">#4B5563</span></div>
+    <div class="sw" style="background:#1F2937;color:#fff"><span class="name">900 · texto</span><span class="hex">#1F2937</span></div>
+  </div>
+</body>
+</html>

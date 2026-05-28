@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 20px; background: var(--gray-0); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius-md); }
+  .dot { width: 28px; height: 28px; border-radius: 8px; flex: none; }
+  .t { font: 600 14px var(--font-sans); }
+  .h { font-family: var(--font-mono); font-size: 11px; opacity: .8; }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 12px; }
+</style>
+</head>
+<body>
+  <p class="lbl">Estados semánticos — color + fondo claro (siempre con ícono + texto)</p>
+  <div class="grid">
+    <div class="item" style="background:#ECFDF3"><span class="dot" style="background:#16A34A"></span><div><div class="t" style="color:#166534">Éxito</div><div class="h" style="color:#166534">#16A34A</div></div></div>
+    <div class="item" style="background:#FEF6E7"><span class="dot" style="background:#F59E0B"></span><div><div class="t" style="color:#92400E">Advertencia</div><div class="h" style="color:#92400E">#F59E0B</div></div></div>
+    <div class="item" style="background:#FEF2F2"><span class="dot" style="background:#DC2626"></span><div><div class="t" style="color:#991B1B">Error</div><div class="h" style="color:#991B1B">#DC2626</div></div></div>
+    <div class="item" style="background:#EFF8FE"><span class="dot" style="background:#0EA5E9"></span><div><div class="t" style="color:#075985">Info</div><div class="h" style="color:#075985">#0EA5E9</div></div></div>
+  </div>
+</body>
+</html>

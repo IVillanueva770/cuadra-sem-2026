@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--gray-0); }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 14px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .btn { min-height: 48px; padding: 0 20px; border-radius: var(--radius-md); font: 600 16px var(--font-sans); border: 1.5px solid transparent; cursor: pointer; display: inline-flex; align-items: center; }
+  .primary { background: var(--primary); color: #fff; }
+  .secondary { background: #fff; color: var(--primary); border-color: var(--primary); }
+  .ghost { background: transparent; color: var(--primary); }
+  .destructive { background: var(--error); color: #fff; }
+  .pill { border-radius: 9999px; }
+  .disabled { background: var(--gray-100); color: var(--gray-300); border-color: transparent; }
+  .note { font: 400 12px var(--font-sans); color: var(--fg3); margin: 12px 0 0; }
+</style>
+</head>
+<body>
+  <p class="lbl">Botones — jerarquía de acción (alto 48px)</p>
+  <div class="row">
+    <button class="btn primary">Pagar</button>
+    <button class="btn secondary">Volver</button>
+    <button class="btn ghost">Cancelar</button>
+    <button class="btn destructive">Liberé la cuadra</button>
+    <button class="btn primary pill">Confirmar</button>
+    <button class="btn disabled" disabled>Sin saldo</button>
+  </div>
+  <p class="note">Primario para la acción principal de la pantalla (uno por vista). Secundario outline para alternativas. Ghost para acciones de bajo peso. Destructivo solo para cancelar/liberar.</p>
+</body>
+</html>

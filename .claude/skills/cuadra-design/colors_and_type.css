@@ -1,0 +1,186 @@
+/* ============================================================
+   CUADRA — Design Tokens
+   Sistema de Estacionamiento Medido · Municipalidad de Salta
+   ------------------------------------------------------------
+   Color primario confirmado (logo Muni): #145FB0
+   Tipografía: DM Sans (Google Fonts)
+   Filosofía: institucional, cálido, accesible (WCAG AA mínimo)
+   ============================================================ */
+
+/* ---- Webfont (cargada vía Google Fonts en cada HTML) ----
+   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+*/
+
+:root {
+  /* ============ COLOR · ESCALA PRIMARIA (Azul Muni) ============ */
+  /* Derivada del color oficial del logo: #145FB0 */
+  --blue-50:  #EFF5FC;
+  --blue-100: #DBE9F8;
+  --blue-200: #BBD3F0;
+  --blue-300: #8EB6E5;
+  --blue-400: #3B7DCC;   /* light / decorativo */
+  --blue-500: #145FB0;   /* ★ PRIMARIO — color oficial Muni */
+  --blue-600: #0F4A8B;   /* hover / active */
+  --blue-700: #0C3C70;
+  --blue-800: #0A3158;
+  --blue-900: #082643;
+
+  /* ============ COLOR · NEUTROS (gris carbón) ============ */
+  --gray-0:   #FFFFFF;   /* blanco puro */
+  --gray-25:  #FAFAF9;   /* off-white — fondo de app */
+  --gray-50:  #F3F4F6;   /* cards alternados, secciones */
+  --gray-100: #E5E7EB;   /* bordes suaves */
+  --gray-200: #D1D5DB;   /* bordes */
+  --gray-300: #9CA3AF;   /* disabled, placeholder */
+  --gray-400: #6B7280;
+  --gray-500: #4B5563;   /* texto secundario */
+  --gray-700: #374151;
+  --gray-900: #1F2937;   /* texto principal */
+
+  /* ============ COLOR · ACENTO (dorado salteño) ============ */
+  /* Evoca montaña y tierra de Salta. Badges, destacados, CTA secundario cálido. */
+  --gold-50:  #FEF6EC;
+  --gold-100: #FCE9CE;
+  --gold-300: #F2B968;
+  --gold-500: #D97706;   /* ★ ACENTO */
+  --gold-600: #B45309;
+  --gold-700: #92400E;
+
+  /* ============ COLOR · ESTADOS SEMÁNTICOS ============ */
+  --success:      #16A34A;
+  --success-bg:   #ECFDF3;
+  --success-fg:   #166534;
+  --warning:      #F59E0B;
+  --warning-bg:   #FEF6E7;
+  --warning-fg:   #92400E;
+  --error:        #DC2626;
+  --error-bg:     #FEF2F2;
+  --error-fg:     #991B1B;
+  --info:         #0EA5E9;
+  --info-bg:      #EFF8FE;
+  --info-fg:      #075985;
+
+  /* ============ ROLES SEMÁNTICOS (referenciar SIEMPRE estos) ============ */
+  --primary:        var(--blue-500);
+  --primary-hover:  var(--blue-600);
+  --primary-active: var(--blue-700);
+  --primary-light:  var(--blue-400);
+  --on-primary:     #FFFFFF;
+
+  --accent:         var(--gold-500);
+  --accent-hover:   var(--gold-600);
+  --on-accent:      #FFFFFF;
+
+  --bg:             var(--gray-25);   /* fondo de página/app */
+  --bg-surface:     var(--gray-0);    /* cards, superficies elevadas */
+  --bg-subtle:      var(--gray-50);   /* secciones, filas alternas */
+
+  --fg1:            var(--gray-900);  /* texto principal */
+  --fg2:            var(--gray-500);  /* texto secundario */
+  --fg3:            var(--gray-400);  /* metadatos, captions */
+  --fg-disabled:    var(--gray-300);
+  --fg-on-primary:  #FFFFFF;
+  --link:           var(--blue-600);
+
+  --border:         var(--gray-100);  /* borde sutil por defecto */
+  --border-strong:  var(--gray-200);
+  --focus-ring:     var(--blue-500);  /* outline visible 2px */
+
+  /* ============ TIPOGRAFÍA · FAMILIAS ============ */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ============ TIPOGRAFÍA · ESCALA ============ */
+  /* Body intencionalmente grande (18px) por accesibilidad. */
+  --text-h-xl:  32px;  --weight-h-xl: 700;  --lh-h-xl: 1.2;
+  --text-h-l:   24px;  --weight-h-l:  700;  --lh-h-l:  1.25;
+  --text-h-m:   20px;  --weight-h-m:  600;  --lh-h-m:  1.3;
+  --text-h-s:   18px;  --weight-h-s:  600;  --lh-h-s:  1.35;
+  --text-body-l: 18px; --weight-body: 400;  --lh-body: 1.5;   /* ★ texto principal */
+  --text-body-m: 16px;
+  --text-body-s: 14px;
+  --text-caption: 13px;
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+  --weight-bold:    700;
+  --tracking-tight: -0.01em;
+  --tracking-wide:  0.04em;   /* etiquetas en mayúsculas (estilo "MUNICIPALIDAD") */
+
+  /* ============ ESPACIADO (múltiplos de 4) ============ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ============ BORDER RADIUS ============ */
+  --radius-sm:   6px;     /* badges, chips */
+  --radius-md:   10px;    /* inputs, botones */
+  --radius-lg:   16px;    /* cards, modales */
+  --radius-pill: 9999px;  /* botones redondeados, toggles */
+
+  /* ============ SOMBRAS (máx. 2 niveles — sutiles, no marketing) ============ */
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.06),
+              0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-2: 0 4px 8px rgba(16, 24, 40, 0.06),
+              0 8px 24px rgba(16, 24, 40, 0.08);
+  --shadow-focus: 0 0 0 4px rgba(20, 95, 176, 0.25);
+
+  /* ============ TAP TARGETS (accesibilidad) ============ */
+  --tap-min: 48px;   /* área mínima de toque (más generoso que 44) */
+
+  /* ============ MOTION (respeta prefers-reduced-motion) ============ */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+}
+
+/* ============================================================
+   CLASES SEMÁNTICAS DE TIPOGRAFÍA
+   ============================================================ */
+.h-xl { font: var(--weight-h-xl) var(--text-h-xl)/var(--lh-h-xl) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg1); }
+.h-l  { font: var(--weight-h-l)  var(--text-h-l)/var(--lh-h-l)   var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg1); }
+.h-m  { font: var(--weight-h-m)  var(--text-h-m)/var(--lh-h-m)   var(--font-sans); color: var(--fg1); }
+.h-s  { font: var(--weight-h-s)  var(--text-h-s)/var(--lh-h-s)   var(--font-sans); color: var(--fg1); }
+.body-l { font: var(--weight-body) var(--text-body-l)/var(--lh-body) var(--font-sans); color: var(--fg1); }
+.body-m { font: var(--weight-body) var(--text-body-m)/var(--lh-body) var(--font-sans); color: var(--fg1); }
+.body-s { font: var(--weight-body) var(--text-body-s)/var(--lh-body) var(--font-sans); color: var(--fg2); }
+.caption { font: var(--weight-medium) var(--text-caption)/1.4 var(--font-sans); color: var(--fg3); }
+.overline { font: var(--weight-semibold) var(--text-caption)/1.3 var(--font-sans); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--fg2); }
+.mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   BASE / RESET MÍNIMO
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-l);
+  line-height: var(--lh-body);
+  color: var(--fg1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Focus visible en TODO elemento interactivo (regla de accesibilidad) */
+:where(a, button, input, select, textarea, [tabindex], [role="button"]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

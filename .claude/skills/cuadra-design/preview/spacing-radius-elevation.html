@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--gray-0); display:flex; gap:24px; }
+  .block { flex:1; }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 14px; }
+  .radii { display:flex; gap:16px; align-items:flex-end; }
+  .r { text-align:center; }
+  .box { width:56px; height:56px; background: var(--blue-100); border:1.5px solid var(--blue-400); }
+  .t { font-family: var(--font-mono); font-size:11px; color: var(--fg2); margin-top:7px; }
+  .t b { display:block; color: var(--fg1); font-size:12px; }
+  .pill { width:80px; height:40px; border-radius:9999px; background: var(--blue-100); border:1.5px solid var(--blue-400); }
+  .elev { display:flex; gap:20px; }
+  .card { width:120px; height:64px; background:#fff; border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; font:600 12px var(--font-sans); color:var(--fg2); }
+  .e1 { box-shadow: var(--shadow-1); }
+  .e2 { box-shadow: var(--shadow-2); }
+</style>
+</head>
+<body>
+  <div class="block">
+    <p class="lbl">Border radius</p>
+    <div class="radii">
+      <div class="r"><div class="box" style="border-radius:6px"></div><div class="t"><b>sm</b>6 · chips</div></div>
+      <div class="r"><div class="box" style="border-radius:10px"></div><div class="t"><b>md</b>10 · botón</div></div>
+      <div class="r"><div class="box" style="border-radius:16px"></div><div class="t"><b>lg</b>16 · card</div></div>
+      <div class="r"><div class="pill"></div><div class="t"><b>pill</b>9999</div></div>
+    </div>
+  </div>
+  <div class="block">
+    <p class="lbl">Elevación — 2 niveles</p>
+    <div class="elev">
+      <div class="card e1">shadow-1<br>reposo</div>
+      <div class="card e2">shadow-2<br>modal · menú</div>
+    </div>
+  </div>
+</body>
+</html>

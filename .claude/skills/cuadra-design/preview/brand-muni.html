@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--gray-0); }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 4px; }
+  .sub { font: 400 12px var(--font-sans); color: var(--fg3); margin: 0 0 16px; }
+  .row { display:flex; gap:16px; align-items:stretch; }
+  .pane { flex:1; display:flex; align-items:center; justify-content:center; padding:22px; border-radius: var(--radius-md); border:1px solid var(--border); }
+  .neg { border:none; background: var(--blue-500); }
+  .pane img { height: 56px; width:auto; }
+</style>
+</head>
+<body>
+  <p class="lbl">Logo oficial — Municipalidad de la Ciudad de Salta</p>
+  <p class="sub">"Una iniciativa de la Municipalidad de la Ciudad de Salta." Endorsement institucional: acompaña, no domina. En top bars se usa solo el corazón.</p>
+  <div class="row">
+    <div class="pane"><img src="../assets/muni-salta-principal.png" alt="Muni Salta principal (azul)"></div>
+    <div class="pane neg"><img src="../assets/muni-salta-blanco.png" alt="Muni Salta secundario (blanco)"></div>
+  </div>
+</body>
+</html>

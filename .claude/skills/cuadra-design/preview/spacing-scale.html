@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--gray-0); }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 14px; }
+  .row { display: flex; align-items: flex-end; gap: 14px; }
+  .col { text-align: center; }
+  .bar { background: var(--blue-400); border-radius: 4px; width: 100%; }
+  .t { font-family: var(--font-mono); font-size: 11px; color: var(--fg2); margin-top: 6px; }
+  .t b { color: var(--fg1); display: block; font-size: 12px; }
+</style>
+</head>
+<body>
+  <p class="lbl">Espaciado — escala de 4px</p>
+  <div class="row">
+    <div class="col" style="width:24px"><div class="bar" style="height:4px"></div><div class="t"><b>1</b>4</div></div>
+    <div class="col" style="width:30px"><div class="bar" style="height:8px"></div><div class="t"><b>2</b>8</div></div>
+    <div class="col" style="width:36px"><div class="bar" style="height:12px"></div><div class="t"><b>3</b>12</div></div>
+    <div class="col" style="width:42px"><div class="bar" style="height:16px"></div><div class="t"><b>4</b>16</div></div>
+    <div class="col" style="width:52px"><div class="bar" style="height:24px"></div><div class="t"><b>6</b>24</div></div>
+    <div class="col" style="width:60px"><div class="bar" style="height:32px"></div><div class="t"><b>8</b>32</div></div>
+    <div class="col" style="width:74px"><div class="bar" style="height:48px"></div><div class="t"><b>12</b>48</div></div>
+    <div class="col" style="width:90px"><div class="bar" style="height:64px"></div><div class="t"><b>16</b>64</div></div>
+  </div>
+</body>
+</html>

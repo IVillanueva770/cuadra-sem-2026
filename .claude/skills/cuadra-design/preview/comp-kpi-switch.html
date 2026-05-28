@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--gray-50); display:flex; gap:18px; align-items:stretch; }
+  .kpi { flex:1; background:#fff; border:1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding: 16px 18px; }
+  .kpi .k { font:600 13px var(--font-sans); color: var(--fg2); }
+  .kpi .v { font-family: var(--font-mono); font-weight:500; font-size:34px; color: var(--fg1); margin:6px 0 4px; }
+  .delta { display:inline-flex; align-items:center; gap:5px; font:600 13px var(--font-sans); }
+  .up { color: var(--success-fg); }
+  .ico { width:14px;height:14px; }
+  .side { width: 220px; background:#fff; border:1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding:16px 18px; }
+  .side .k { font:600 14px var(--font-sans); color:var(--fg1); }
+  .switchrow { display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+  .switchrow span { font:500 14px var(--font-sans); color: var(--fg2); }
+  .sw { width:46px; height:28px; border-radius:9999px; background: var(--blue-500); position:relative; flex:none; }
+  .sw::after { content:""; position:absolute; top:3px; left:21px; width:22px;height:22px;border-radius:50%;background:#fff; box-shadow:var(--shadow-1); }
+  .sw.off { background: var(--gray-200); }
+  .sw.off::after { left:3px; }
+</style>
+</head>
+<body>
+  <div class="kpi">
+    <div class="k">Recaudación de hoy</div>
+    <div class="v">$ 184.500</div>
+    <span class="delta up"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>+12% vs. ayer</span>
+  </div>
+  <div class="kpi">
+    <div class="k">Sesiones activas</div>
+    <div class="v">237</div>
+    <span class="delta up"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>+8 ahora</span>
+  </div>
+  <div class="side">
+    <div class="k">Configuración</div>
+    <div class="switchrow"><span>Saldo a favor</span><div class="sw"></div></div>
+    <div class="switchrow"><span>Cobro nocturno</span><div class="sw off"></div></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuadra · Exploración de logo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style> html, body { margin: 0; height: 100%; } </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="logo.jsx"></script>
+<script type="text/babel">
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="logos" title="Cuadra · Logo" subtitle="5 direcciones — azul oficial Muni. Decime qué rescatás de cada una.">
+        <DCArtboard id="A" label="A · Lugar" width={400} height={350}>
+          <ConceptCard concept="A" nombre="A · Lugar" idea="Pin de ubicación con una P calada. Literal y reconocible: «estacioná acá»." />
+        </DCArtboard>
+        <DCArtboard id="B" label="B · Abrazo" width={400} height={350}>
+          <ConceptCard concept="B" nombre="B · Abrazo" idea="Corazón de un solo trazo. Diálogo directo con la Muni, cálido y propio." />
+        </DCArtboard>
+        <DCArtboard id="C" label="C · Espacio" width={400} height={350}>
+          <ConceptCard concept="C" nombre="C · Espacio" idea="Corchetes que delimitan un lugar marcado en la calle, con el auto en el medio." />
+        </DCArtboard>
+        <DCArtboard id="D" label="D · Wordmark" width={400} height={350}>
+          <ConceptCard concept="D" nombre="D · Wordmark" idea="Casi pura tipografía. El subrayado partido insinúa el cordón / la línea de la cuadra." />
+        </DCArtboard>
+        <DCArtboard id="E" label="E · La C" width={400} height={350}>
+          <ConceptCard concept="E" nombre="E · La C" idea="Una C abierta que abraza un punto: inicial + abrazo + el auto en su lugar." />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="producto" title="Ronda 2 · Del producto" subtitle="Más cerca de lo concreto: el ticket, el auto, la cuadra, el tiempo medido.">
+        <DCArtboard id="T" label="T · Ticket" width={400} height={350}>
+          <ConceptCard concept="ticket" nombre="T · Ticket" idea="La forma del comprobante, con muescas de ticket y un check de «pago hecho». El objeto del producto." />
+        </DCArtboard>
+        <DCArtboard id="M" label="M · Parquímetro" width={400} height={350}>
+          <ConceptCard concept="meter" nombre="M · Parquímetro" idea="El medidor de toda la vida. «Estacionamiento medido», literal y reconocible." />
+        </DCArtboard>
+        <DCArtboard id="V" label="V · Auto" width={400} height={350}>
+          <ConceptCard concept="auto" nombre="V · Auto en lugar" idea="Un auto sobre la línea de su lugar. Directo y simpático." />
+        </DCArtboard>
+        <DCArtboard id="X" label="X · La cuadra" width={400} height={350}>
+          <ConceptCard concept="esquina" nombre="X · La cuadra" idea="El cordón con autos estacionados y un lugar libre. La cuadra, literal." />
+        </DCArtboard>
+        <DCArtboard id="R" label="R · Tiempo" width={400} height={350}>
+          <ConceptCard concept="tiempo" nombre="R · Tiempo medido" idea="Un reloj con la P adentro: estacionamiento pago por tiempo." />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="recibos" title="Ronda 3a · Recibo / factura" subtitle="Menos ticket de cine, más recibo: troquelado puntiagudo abajo, renglones de factura.">
+        <DCArtboard id="rec1" label="Recibo · renglones" width={400} height={350}>
+          <ConceptCard concept="recibo1" nombre="Recibo · renglones" idea="Recibo angosto con renglones de factura y troquel en zig-zag abajo." />
+        </DCArtboard>
+        <DCArtboard id="rec2" label="Recibo · check" width={400} height={350}>
+          <ConceptCard concept="recibo2" nombre="Recibo · check (outline)" idea="Contorno de recibo con troquel y un check de «pagado». Liviano." />
+        </DCArtboard>
+        <DCArtboard id="rec3" label="Recibo · $" width={400} height={350}>
+          <ConceptCard concept="recibo3" nombre="Recibo · signo $" idea="Recibo macizo, troquelado arriba y abajo, con el signo de pago." />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="carteles" title="Ronda 3b · Señalización" subtitle="Cuadrado azul tipo cartel de estacionamiento, con un auto minimalista «estacionado».">
+        <DCArtboard id="car1" label="Cartel · auto" width={400} height={350}>
+          <ConceptCard concept="cartel1" nombre="Cartel · auto lateral" idea="Cuadrado azul + auto de perfil sobre su línea. Estilo señalización urbana." sign />
+        </DCArtboard>
+        <DCArtboard id="car2" label="Cartel · P + auto" width={400} height={350}>
+          <ConceptCard concept="cartel2" nombre="Cartel · P + auto" idea="La P de estacionamiento bien grande con el auto debajo. Súper legible de lejos." sign />
+        </DCArtboard>
+        <DCArtboard id="car3" label="Cartel · frente" width={400} height={350}>
+          <ConceptCard concept="cartel3" nombre="Cartel · auto de frente" idea="Auto visto de frente, simpático y reconocible dentro del cartel." sign />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

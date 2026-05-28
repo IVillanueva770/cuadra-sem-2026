@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--gray-0); }
+  .lbl { font: 600 13px var(--font-sans); color: var(--fg2); margin: 0 0 4px; }
+  .sub { font: 400 12px var(--font-sans); color: var(--fg3); margin: 0 0 16px; }
+  .grid { display: flex; gap: 14px; }
+  .chip { flex: 1; background: var(--gray-50); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+  .chip .k { font: 500 11px var(--font-sans); color: var(--fg3); letter-spacing: .04em; text-transform: uppercase; }
+  .chip .v { font-family: var(--font-mono); font-weight: 500; color: var(--fg1); margin-top: 4px; }
+  .big { font-size: 26px; }
+  .mid { font-size: 22px; }
+</style>
+</head>
+<body>
+  <p class="lbl">DM Mono — datos: patentes, montos, comprobantes</p>
+  <p class="sub">Monoespaciada para alineación de cifras y legibilidad de identificadores.</p>
+  <div class="grid">
+    <div class="chip"><div class="k">Patente</div><div class="v mid">AB 123 CD</div></div>
+    <div class="chip"><div class="k">Monto</div><div class="v big">$ 1.250</div></div>
+    <div class="chip"><div class="k">Comprobante</div><div class="v mid">N° 004821</div></div>
+    <div class="chip"><div class="k">Hora</div><div class="v big">14:30</div></div>
+  </div>
+</body>
+</html>

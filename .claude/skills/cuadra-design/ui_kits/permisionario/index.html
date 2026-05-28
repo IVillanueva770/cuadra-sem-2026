@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuadra · PWA Permisionario</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { margin: 0; min-height: 100vh; background: var(--gray-100); display: grid; place-items: center; padding: 28px 0; }
+  .phone { width: 390px; height: 800px; background: #fff; border-radius: 38px; box-shadow: 0 30px 70px rgba(16,24,40,.28), 0 0 0 11px #111827; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .statusbar { height: 38px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font: 600 13px var(--font-sans); color: var(--fg1); flex: none; }
+  .body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .scroll { flex: 1; overflow-y: auto; background: var(--bg); }
+  .label { position: fixed; top: 18px; left: 22px; font: 600 13px var(--font-sans); color: var(--fg2); max-width: 220px; }
+</style>
+</head>
+<body>
+<span class="label">Cuadra · PWA Permisionario — prototipo (accesibilidad alta)</span>
+<div class="phone" data-screen-label="Permisionario">
+  <div class="statusbar"><span>9:41</span><span>Cuadra</span><span>100%</span></div>
+  <div class="body" id="app"></div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="primitives.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+const SESIONES = [
+  { patente: 'AB 123 CD', estado: 'activa', hasta: '14:30' },
+  { patente: 'AD 456 FG', estado: 'pendiente', hasta: '13:00', deuda: '100' },
+  { patente: 'GHI 789', estado: 'expirada', hasta: '12:15' },
+];
+const NAV = [
+  { id: 'cuadra', icon: 'grid', label: 'Mi cuadra' },
+  { id: 'cobrar', icon: 'cash', label: 'Cobrar' },
+  { id: 'credencial', icon: 'qr', label: 'Mi QR' },
+];
+function App() {
+  const [tab, setTab] = useState('cuadra');
+  const [okData, setOk] = useState(null);
+  const [saldo, setSaldo] = useState(18250);
+  const title = { cuadra: null, cobrar: 'Cobrar en efectivo', credencial: 'Mi credencial' }[tab];
+  return (
+    <>
+      <TopBar title={tab === 'cuadra' ? null : title} onBack={tab !== 'cuadra' && !okData ? () => setTab('cuadra') : undefined} />
+      <div className="scroll">
+        {okData && <CobroOK data={okData} onBack={() => { setOk(null); setTab('cuadra'); }} />}
+        {!okData && tab === 'cuadra' && <MiCuadra sesiones={SESIONES} saldo={saldo} onCobrar={() => setTab('cobrar')} onExtender={() => setTab('cobrar')} />}
+        {!okData && tab === 'cobrar' && <Cobrar onDone={d => { setOk(d); setSaldo(s => s + d.monto); }} />}
+        {!okData && tab === 'credencial' && <Credencial />}
+      </div>
+      {!okData && <BottomNav active={tab} onNav={setTab} items={NAV} />}
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+</body>
+</html>
