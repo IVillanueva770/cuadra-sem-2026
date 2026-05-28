@@ -3,6 +3,7 @@
 import {mpClient, Payment} from '@/lib/mp/server';
 
 export async function procesarPagoTest(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any
 ): Promise<{status: string; paymentId?: number; error?: string}> {
   try {

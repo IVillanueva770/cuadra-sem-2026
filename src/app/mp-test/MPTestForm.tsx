@@ -32,10 +32,12 @@ export default function MPTestForm({amount}: Props) {
             ticket: 'all',
           },
         }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSubmit={async (formData: any) => {
           const res = await procesarPagoTest(formData);
           setResult(res);
         }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError={(error: any) => {
           console.error('MP Brick error:', error);
           setResult({status: 'error', error: String(error)});

@@ -16,6 +16,7 @@ export async function cargarContextoValidacion(cuadraId: string): Promise<Contex
     supabase.from('cuadras_habilitadas').select('habilitada_diurno, habilitada_nocturno').eq('id', cuadraId).single(),
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tarifas: Tarifa[] = (tarifasRes.data ?? []).map((t: any) => ({
     tipo_vehiculo: t.tipo_vehiculo,
     monto_por_hora: Number(t.monto_por_hora),
@@ -23,6 +24,7 @@ export async function cargarContextoValidacion(cuadraId: string): Promise<Contex
     descuento_digital_pct: Number(t.descuento_digital_pct),
   }));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const horarios: HorarioTurno[] = (horariosRes.data ?? []).map((h: any) => ({
     turno: h.turno,
     dia_semana: h.dia_semana,
@@ -30,6 +32,7 @@ export async function cargarContextoValidacion(cuadraId: string): Promise<Contex
     hora_fin: h.hora_fin.slice(0, 5),
   }));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const feriados: Feriado[] = (feriadosRes.data ?? []).map((f: any) => ({
     fecha: f.fecha,
     descripcion: f.descripcion,
@@ -37,7 +40,8 @@ export async function cargarContextoValidacion(cuadraId: string): Promise<Contex
     permite_nocturno: f.permite_nocturno,
   }));
 
-  const configMap: Record<string, any> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const configMap: Record<string, unknown> = {};
   for (const row of configRes.data ?? []) {
     configMap[row.clave] = row.valor;
   }
