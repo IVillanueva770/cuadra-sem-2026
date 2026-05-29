@@ -1,7 +1,7 @@
 'use client';
 
 import {useState, useMemo, useEffect} from 'react';
-import {motion, AnimatePresence} from 'motion/react';
+import {motion} from 'motion/react';
 import {Badge} from '@/components/ui/badge';
 import Paginador from '@/components/cuadra/Paginador';
 
@@ -227,8 +227,7 @@ export default function AuditoriaClient({eventos}: Props) {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              <AnimatePresence initial={false}>
+            <motion.tbody key={pagina} initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.18}}>
                 {filtrados.length === 0 ? (
                   <tr>
                     <td
@@ -257,12 +256,8 @@ export default function AuditoriaClient({eventos}: Props) {
                     const estado = getEstado(e);
 
                     return (
-                      <motion.tr
+                      <tr
                         key={e.id}
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        exit={{opacity: 0}}
-                        transition={{duration: 0.15}}
                         style={{borderBottom: '1px solid var(--border)'}}
                         className="hover:bg-blue-50 transition-colors"
                       >
@@ -320,12 +315,11 @@ export default function AuditoriaClient({eventos}: Props) {
                         >
                           {e.error_message ?? '—'}
                         </td>
-                      </motion.tr>
+                      </tr>
                     );
                   })
                 )}
-              </AnimatePresence>
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       </div>

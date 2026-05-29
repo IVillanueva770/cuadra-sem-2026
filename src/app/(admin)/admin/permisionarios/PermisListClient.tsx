@@ -2,7 +2,7 @@
 
 import {useState, useMemo, useEffect} from 'react';
 import Link from 'next/link';
-import {motion, AnimatePresence} from 'motion/react';
+import {motion} from 'motion/react';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Edit, Search} from 'lucide-react';
@@ -144,7 +144,7 @@ export default function PermisListClient({datos}: Props) {
           boxShadow: 'var(--shadow-1)',
         }}
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" style={totalPaginas > 1 ? {minHeight: POR_PAGINA * 58 + 44} : undefined}>
           <table className="w-full text-sm">
             <thead>
               <tr
@@ -197,16 +197,11 @@ export default function PermisListClient({datos}: Props) {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              <AnimatePresence initial={false}>
-                {filtrados.length > 0 ? (
+            <motion.tbody key={pagina} initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.18}}>
+              {filtrados.length > 0 ? (
                   visibles.map((p) => (
-                    <motion.tr
+                    <tr
                       key={p.id}
-                      initial={{opacity: 0}}
-                      animate={{opacity: 1}}
-                      exit={{opacity: 0}}
-                      transition={{duration: 0.15}}
                       style={{borderBottom: '1px solid var(--border)'}}
                       className="hover:bg-blue-50 transition-colors"
                     >
@@ -271,7 +266,7 @@ export default function PermisListClient({datos}: Props) {
                           </Button>
                         </Link>
                       </td>
-                    </motion.tr>
+                    </tr>
                   ))
                 ) : (
                   <tr>
@@ -284,8 +279,7 @@ export default function PermisListClient({datos}: Props) {
                     </td>
                   </tr>
                 )}
-              </AnimatePresence>
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       </div>

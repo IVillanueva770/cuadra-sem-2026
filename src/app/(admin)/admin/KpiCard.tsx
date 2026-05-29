@@ -33,47 +33,49 @@ export default function KpiCard({
   const deltaColor = isGood === null ? 'var(--fg3)' : isGood ? 'var(--success)' : 'var(--destructive, #dc2626)';
 
   return (
-    <Card className="relative overflow-hidden">
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <p
-              className="text-xs font-semibold uppercase tracking-wider mb-1"
-              style={{color: 'var(--fg3)', letterSpacing: '0.04em'}}
-            >
-              {titulo}
-            </p>
-            <p
-              className="text-3xl font-bold leading-tight truncate"
-              style={{color: 'var(--fg1)'}}
-            >
-              {valor}
-            </p>
-            {subtitulo && (
-              <p className="text-sm mt-1" style={{color: 'var(--fg2)'}}>
-                {subtitulo}
-              </p>
-            )}
-            {delta && DeltaIcon && (
-              <div className="flex items-center gap-1 mt-1.5">
-                <DeltaIcon size={13} style={{color: deltaColor}} />
-                <span className="text-xs font-medium" style={{color: deltaColor}}>
-                  {delta.pct > 0 ? '+' : ''}{delta.pct}%
-                </span>
-                <span className="text-xs" style={{color: 'var(--fg3)'}}>
-                  {delta.label}
-                </span>
-              </div>
-            )}
-          </div>
-          <div
-            className="flex items-center justify-center w-11 h-11 rounded-xl shrink-0"
-            style={{backgroundColor: `${accentColor}18`}}
-            aria-hidden="true"
-          >
-            <Icon size={20} style={{color: accentColor}} />
-          </div>
+    <Card className="relative h-full overflow-hidden">
+      <div className="p-5 pr-16 h-full flex flex-col">
+        {/* Ícono: fijo arriba a la derecha, misma posición en todas las cards */}
+        <div
+          className="absolute top-5 right-5 flex items-center justify-center w-10 h-10 rounded-xl"
+          style={{backgroundColor: `${accentColor}18`}}
+          aria-hidden="true"
+        >
+          <Icon size={19} style={{color: accentColor}} />
         </div>
+
+        {/* Título: alto fijo de 2 líneas → el número arranca a la misma altura en todas */}
+        <p
+          className="text-xs font-semibold uppercase mb-1.5 flex items-start"
+          style={{color: 'var(--fg3)', letterSpacing: '0.04em', minHeight: '2.4em', lineHeight: '1.2'}}
+        >
+          {titulo}
+        </p>
+
+        <p
+          className="text-3xl font-bold leading-none whitespace-nowrap tabular-nums"
+          style={{color: 'var(--fg1)'}}
+        >
+          {valor}
+        </p>
+
+        {subtitulo && (
+          <p className="text-sm mt-2 leading-snug" style={{color: 'var(--fg2)'}}>
+            {subtitulo}
+          </p>
+        )}
+
+        {delta && DeltaIcon && (
+          <div className="flex items-center gap-1 mt-auto pt-2.5">
+            <DeltaIcon size={13} style={{color: deltaColor}} />
+            <span className="text-xs font-medium tabular-nums" style={{color: deltaColor}}>
+              {delta.pct > 0 ? '+' : ''}{delta.pct}%
+            </span>
+            <span className="text-xs" style={{color: 'var(--fg3)'}}>
+              {delta.label}
+            </span>
+          </div>
+        )}
       </div>
     </Card>
   );

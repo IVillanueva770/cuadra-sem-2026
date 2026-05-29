@@ -112,25 +112,31 @@ export default async function AdminDashboardPage({
 
   const supabase = createServiceClient();
 
-  // ── Sesiones del rango actual ──
-  const {data: sesionesRaw} = await supabase
-    .from('parking_sessions')
-    .select('id, monto, medio_pago, permisionario_id, cuadra_id')
-    .gte('iniciada_a', `${desde}T00:00:00`)
-    .lte('iniciada_a', `${hasta}T23:59:59`)
-    .in('status', ['active', 'expired', 'left_early']);
+  // Trae TODAS las sesiones del rango paginando de a 1000 (Supabase capea cada
+  // query a 1000 filas; sin esto, 7d y 30d quedaban clavados en 1000 → incoherente).
+  async function traerSesiones(d: string, h: string): Promise<SesionRow[]> {
+    const PAGE = 1000;
+    const todas: SesionRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const {data} = await supabase
+        .from('parking_sessions')
+        .select('id, monto, medio_pago, permisionario_id, cuadra_id')
+        .gte('iniciada_a', `${d}T00:00:00`)
+        .lte('iniciada_a', `${h}T23:59:59`)
+        .in('status', ['active', 'expired', 'left_early'])
+        .order('id')
+        .range(from, from + PAGE - 1);
+      const chunk = (data ?? []) as SesionRow[];
+      todas.push(...chunk);
+      if (chunk.length < PAGE) break;
+    }
+    return todas;
+  }
 
-  const sesiones: SesionRow[] = (sesionesRaw ?? []) as SesionRow[];
-
-  // ── Sesiones del período anterior (para comparativas) ──
-  const {data: sesionesPrevRaw} = await supabase
-    .from('parking_sessions')
-    .select('id, monto, medio_pago, permisionario_id')
-    .gte('iniciada_a', `${desdePrev}T00:00:00`)
-    .lte('iniciada_a', `${hastaPrev}T23:59:59`)
-    .in('status', ['active', 'expired', 'left_early']);
-
-  const sesionesPrev: SesionRow[] = (sesionesPrevRaw ?? []) as SesionRow[];
+  const [sesiones, sesionesPrev] = await Promise.all([
+    traerSesiones(desde, hasta),
+    traerSesiones(desdePrev, hastaPrev),
+  ]);
 
   // ── KPIs actuales ──
   const totalSesiones = sesiones.length;

@@ -4,6 +4,7 @@ import {Plus} from 'lucide-react';
 import {createClient} from '@/lib/supabase/server';
 import {formatARS, formatFecha} from '@/lib/utils';
 import SesionItem from './SesionItem';
+import AnterioresList from './AnterioresList';
 import RealtimeUpdater from './RealtimeUpdater';
 import AnimatedPermiDashboard, {AnimatedPermiItem, FadeUpItem} from './AnimatedPermiDashboard';
 
@@ -214,11 +215,7 @@ export default async function DashboardPage() {
           >
             Anteriores hoy ({anteriores.length})
           </h2>
-          <div className="space-y-3">
-            {anteriores.map((s) => (
-              <SesionItem key={s.id} sesion={s} />
-            ))}
-          </div>
+          <AnterioresList sesiones={anteriores} />
         </section>
       )}
 

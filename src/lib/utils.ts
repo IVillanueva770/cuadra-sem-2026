@@ -6,11 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatARS(amount: number): string {
+  // es-AR mete un espacio (NBSP) entre el símbolo y el número; lo quitamos → "$715.230"
   return new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: 'ARS',
     maximumFractionDigits: 0,
-  }).format(amount);
+  })
+    .format(amount)
+    .replace(/ /g, '');
 }
 
 export function formatHora(date: Date | string): string {
