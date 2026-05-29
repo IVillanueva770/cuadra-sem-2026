@@ -188,16 +188,7 @@ export default function DemoNav() {
                   style={{color: 'var(--fg3)'}}
                 >
                   <Code2 className="h-4 w-4" aria-hidden="true" />
-                  Arquitectura — blueprint
-                </a>
-                <a
-                  href="/arquitectura-hibrida.html"
-                  onClick={() => setOpen(false)}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
-                  style={{color: 'var(--fg3)'}}
-                >
-                  <Code2 className="h-4 w-4" aria-hidden="true" />
-                  Arquitectura — híbrida
+                  Arquitectura técnica (jurado)
                 </a>
               </div>
             </div>
