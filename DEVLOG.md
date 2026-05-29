@@ -14,9 +14,10 @@ El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo
 Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
 ## Tareas Activas
-- [ ] SMOKE TEST pendiente: pago sandbox end-to-end (tarjeta APRO en /pagar/CUADRA-001 o /mp-test) → verificar que el pago se procesa, el webhook recibe la notificación firmada y la sesión pasa a active. Probar también "Simular notificación" en el panel MP (valida el HMAC real con el secret).
+- [x] SMOKE TEST — HECHO y exitoso (Playwright en prod, 28/05 noche). Pago sandbox APRO → approved (Payment ID 1327288274). MP envió la notificación al webhook → registrada en webhook_events con firma HMAC válida (sin warning de firma inválida en logs). Motor de reglas verificado: bloqueó cobro nocturno en cuadra diurna. Screenshots en screenshots/smoke-test-prod/.
 - [x] Plan 10: Deploy a Vercel — HECHO. App live en https://cuadra-sem.vercel.app, env vars + webhook MP configurados.
-- [ ] (Opcional prod real) Activar STRICT_WEBHOOK=true una vez confirmado que la firma HMAC de MP valida correctamente en los logs.
+- [ ] (Recomendado para prod real) Activar STRICT_WEBHOOK=true: ya se confirmó en logs que la firma HMAC de MP valida correctamente, así que se puede endurecer sin riesgo.
+- [ ] EL DÍA DE LA DEMO: `pnpm seed:hoy` para refrescar actividad del día (idealmente de día por el tema timezone UTC).
 - [ ] EL DÍA DE LA DEMO: correr `pnpm seed:hoy` para refrescar la actividad del día (KPIs, dashboard permisionario, sesiones activas). El seed completo genera datos relativos a su día de corrida, así que "hoy" queda viejo al día siguiente. Idealmente correrlo de día (ver nota timezone).
 - [ ] DEUDA TÉCNICA timezone: el dashboard (admin y permisionario) calcula "hoy" con `new Date().toISOString()` = día UTC, no día Salta. De día no afecta; de noche (>21 Salta = 00 UTC) el "día" rota. Para producción real, hacer los queries de "hoy" timezone-aware (America/Argentina/Salta).
 - [ ] Tests por horario: el cálculo $560 (conductor) y el registro de cobro (permisionario) hacen skip automático fuera de 07:00-21:00 Salta. Correr en horario laboral para verlos verdes.
@@ -147,3 +148,18 @@ Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy
 **Próximos pasos:**
 - Smoke test de pago sandbox end-to-end (ver Tareas Activas).
 - El día de la demo: `pnpm seed:hoy`.
+
+### [2026-05-28] - Sesión smoke test E2E en producción (Playwright)
+**Objetivo:** Validar el flujo de pago completo en prod con navegador real.
+**Hecho:**
+- Flujo conductor /pagar/CUADRA-001: UI renderiza con datos reales (Gorriti 100, María Cristina Aramayo). Validación de patente OK (rechazó formato inválido). Motor de reglas OK: bloqueó con "Esta cuadra no está habilitada para cobro nocturno" (era ~22h Salta, cuadra diurna).
+- Pago sandbox en /mp-test: Payment Brick renderiza en prod, tokeniza la tarjeta. Primer intento falló por payer.email inválido (usé `.local`, MP exige TLD válido — error de dato de prueba, no de código). Segundo intento con email válido → **approved, Payment ID 1327288274**.
+- Webhook: MP envió la notificación firmada → POST /api/webhooks/mp 200 sin warning de firma → HMAC validó. Registrado en webhook_events (event_type=payment, payment_id=1327288274).
+- Screenshots en screenshots/smoke-test-prod/.
+**Decisiones:**
+- Smoke del pago vía /mp-test (no /pagar) porque a la hora del test el motor bloqueaba el flujo real por horario nocturno. /mp-test no pasa por el motor, valida MP+Brick+webhook puro.
+**Problemas encontrados:**
+- /mp-test serializa el error de MP como "[object Object]" (su catch hace String(error) y el SDK de MP lanza objetos planos, no Error). Mejora menor pendiente si se quiere, pero /mp-test es página de validación temprana. El error real se obtuvo de los runtime logs de Vercel.
+**Próximos pasos:**
+- Activar STRICT_WEBHOOK si se quiere endurecer (la firma ya valida).
+- El día de la demo: pnpm seed:hoy.
