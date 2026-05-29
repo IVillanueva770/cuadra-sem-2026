@@ -15,7 +15,9 @@
     --line:#CDD7E5; --line-2:#AEBCD0;
     --grid:rgba(20,95,176,.06);
     --ok:#0F8A4C;
-    --lb-bg:#0F1726;
+    /* Paleta oscura de los diagramas — ajustable en vivo con el deslizador (DEV) */
+    --diag-bg:#0F1726; --diag-bar:#0B1220; --diag-fill:#1A2C49; --diag-surface:#172339;
+    --lb-bg:var(--diag-bg);
     --mono:'DM Mono',ui-monospace,'SF Mono',monospace;
     --sans:'DM Sans',system-ui,sans-serif;
     /* tokens de diagrama (los SVG los heredan) */
@@ -107,23 +109,23 @@
 
   /* ── Bloque de diagrama (TEMA OSCURO sobre documento claro) ── */
   figure.diagram{
-    margin:22px 0 8px;border:1px solid #1E2A40;border-radius:14px;overflow:hidden;background:#0F1726;
+    margin:22px 0 8px;border:1px solid #1E2A40;border-radius:14px;overflow:hidden;background:var(--diag-bg);
     box-shadow:0 1px 2px rgba(16,24,40,.06),0 8px 28px rgba(15,23,38,.16);
-    --d-canvas:#0F1726; --d-bg:transparent; --d-surface:#172339; --d-stroke:#4C86C9; --d-stroke-2:#3A4A66;
+    --d-canvas:var(--diag-bg); --d-bg:transparent; --d-surface:var(--diag-surface); --d-stroke:#4C86C9; --d-stroke-2:#3A4A66;
     --d-text:#E7EEF8; --d-text-2:#93A3BC; --d-accent:#22D3EE; --d-on-accent:#04222A;
-    --d-fill:#1A2C49; --d-fill-2:#0D3A45; --d-ok:#34D399;
+    --d-fill:var(--diag-fill); --d-fill-2:#0D3A45; --d-ok:#34D399;
   }
-  figure.diagram .bar{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid #1E2A40;font-family:var(--mono);font-size:12px;color:#93A3BC;background:#0B1220}
+  figure.diagram .bar{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid #1E2A40;font-family:var(--mono);font-size:12px;color:#93A3BC;background:var(--diag-bar)}
   figure.diagram .bar .dot{position:relative;width:9px;height:9px;border-radius:50%;background:#22C55E;flex:none}
   figure.diagram .bar .dot::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 0 rgba(34,197,94,.55);animation:onair 1.8s cubic-bezier(.2,.7,.2,1) infinite}
   @keyframes onair{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
   figure.diagram .bar .name{font-weight:500;color:#E7EEF8}
   figure.diagram .bar .fx{margin-left:auto;color:#22D3EE}
   figure.diagram .bar .zoom{display:inline-flex;align-items:center;gap:4px;color:#93A3BC;font-size:11px}
-  figure.diagram .canvas{padding:22px 16px;overflow-x:auto;background:#0F1726;cursor:zoom-in;
+  figure.diagram .canvas{padding:22px 16px;overflow-x:auto;background:var(--diag-bg);cursor:zoom-in;
     background-image:linear-gradient(rgba(76,134,201,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(76,134,201,.08) 1px,transparent 1px);background-size:26px 26px;}
   figure.diagram svg{display:block;margin:0 auto;width:100%;min-width:560px;max-width:880px;height:auto}
-  figure.diagram figcaption{padding:11px 15px;border-top:1px solid #1E2A40;font-size:12.5px;color:#93A3BC;background:#0B1220;line-height:1.55}
+  figure.diagram figcaption{padding:11px 15px;border-top:1px solid #1E2A40;font-size:12.5px;color:#93A3BC;background:var(--diag-bar);line-height:1.55}
   figure.diagram figcaption b{color:#CBD8EA;font-weight:600}
   figure.diagram figcaption code{background:#0D3A45;border-color:#155e6b;color:#7DE9F9}
 
@@ -730,6 +732,46 @@
   function init(){ intro(); reveal(); spy(); lightbox(); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+</script>
+
+<!-- ════════ DEV ONLY · selector de tono de los diagramas (sacar antes de prod) ════════ -->
+<div id="tonopanel" style="position:fixed;left:16px;bottom:16px;z-index:90;background:#fff;border:1px solid #CDD7E5;border-radius:14px;padding:14px 16px;box-shadow:0 12px 40px rgba(16,24,40,.22);font-family:'DM Mono',monospace;width:262px">
+  <p style="font-weight:600;color:#16202E;margin:0 0 2px;font-size:12.5px">Tono de los diagramas <span style="color:#0891B2">· DEV</span></p>
+  <p style="color:#697787;margin:0 0 10px;font-size:11px;line-height:1.4">Movelo, apretá «Elegir» y pasame el valor.</p>
+  <input id="tonoslider" type="range" min="8" max="32" value="10" step="1" style="width:100%;accent-color:#0891B2" />
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px">
+    <code id="tonoval" style="font-size:11px;color:#0F4A8B;background:#EAF2FB;border:1px solid #CDE4EA;padding:3px 6px;border-radius:5px"></code>
+    <button id="tonobtn" type="button" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:#fff;background:#145FB0;border:none;border-radius:8px;padding:6px 12px;cursor:pointer">Elegir</button>
+  </div>
+  <p id="tonoelegido" style="display:none;margin:10px 0 0;font-size:11px;color:#0F8A4C;line-height:1.4"></p>
+</div>
+<script>
+(function(){
+  var root=document.documentElement;
+  var s=document.getElementById('tonoslider'), v=document.getElementById('tonoval');
+  var btn=document.getElementById('tonobtn'), out=document.getElementById('tonoelegido');
+  function hex(h,sa,l){ // HSL→HEX
+    sa/=100; l/=100;
+    var k=function(n){return (n+h/30)%12;};
+    var a=sa*Math.min(l,1-l);
+    var f=function(n){var c=l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return Math.round(255*c).toString(16).padStart(2,'0');};
+    return '#'+f(0)+f(8)+f(4);
+  }
+  function apply(){
+    var L=+s.value;
+    root.style.setProperty('--diag-bg','hsl(218 43% '+L+'%)');
+    root.style.setProperty('--diag-bar','hsl(220 46% '+Math.max(4,L-3)+'%)');
+    root.style.setProperty('--diag-fill','hsl(218 42% '+(L+9)+'%)');
+    root.style.setProperty('--diag-surface','hsl(218 40% '+(L+6)+'%)');
+    v.textContent=hex(218,43,L)+' · L'+L;
+  }
+  s.addEventListener('input',apply);
+  btn.addEventListener('click',function(){
+    out.style.display='block';
+    out.textContent='✓ Elegido: '+v.textContent+' — pasáselo a Claude';
+  });
+  apply();
 })();
 </script>
 
