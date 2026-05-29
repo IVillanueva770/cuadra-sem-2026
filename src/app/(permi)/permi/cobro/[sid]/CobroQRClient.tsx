@@ -103,7 +103,7 @@ export default function CobroQRClient({sid, patente, monto, duracionMinutos, pag
         <motion.button
           type="button"
           onClick={() => router.push('/permi')}
-          className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           style={{backgroundColor: 'var(--primary)', color: 'white'}}
           whileTap={reduced ? {} : {scale: 0.98}}
         >
@@ -197,7 +197,7 @@ export default function CobroQRClient({sid, patente, monto, duracionMinutos, pag
         type="button"
         onClick={handleCancelar}
         disabled={isCancelling}
-        className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="w-full h-12 rounded-[10px] text-base font-medium border transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] hover:bg-gray-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         style={{borderColor: 'var(--border-strong)', color: 'var(--fg2)'}}
         whileTap={reduced ? {} : {scale: 0.98}}
       >

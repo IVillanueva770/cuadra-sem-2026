@@ -173,7 +173,7 @@ export default function NuevaSesionForm() {
           <button
             type="button"
             onClick={() => router.push(`/permi/extender/${sesionVigente.sesionId}`)}
-            className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
           >
             Extender estadía
@@ -181,7 +181,7 @@ export default function NuevaSesionForm() {
           <button
             type="button"
             onClick={resetForm}
-            className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full h-12 rounded-[10px] text-base font-medium border transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
           >
             Cobrar otra patente
@@ -213,7 +213,7 @@ export default function NuevaSesionForm() {
             type="button"
             onClick={() => setMedioElegido('efectivo')}
             aria-pressed={medioElegido === 'efectivo'}
-            className="flex flex-col items-start gap-1 rounded-[10px] border-2 p-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex flex-col items-start gap-1 rounded-[10px] border-2 p-4 transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{
               borderColor: medioElegido === 'efectivo' ? 'var(--primary)' : 'var(--border-strong)',
               backgroundColor: medioElegido === 'efectivo' ? 'var(--blue-50)' : 'var(--bg-surface)',
@@ -235,7 +235,7 @@ export default function NuevaSesionForm() {
             type="button"
             onClick={() => setMedioElegido('digital')}
             aria-pressed={medioElegido === 'digital'}
-            className="flex flex-col items-start gap-1 rounded-[10px] border-2 p-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 relative"
+            className="flex flex-col items-start gap-1 rounded-[10px] border-2 p-4 transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 relative"
             style={{
               borderColor: medioElegido === 'digital' ? 'var(--primary)' : 'var(--border-strong)',
               backgroundColor: medioElegido === 'digital' ? 'var(--blue-50)' : 'var(--bg-surface)',
@@ -295,7 +295,7 @@ export default function NuevaSesionForm() {
             type="button"
             onClick={handleConfirmar}
             disabled={isPending}
-            className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
             whileTap={reduced ? {} : {scale: 0.98}}
           >
@@ -309,7 +309,7 @@ export default function NuevaSesionForm() {
             type="button"
             onClick={() => setStep('datos')}
             disabled={isPending}
-            className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full h-12 rounded-[10px] text-base font-medium border transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
             whileTap={reduced ? {} : {scale: 0.98}}
           >
@@ -357,7 +357,7 @@ export default function NuevaSesionForm() {
           <motion.button
             type="button"
             onClick={resetForm}
-            className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
             whileTap={reduced ? {} : {scale: 0.98}}
           >
@@ -366,7 +366,7 @@ export default function NuevaSesionForm() {
           <motion.button
             type="button"
             onClick={() => router.push('/permi')}
-            className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="w-full h-12 rounded-[10px] text-base font-medium border transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
             whileTap={reduced ? {} : {scale: 0.98}}
           >
@@ -424,7 +424,7 @@ export default function NuevaSesionForm() {
                 onClick={() => setTipoVehiculo(tipo)}
                 aria-pressed={active}
                 disabled={isPending}
-                className="flex flex-col items-center justify-center gap-2 rounded-[10px] border-2 py-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50"
+                className="flex flex-col items-center justify-center gap-2 rounded-[10px] border-2 py-4 transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50"
                 style={{
                   borderColor: active ? 'var(--primary)' : 'var(--border-strong)',
                   backgroundColor: active ? 'var(--blue-50)' : 'var(--bg-surface)',
@@ -452,7 +452,7 @@ export default function NuevaSesionForm() {
                 onClick={() => setDuracion(mins)}
                 aria-pressed={active}
                 disabled={isPending}
-                className="h-14 rounded-[10px] border-2 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+                className="h-14 rounded-[10px] border-2 text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
                 style={{
                   borderColor: active ? 'var(--primary)' : 'var(--border-strong)',
                   backgroundColor: active ? 'var(--primary)' : 'var(--bg-surface)',
@@ -508,7 +508,7 @@ export default function NuevaSesionForm() {
         type="button"
         onClick={handleCalcular}
         disabled={isPending || !patente.trim()}
-        className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         style={{backgroundColor: 'var(--primary)', color: 'white'}}
         whileTap={reduced ? {} : {scale: 0.98}}
       >

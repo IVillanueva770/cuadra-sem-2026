@@ -113,7 +113,7 @@ export default function ConciliarBoton({
         type="button"
         onClick={handleConciliar}
         disabled={isPending || disabled || !asignacionId}
-        className="flex items-center justify-center gap-2 w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="flex items-center justify-center gap-2 w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         style={{backgroundColor: 'var(--primary)', color: 'white'}}
       >
         <ClipboardCheck className="h-5 w-5" aria-hidden="true" />

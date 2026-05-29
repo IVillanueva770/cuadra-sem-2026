@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
+import {motion} from 'motion/react';
 import {Home, Plus, ClipboardCheck} from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -44,7 +45,7 @@ export default function BottomNav() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      <ul className="mx-auto flex max-w-md items-stretch" role="list">
+      <ul className="mx-auto flex max-w-md items-stretch px-2 py-1.5" role="list">
         {NAV_ITEMS.map(({href, label, icon: Icon, exact}) => {
           const active = isActive(href, exact);
           return (
@@ -52,23 +53,26 @@ export default function BottomNav() {
               <Link
                 href={href}
                 aria-current={active ? 'page' : undefined}
-                className="flex flex-col items-center justify-center gap-1 py-3 min-h-[56px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset"
-                style={{
-                  color: active ? 'var(--primary)' : 'var(--fg3)',
-                  backgroundColor: active ? 'var(--blue-50)' : 'transparent',
-                }}
+                className="relative flex flex-col items-center justify-center gap-1 py-2.5 min-h-[54px] rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset active:scale-95 transition-transform"
+                style={{color: active ? 'var(--primary)' : 'var(--fg3)'}}
               >
+                {/* Pastilla deslizante: viaja al ítem activo al cambiar de pestaña */}
+                {active && (
+                  <motion.span
+                    layoutId="permi-nav-pill"
+                    className="absolute inset-0 rounded-xl"
+                    style={{backgroundColor: 'var(--blue-50)'}}
+                    transition={{type: 'spring', stiffness: 480, damping: 38, mass: 0.7}}
+                  />
+                )}
                 <Icon
-                  className="h-6 w-6"
+                  className="relative h-6 w-6"
                   aria-hidden="true"
                   strokeWidth={active ? 2.5 : 2}
                 />
                 <span
-                  className="text-xs font-medium"
-                  style={{
-                    color: active ? 'var(--primary)' : 'var(--fg3)',
-                    fontWeight: active ? 600 : 500,
-                  }}
+                  className="relative text-xs"
+                  style={{color: active ? 'var(--primary)' : 'var(--fg3)', fontWeight: active ? 600 : 500}}
                 >
                   {label}
                 </span>

@@ -106,7 +106,7 @@ export default function ExtenderForm({sesion}: Props) {
         <button
           type="button"
           onClick={() => router.push('/permi')}
-          className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           style={{backgroundColor: 'var(--primary)', color: 'white'}}
         >
           Volver al inicio
@@ -202,7 +202,7 @@ export default function ExtenderForm({sesion}: Props) {
                 onClick={() => setDuracionExtra(mins)}
                 aria-pressed={active}
                 disabled={isPending}
-                className="rounded-[10px] border-2 py-3 px-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+                className="rounded-[10px] border-2 py-3 px-4 text-left transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
                 style={{
                   borderColor: active ? 'var(--primary)' : 'var(--border-strong)',
                   backgroundColor: active ? 'var(--blue-50)' : 'var(--bg-surface)',
@@ -242,7 +242,7 @@ export default function ExtenderForm({sesion}: Props) {
         type="button"
         onClick={handleConfirmar}
         disabled={isPending}
-        className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         style={{backgroundColor: 'var(--primary)', color: 'white'}}
       >
         {isPending ? 'Registrando…' : 'Confirmar extensión'}
@@ -252,7 +252,7 @@ export default function ExtenderForm({sesion}: Props) {
         type="button"
         onClick={() => router.back()}
         disabled={isPending}
-        className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+        className="w-full h-12 rounded-[10px] text-base font-medium border transition-all duration-150 active:scale-[0.98] hover:brightness-[0.97] hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
         style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
       >
         Cancelar
