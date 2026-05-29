@@ -1,6 +1,8 @@
 ## DEVLOG - Cuadra (PunaTech 2026 · Track Ciudad SEM Salta)
 
 ## Estado Actual
+🌐 **LIVE EN PRODUCCIÓN: https://cuadra-sem.vercel.app** (Vercel, proyecto `cuadra-sem`, región gru1, conectado al repo GitHub). Next.js 15.5.18 (bump desde 15.2.3 por CVE-2025-66478 que Vercel bloqueaba). 10 env vars de producción seteadas (MP test tokens, Supabase, RESEND, APP_URL, NEXT_PUBLIC_APP_URL, MP_WEBHOOK_SECRET). Webhook MP con HMAC funcionando y auditando en `webhook_events` (verificado con POST de prueba). Supabase conecta en prod (/ordenanza renderiza tarifas reales). Webhook en modo permisivo (STRICT_WEBHOOK no seteado): valida firma y loguea, no rechaza.
+
 Bootstrap Next 15 + Tailwind 4 + Supabase listo. Schema de DB aplicado (14 tablas + funciones + RLS). Motor de reglas Ord 12.170 con 27 tests unit verdes. Datos sintéticos cargados: 15 permisionarios, 21 cuadras del microcentro de Salta, 21 días de asignaciones y ~14k sesiones con métricas diarias calculadas.
 
 Flows implementados: PWA Conductor (`/pagar/[qrcode]`, `/pagar/exito/[sid]`, `/verificar/[patente]`, `/ordenanza`). PWA Permisionario (`/login`, `/permi`, `/permi/nueva`, `/permi/extender/[sid]`, `/permi/conciliar`). Dashboard Admin (`/admin/*`). Webhook MP en `/api/webhooks/mp`.
@@ -12,7 +14,9 @@ El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo
 Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
 ## Tareas Activas
-- [ ] Plan 10: Deploy a Vercel. Requiere login del usuario, setear env vars (MP, Supabase, APP_URL, MP_WEBHOOK_SECRET), configurar webhook MP en panel y copiar el Secret Signature. (PWA manifest + icons YA existen; webhook con HMAC YA reconciliado.)
+- [ ] SMOKE TEST pendiente: pago sandbox end-to-end (tarjeta APRO en /pagar/CUADRA-001 o /mp-test) → verificar que el pago se procesa, el webhook recibe la notificación firmada y la sesión pasa a active. Probar también "Simular notificación" en el panel MP (valida el HMAC real con el secret).
+- [x] Plan 10: Deploy a Vercel — HECHO. App live en https://cuadra-sem.vercel.app, env vars + webhook MP configurados.
+- [ ] (Opcional prod real) Activar STRICT_WEBHOOK=true una vez confirmado que la firma HMAC de MP valida correctamente en los logs.
 - [ ] EL DÍA DE LA DEMO: correr `pnpm seed:hoy` para refrescar la actividad del día (KPIs, dashboard permisionario, sesiones activas). El seed completo genera datos relativos a su día de corrida, así que "hoy" queda viejo al día siguiente. Idealmente correrlo de día (ver nota timezone).
 - [ ] DEUDA TÉCNICA timezone: el dashboard (admin y permisionario) calcula "hoy" con `new Date().toISOString()` = día UTC, no día Salta. De día no afecta; de noche (>21 Salta = 00 UTC) el "día" rota. Para producción real, hacer los queries de "hoy" timezone-aware (America/Argentina/Salta).
 - [ ] Tests por horario: el cálculo $560 (conductor) y el registro de cobro (permisionario) hacen skip automático fuera de 07:00-21:00 Salta. Correr en horario laboral para verlos verdes.
@@ -124,3 +128,22 @@ Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy
 - Primera versión de seed-hoy usó `setHours` local → generó "28" mientras el dashboard lee "29" (UTC). Corregido a criterio UTC explícito (`Date.UTC`). La corrida fallida dejó el día 28 con sesiones regeneradas pero coherentes (métricas recalculadas); aceptable para datos de demo.
 **Próximos pasos:**
 - Plan 10 (Deploy Vercel) con el usuario.
+
+### [2026-05-28] - Sesión deploy a producción (Plan 10)
+**Objetivo:** Deployar Cuadra a Vercel con el usuario presente (login, env vars, webhook MP).
+**Hecho:**
+- `vercel link` al proyecto `cuadra-sem` (cuenta ivillanueva770), conectado al repo GitHub.
+- `vercel.json` (framework nextjs, región gru1, build/install con pnpm).
+- 10 env vars de producción seteadas vía CLI (escribiendo el valor sin newline para evitar `\r` de Windows en los secrets).
+- Deploy a producción. App live en https://cuadra-sem.vercel.app, sin protección SSO (pública).
+- Webhook MP configurado en el panel de MP (evento payment) con su Secret Signature → `MP_WEBHOOK_SECRET`.
+- Smoke test del webhook: POST de prueba → 200 + fila auditada en `webhook_events`.
+**Decisiones:**
+- Bump Next 15.2.3 → 15.5.18: Vercel rechaza el deploy de 15.2.3 por CVE-2025-66478. Se subió a la última 15.x (no a 16, para evitar breaking). Build + 32 tests verdes tras el bump.
+- Webhook en modo permisivo (sin STRICT_WEBHOOK): valida la firma y loguea, pero no rechaza, para no perder notificaciones si el formato del manifest HMAC difiere. Endurecer luego de verificar en logs.
+- APP_URL y NEXT_PUBLIC_APP_URL apuntan a cuadra-sem.vercel.app (el código usa ambos nombres en distintos lugares).
+**Problemas encontrados:**
+- `pnpm add next@15` no actualizaba (15.2.3 satisface el rango); hubo que pinear 15.5.18 explícito tras consultar el registry.
+**Próximos pasos:**
+- Smoke test de pago sandbox end-to-end (ver Tareas Activas).
+- El día de la demo: `pnpm seed:hoy`.
