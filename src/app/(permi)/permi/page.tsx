@@ -22,13 +22,7 @@ export default async function DashboardPage() {
     .single();
 
   if (!permisionario) {
-    return (
-      <div className="p-6 text-center space-y-2">
-        <p style={{color: 'var(--fg2)'}}>
-          No encontramos tu perfil de permisionario. Contactá a la Municipalidad.
-        </p>
-      </div>
-    );
+    redirect('/login');
   }
 
   const hoy = new Date().toISOString().slice(0, 10);

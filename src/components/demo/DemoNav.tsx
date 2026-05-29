@@ -43,7 +43,6 @@ const GRUPOS: Grupo[] = [
     icon: Ticket,
     pantallas: [
       {label: 'Ingresar', href: '/login'},
-      {label: 'Mi dashboard', href: '/permi'},
     ],
   },
   {
@@ -52,7 +51,6 @@ const GRUPOS: Grupo[] = [
     icon: Building2,
     pantallas: [
       {label: 'Login admin', href: '/admin/login'},
-      {label: 'Dashboard Muni', href: '/admin'},
     ],
   },
 ];

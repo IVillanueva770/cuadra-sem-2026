@@ -1,8 +1,11 @@
 'use client';
 
+import {useState} from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
-import {LayoutDashboard, Users, Settings, FileText, LogOut} from 'lucide-react';
+import {AnimatePresence, motion} from 'motion/react';
+import {LayoutDashboard, Users, Settings, FileText, LogOut, Menu, X} from 'lucide-react';
 import {createClient} from '@/lib/supabase/client';
 
 const NAV_ITEMS = [
@@ -15,6 +18,7 @@ const NAV_ITEMS = [
 export default function SidebarAdmin() {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -22,50 +26,36 @@ export default function SidebarAdmin() {
     router.replace('/admin/login');
   }
 
-  return (
-    <aside
-      className="fixed top-0 left-0 h-screen w-[200px] flex flex-col border-r z-40"
-      style={{
-        backgroundColor: 'var(--bg-surface)',
-        borderColor: 'var(--border)',
-        boxShadow: 'var(--shadow-1)',
-      }}
-    >
+  const SidebarContent = (
+    <>
       {/* Logo */}
       <div
-        className="flex items-center gap-3 px-5 py-4 border-b"
-        style={{
-          borderColor: 'var(--border)',
-          backgroundColor: 'var(--primary)',
-        }}
+        className="flex items-center gap-3 px-4 py-4 border-b"
+        style={{borderColor: 'var(--primary-active)', backgroundColor: 'var(--primary)'}}
       >
-        <div
-          className="flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold"
-          style={{backgroundColor: 'rgba(255,255,255,0.18)', color: 'white'}}
-          aria-hidden="true"
-        >
-          C
-        </div>
-        <div>
-          <p className="font-semibold text-sm leading-tight" style={{color: 'white'}}>
-            Cuadra
-          </p>
-          <p className="text-xs leading-tight" style={{color: 'rgba(255,255,255,0.7)'}}>
-            Panel Muni
-          </p>
-        </div>
+        <Image
+          src="/icons/cuadra-logo-light.svg"
+          alt="Cuadra"
+          width={150}
+          height={40}
+          priority
+        />
+        <span className="sr-only">Cuadra Panel Muni</span>
       </div>
+      <p className="px-5 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider" style={{color: 'var(--fg3)'}}>
+        Panel Muni
+      </p>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 overflow-y-auto" aria-label="Navegación admin">
+      <nav className="flex-1 py-2 overflow-y-auto" aria-label="Navegación admin">
         <ul className="space-y-0.5 px-2">
           {NAV_ITEMS.map(({href, label, icon: Icon}) => {
-            const isActive =
-              href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+            const isActive = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
             return (
               <li key={href}>
                 <Link
                   href={href}
+                  onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
                   style={{
                     backgroundColor: isActive ? 'var(--blue-50)' : 'transparent',
@@ -73,11 +63,7 @@ export default function SidebarAdmin() {
                   }}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon
-                    size={16}
-                    style={{color: isActive ? 'var(--primary)' : 'var(--fg3)'}}
-                    aria-hidden="true"
-                  />
+                  <Icon size={18} style={{color: isActive ? 'var(--primary)' : 'var(--fg3)'}} aria-hidden="true" />
                   {label}
                 </Link>
               </li>
@@ -93,15 +79,70 @@ export default function SidebarAdmin() {
           className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-red-50 group"
           style={{color: 'var(--fg2)'}}
         >
-          <LogOut
-            size={16}
-            className="group-hover:text-red-600 transition-colors"
-            style={{color: 'var(--fg3)'}}
-            aria-hidden="true"
-          />
+          <LogOut size={18} className="group-hover:text-red-600 transition-colors" style={{color: 'var(--fg3)'}} aria-hidden="true" />
           Cerrar sesión
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Botón hamburguesa — solo mobile */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Abrir menú"
+        className="md:hidden fixed top-3 left-3 z-30 flex h-10 w-10 items-center justify-center rounded-lg border"
+        style={{backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow-1)'}}
+      >
+        <Menu size={20} style={{color: 'var(--fg1)'}} aria-hidden="true" />
+      </button>
+
+      {/* Sidebar fijo — desktop */}
+      <aside
+        className="hidden md:flex fixed top-0 left-0 h-screen w-[200px] flex-col border-r z-40"
+        style={{backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border)', boxShadow: 'var(--shadow-1)'}}
+      >
+        {SidebarContent}
+      </aside>
+
+      {/* Drawer — mobile */}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              className="md:hidden fixed inset-0 z-40"
+              style={{backgroundColor: 'rgba(16,24,40,0.4)'}}
+              initial={{opacity: 0}}
+              animate={{opacity: 1}}
+              exit={{opacity: 0}}
+              transition={{duration: 0.18}}
+              onClick={() => setOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.aside
+              className="md:hidden fixed top-0 left-0 h-screen w-[260px] flex flex-col border-r z-50"
+              style={{backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border)'}}
+              initial={{x: '-100%'}}
+              animate={{x: 0}}
+              exit={{x: '-100%'}}
+              transition={{type: 'tween', duration: 0.22, ease: [0.4, 0, 0.2, 1]}}
+            >
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Cerrar menú"
+                className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-lg"
+                style={{color: 'white'}}
+              >
+                <X size={20} aria-hidden="true" />
+              </button>
+              {SidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

@@ -51,13 +51,10 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
   }
 
   return (
-    <div className="flex min-h-screen" style={{backgroundColor: 'var(--bg)'}}>
+    <div className="min-h-screen" style={{backgroundColor: 'var(--bg)'}}>
       <SidebarAdmin />
-      <main
-        className="flex-1 min-w-0 overflow-auto"
-        style={{marginLeft: '200px'}}
-      >
-        <div className="p-8 max-w-7xl mx-auto">{children}</div>
+      <main className="min-w-0 overflow-auto md:ml-[200px]">
+        <div className="p-4 pt-16 md:p-8 md:pt-8 max-w-7xl mx-auto">{children}</div>
       </main>
     </div>
   );

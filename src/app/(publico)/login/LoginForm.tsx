@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useTransition} from 'react';
+import {useState, useTransition, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import {LogIn, AlertCircle, Eye, EyeOff, Sparkles} from 'lucide-react';
 import {createClient} from '@/lib/supabase/client';
@@ -15,6 +15,11 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Limpiar cualquier sesión previa (ej: si venías logueado como admin) al entrar al login
+  useEffect(() => {
+    createClient().auth.signOut().catch(() => {});
+  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

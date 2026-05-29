@@ -1,6 +1,4 @@
 import type {Metadata} from 'next';
-import {redirect} from 'next/navigation';
-import {createClient} from '@/lib/supabase/server';
 import LoginForm from './LoginForm';
 
 export const metadata: Metadata = {
@@ -8,15 +6,6 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage() {
-  const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    redirect('/permi');
-  }
-
   return (
     <main
       className="min-h-dvh flex flex-col items-center justify-center p-6"
