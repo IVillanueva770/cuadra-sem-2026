@@ -20,6 +20,8 @@ El SEM de Salta hoy depende de **tarjetas físicas, efectivo y confianza**. Eso 
 
 Las soluciones existentes (parquímetros, apps importadas) no se diseñaron para esta realidad.
 
+**Dato clave del antecedente (decilo, el jurado lo tiene grabado):** la Muni ya intentó modernizar el SEM en 2024-25 y **el proyecto se suspendió por la lentitud del pago** (hasta 2 minutos por transacción — inviable en la vía pública). Por eso la **velocidad** no es un lujo: es la condición que define si esto funciona o no.
+
 ---
 
 ## 3. La propuesta (30s)
@@ -27,7 +29,7 @@ Las soluciones existentes (parquímetros, apps importadas) no se diseñaron para
 **Cuadra**, repensada desde cero para el SEM real de Salta. Tres experiencias, una sola app web (PWA), sin instalar nada:
 
 1. **Conductor** — escanea el QR de la cuadra, pone la patente, paga con Mercado Pago. Sin registro, sin cuenta, sin descargar app.
-2. **Permisionario** — entra con su DNI, ve sus sesiones del día, cobra en efectivo, marca extensiones, concilia el cierre. Interfaz accesible pensada para él.
+2. **Permisionario** — entra con su DNI y **opera el cobro él mismo**: registra la patente y el tiempo (su "papelito" digital), y cobra en **efectivo** o **digital** (genera un QR que el conductor escanea y paga con Mercado Pago, con el 20% de descuento). Ve sus sesiones del día, marca extensiones, concilia el cierre. Sigue siendo el integrador del sistema, ahora también en el canal digital. Interfaz accesible pensada para él.
 3. **Municipalidad (Modernización)** — dashboard en vivo: recaudación, % digital vs efectivo, ranking de permisionarios, auditoría de pagos.
 
 ---
@@ -45,6 +47,9 @@ El diferencial más fuerte y el que más cuesta a la competencia. **Está deploy
 Ninguna app genérica resuelve esto. Cuadra **no reemplaza al permisionario, lo potencia**.
 - Login por DNI (no email), botones grandes, texto 18px, todo con ícono + etiqueta, lenguaje claro ("Registrar cobro", no "Dashboard").
 - *"Pensamos cada pantalla para una persona de 65 años que cobra en la calle, no para un developer."*
+
+### ⭐ 2.5. Velocidad — resolvemos justo lo que mató al intento anterior
+El proyecto de 2024-25 se cayó por los ~2 minutos por transacción. Cuadra usa el **Payment Brick de Mercado Pago sin redirect**: el pago se resuelve en **segundos**, en la misma pantalla. Decilo de frente: *"Lo que frenó al sistema anterior fue la velocidad. Lo atacamos de raíz: pago en segundos, sin salir de la app."* Mostralo cronometrando el pago en vivo.
 
 ### ⭐ 3. El motor de reglas de la Ordenanza 12.170
 No es un cobro genérico: **codificamos la normativa municipal**. Horarios diurnos/nocturnos, zonas habilitadas (Balcarce, Güemes, Plaza Alvarado), tarifas auto/moto, fracciones, feriados, fin de turno.
@@ -69,7 +74,7 @@ Orden sugerido para el video (mostrá las 3 experiencias; usá el botón flotant
 1. **Apertura** — abrí la app: se ve la animación del auto estacionando (marca + memorable).
 2. **Conductor paga** (el momento "wow"): QR → patente → 1h → Mercado Pago → *aprobado*. Mostrá el comprobante.
 3. **La ordenanza viva**: intentá cobrar fuera de horario → bloqueo con mensaje claro.
-4. **Permisionario**: login por DNI → dashboard con la sesión que acabás de generar → registrar un cobro en efectivo → cierre del día (20% Muni / 80% permisionario).
+4. **Permisionario** (el corazón social): login por DNI → "Registrar cobro": cargá una patente → mostrá que **él elige efectivo o digital**. En digital, aparece un **QR** → escanealo con otro celular y pagá → la sesión se confirma sola en su pantalla (en vivo). Mostrá también la **validación de patente vigente**: cargá una patente ya cubierta → el sistema avisa "ya está paga hasta las HH:MM" y ofrece extender (no cobra dos veces). Cerrá con el cierre del día (20% Muni / 80% permisionario).
 5. **Muni**: dashboard con KPIs, el chart de recaudación, ranking, y la sesión nueva apareciendo **en vivo**.
 6. **Cierre**: *"Una sola app, tres actores, funcionando hoy. Esto es Cuadra."*
 
