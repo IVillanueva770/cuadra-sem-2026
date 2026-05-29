@@ -70,7 +70,7 @@ export default async function DashboardPage() {
       <AnimatedPermiDashboard className="grid grid-cols-3 gap-3">
         <AnimatedPermiItem>
           <div
-            className="rounded-2xl border p-4 text-center"
+            className="rounded-2xl border p-4 text-center min-h-[7rem] h-full flex flex-col justify-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]"
             style={{
               backgroundColor: 'var(--bg-surface)',
               borderColor: 'var(--border)',
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
         </AnimatedPermiItem>
         <AnimatedPermiItem>
           <div
-            className="rounded-2xl border p-4 text-center"
+            className="rounded-2xl border p-4 text-center min-h-[7rem] h-full flex flex-col justify-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]"
             style={{
               backgroundColor: 'var(--bg-surface)',
               borderColor: 'var(--border)',
@@ -110,7 +110,7 @@ export default async function DashboardPage() {
         </AnimatedPermiItem>
         <AnimatedPermiItem>
           <div
-            className="rounded-2xl border p-4 text-center"
+            className="rounded-2xl border p-4 text-center min-h-[7rem] h-full flex flex-col justify-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]"
             style={{
               backgroundColor: 'var(--bg-surface)',
               borderColor: 'var(--border)',
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
       {/* CTA Cobrar */}
       <Link
         href="/permi/nueva"
-        className="flex items-center justify-center gap-2 w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+        className="flex items-center justify-center gap-2 w-full h-14 rounded-[10px] text-base font-semibold transition-all duration-150 hover:brightness-95 hover:shadow-[var(--shadow-2)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         style={{
           backgroundColor: 'var(--primary)',
           color: 'var(--on-primary)',
