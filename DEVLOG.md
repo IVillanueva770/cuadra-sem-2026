@@ -19,6 +19,25 @@ Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy
 
 ## Sesiones
 
+### [2026-05-29] - Sesión Plan 14: dashboard Muni con filtros + comparativas + composición
+**Objetivo:** Hacer el dashboard admin mucho más útil para el jurado Muni: filtro de rango temporal, KPIs con comparativa vs período anterior, composición digital/efectivo, conciliación de efectivo, top cuadras.
+**Hecho:**
+- `KpiCard.tsx`: prop `delta?: {pct, label, positiveIsGood?}` — muestra flecha + % vs período anterior con color (verde si sube, rojo si baja). No rompe si no hay datos previos.
+- `RecaudacionChart.tsx`: prop `titulo?` — título dinámico según rango.
+- `RangoSelector.tsx` (nuevo): client component con chips "Hoy / 7 días / 30 días". Highlight con `motion.div layoutId="rango-activo"` que viaja entre chips (NO bg-color por chip). `router.push('/admin?rango=...')`.
+- `ComposicionPagos.tsx` (nuevo): barra horizontal segmentada + dos cards Digital/Efectivo (montos + sesiones + %). Refuerza el 20% de descuento digital.
+- `EfectivoConciliar.tsx` (nuevo): muestra total efectivo + cuánto corresponde rendir a la Muni (20%), con texto claro de trazabilidad.
+- `TopCuadras.tsx` (nuevo): lista top 8 cuadras por recaudación en el rango, igual estética que `TopPermisionarios`.
+- `admin/page.tsx`: reescrito con `searchParams: Promise<SearchParams>` (Next.js 15 async). Resuelve rango `hoy|7d|30d` (default `7d`), calcula `desde`/`hasta` + período anterior. 3 queries paralelos: sesiones actuales, sesiones prev, métricas_diarias. Layout nuevo: header+selector / 4 KPIs / composición+conciliación / chart+top permi / top cuadras+realtime.
+**Decisiones:**
+- `searchParams` como `Promise<SearchParams>` (patrón Next.js 15 async params). Resuelto con `await searchParams`.
+- Top cuadras desde `parking_sessions` con join `cuadras_habilitadas!inner(nombre_display)` — no desde `metricas_diarias` (que no tiene cuadra_id). Costo extra de una query pero data correcta.
+- Permisionarios activos: en rango muestra los con actividad en el período; fallback a `count` global (estado activo) si no hay sesiones.
+- Delta en KPIs: si no hay datos del período anterior, se omite la comparativa con gracia (no muestra flecha).
+**Notas de columnas:** metricas_diarias tiene `recaudacion_digital` y `recaudacion_efectivo` (no usadas aún para el chart, están disponibles para mejoras futuras).
+**Resultado build/tests:** `pnpm build` limpio. `pnpm test:run` 32/32 verdes.
+**Commit:** `37d4337` — push a master OK.
+
 ### [2026-05-29] - Sesión Plan 13: flujo permisionario-céntrico
 **Objetivo:** Dar al permisionario la capacidad de operar cobro digital (QR) y validar patente vigente para no cobrar dos veces.
 **Hecho:**
