@@ -48,7 +48,7 @@ export default function SidebarAdmin({collapsed, setCollapsed, mobileOpen, setMo
           className="flex items-center gap-3 px-4 py-4 border-b"
           style={{borderColor: 'var(--primary-active)', backgroundColor: 'var(--primary)'}}
         >
-          <CuadraMark size={40} tone="dark" />
+          <CuadraMark size={44} plain />
           <div className="min-w-0">
             <p className="text-lg font-bold leading-tight" style={{color: 'white'}}>
               Cuadra

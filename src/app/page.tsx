@@ -15,7 +15,12 @@ export default function HomePage() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-6 py-10"
-      style={{background: 'var(--bg)'}}
+      style={{
+        background: 'var(--bg)',
+        backgroundImage:
+          'linear-gradient(rgba(20,95,176,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(20,95,176,0.05) 1px, transparent 1px)',
+        backgroundSize: '44px 44px',
+      }}
     >
       <div className="w-full max-w-3xl flex flex-col items-center gap-9">
 
@@ -40,18 +45,18 @@ export default function HomePage() {
           {DIFERENCIALES.map(({Icon, titulo, texto}) => (
             <div
               key={titulo}
-              className="group flex flex-col items-start gap-4 rounded-2xl border p-5 shadow-[var(--shadow-1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-2)]"
+              className="group flex flex-col items-center text-center gap-3 rounded-2xl border p-6 shadow-[var(--shadow-1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-2)]"
               style={{background: 'var(--bg-surface)', borderColor: 'var(--border)'}}
             >
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
-                style={{backgroundColor: 'var(--primary)', boxShadow: '0 6px 16px rgba(20, 95, 176, 0.32)'}}
+                className="flex h-12 w-12 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-110"
+                style={{backgroundColor: 'var(--blue-50)'}}
               >
-                <Icon style={{width: 22, height: 22, color: '#fff'}} aria-hidden="true" />
+                <Icon style={{width: 22, height: 22, color: 'var(--primary)'}} aria-hidden="true" />
               </div>
               <div>
                 <p className="text-base font-bold" style={{color: 'var(--fg1)'}}>{titulo}</p>
-                <p className="text-sm mt-1 leading-relaxed" style={{color: 'var(--fg2)'}}>{texto}</p>
+                <p className="text-sm mt-1.5 leading-relaxed" style={{color: 'var(--fg2)'}}>{texto}</p>
               </div>
             </div>
           ))}

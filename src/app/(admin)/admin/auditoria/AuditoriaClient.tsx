@@ -1,8 +1,9 @@
 'use client';
 
-import {useState, useMemo} from 'react';
+import {useState, useMemo, useEffect} from 'react';
 import {motion, AnimatePresence} from 'motion/react';
 import {Badge} from '@/components/ui/badge';
+import Paginador from '@/components/cuadra/Paginador';
 
 const ESTADOS_FILTRO = ['todos', 'procesado', 'pendiente', 'error'] as const;
 type EstadoFiltro = (typeof ESTADOS_FILTRO)[number];
@@ -63,6 +64,14 @@ export default function AuditoriaClient({eventos}: Props) {
 
     return lista;
   }, [eventos, estadoActivo, tipoActivo]);
+
+  const POR_PAGINA = 15;
+  const [pagina, setPagina] = useState(1);
+  useEffect(() => {
+    setPagina(1);
+  }, [estadoActivo, tipoActivo]);
+  const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
+  const visibles = filtrados.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
 
   return (
     <div className="space-y-5">
@@ -231,7 +240,7 @@ export default function AuditoriaClient({eventos}: Props) {
                     </td>
                   </tr>
                 ) : (
-                  filtrados.map((e) => {
+                  visibles.map((e) => {
                     const fecha = new Date(e.received_at);
                     const fechaStr = fecha.toLocaleDateString('es-AR', {
                       timeZone: 'America/Argentina/Salta',
@@ -320,6 +329,15 @@ export default function AuditoriaClient({eventos}: Props) {
           </table>
         </div>
       </div>
+
+      <Paginador
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        onCambio={setPagina}
+        totalItems={filtrados.length}
+        porPagina={POR_PAGINA}
+        etiqueta="eventos"
+      />
     </div>
   );
 }

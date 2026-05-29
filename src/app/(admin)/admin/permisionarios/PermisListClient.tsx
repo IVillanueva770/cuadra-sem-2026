@@ -1,12 +1,13 @@
 'use client';
 
-import {useState, useMemo} from 'react';
+import {useState, useMemo, useEffect} from 'react';
 import Link from 'next/link';
 import {motion, AnimatePresence} from 'motion/react';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Edit, Search} from 'lucide-react';
 import {formatARS} from '@/lib/utils';
+import Paginador from '@/components/cuadra/Paginador';
 
 const BADGE_VARIANT: Record<string, 'success' | 'warning' | 'destructive' | 'secondary'> = {
   activo: 'success',
@@ -62,6 +63,14 @@ export default function PermisListClient({datos}: Props) {
 
     return lista;
   }, [datos, estadoActivo, busqueda]);
+
+  const POR_PAGINA = 8;
+  const [pagina, setPagina] = useState(1);
+  useEffect(() => {
+    setPagina(1);
+  }, [estadoActivo, busqueda]);
+  const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
+  const visibles = filtrados.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
 
   return (
     <div className="space-y-4">
@@ -191,7 +200,7 @@ export default function PermisListClient({datos}: Props) {
             <tbody>
               <AnimatePresence initial={false}>
                 {filtrados.length > 0 ? (
-                  filtrados.map((p) => (
+                  visibles.map((p) => (
                     <motion.tr
                       key={p.id}
                       initial={{opacity: 0}}
@@ -280,6 +289,15 @@ export default function PermisListClient({datos}: Props) {
           </table>
         </div>
       </div>
+
+      <Paginador
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        onCambio={setPagina}
+        totalItems={filtrados.length}
+        porPagina={POR_PAGINA}
+        etiqueta="permisionarios"
+      />
     </div>
   );
 }

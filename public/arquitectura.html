@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cuadra · Arquitectura técnica</title>
+<link rel="icon" href="/icons/cuadra-symbol.svg" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --primary:#145FB0; --primary-d:#0F4A8B; --accent:#D97706;
+    --bg:#ECEFF4; --surface:#FFFFFF; --subtle:#F4F6F9;
+    --fg1:#1F2937; --fg2:#4B5563; --fg3:#6B7280;
+    --border:#D0D5DD; --success:#16A34A;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 2px 8px rgba(16,24,40,.09);
+    --mono:'DM Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--fg1);line-height:1.55;
+    background-image:linear-gradient(rgba(20,95,176,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(20,95,176,.045) 1px,transparent 1px);
+    background-size:48px 48px;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+  a{color:var(--primary);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* Header */
+  header.hero{background:var(--primary);color:#fff;padding:48px 0 40px;
+    background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:48px 48px;}
+  .badge-tech{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    background:rgba(255,255,255,.15);padding:5px 12px;border-radius:999px;margin-bottom:16px}
+  header.hero h1{font-size:38px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px}
+  header.hero p{font-size:18px;color:#DBE9F8;margin:0;max-width:640px}
+  .logo-row{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  .logo-box{width:44px;height:44px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .logo-row b{font-size:20px;font-weight:700}
+
+  /* Layout */
+  section{padding:40px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:26px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+  h2 .n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:var(--primary);color:#fff;font-size:15px}
+  .lead{color:var(--fg2);font-size:17px;margin:0 0 24px;max-width:720px}
+  h3{font-size:17px;font-weight:600;margin:24px 0 8px;color:var(--fg1)}
+  p{color:var(--fg2)}
+  ul{color:var(--fg2);padding-left:20px}
+  li{margin:5px 0}
+  code{font-family:var(--mono);font-size:.88em;background:var(--subtle);border:1px solid var(--border);padding:1px 6px;border-radius:5px;color:var(--primary-d)}
+  .muted{color:var(--fg3);font-size:14px}
+
+  /* Cards / grid */
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+  .card h4{margin:0 0 4px;font-size:15px;font-weight:700}
+  .card p{margin:0;font-size:14px}
+  .kicker{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--primary);margin:0 0 6px}
+
+  /* Diagrama de capas */
+  .layers{display:flex;flex-direction:column;gap:10px;margin:8px 0}
+  .layer{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+  .layer .lh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .layer .lt{font-weight:700;font-size:15px}
+  .layer .ld{color:var(--fg3);font-size:13px;margin:6px 0 0}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-family:var(--mono);font-size:12px;background:var(--subtle);border:1px solid var(--border);padding:2px 8px;border-radius:6px;color:var(--fg2)}
+  .arrow{text-align:center;color:var(--primary);font-size:18px;line-height:1}
+
+  /* Flujo */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:10px 0}
+  .step{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--shadow);position:relative}
+  .step .num{width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .step b{font-size:13px;display:block;margin-bottom:2px}
+  .step span{font-size:12px;color:var(--fg3)}
+  .flow .sep{display:flex;align-items:center;color:var(--primary);font-size:20px;padding:0 6px}
+
+  .callout{background:#EAF2FB;border:1px solid #BBD3EE;border-radius:14px;padding:18px 20px;margin:18px 0}
+  .callout .kicker{color:var(--primary-d)}
+  .callout b{color:var(--primary-d)}
+  .metric{font-family:var(--mono);font-weight:600;color:var(--primary-d)}
+
+  table.spec{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  table.spec th{text-align:left;background:var(--subtle);padding:10px 14px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--fg3);border-bottom:1px solid var(--border)}
+  table.spec td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--fg2);vertical-align:top}
+  table.spec tr:last-child td{border-bottom:none}
+  table.spec td code{white-space:nowrap}
+
+  nav.toc{position:sticky;top:0;background:rgba(236,239,244,.9);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;padding:10px 0}
+  nav.toc .wrap{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;font-weight:600}
+  nav.toc a{color:var(--fg2)}
+  footer{padding:32px 0;text-align:center;color:var(--fg3);font-size:13px}
+  @media(max-width:680px){.g2,.g3{grid-template-columns:1fr}header.hero h1{font-size:30px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="logo-row">
+      <span class="logo-box">
+        <svg viewBox="12 16 40 40" width="32" height="32" fill="none">
+          <path d="M14 36 v-3.2 a2.4 2.4 0 0 1 1.7 -2.3 l2.2 -0.6 l3.4 -4.6 a4 4 0 0 1 3.2 -1.6 h10.1 a4 4 0 0 1 3 1.35 l3.6 4.1 l3 0.9 a2.4 2.4 0 0 1 1.7 2.3 V36 a2 2 0 0 1 -2 2 H16 a2 2 0 0 1 -2 -2 Z" fill="#145FB0"/>
+          <rect x="16" y="43" width="32" height="3.4" rx="1.7" fill="#145FB0" opacity=".5"/>
+          <path d="M25 24.8 h8.6 a2 2 0 0 1 1.5 0.7 l2.4 2.8 h-15 l1.5 -2.8 a2 2 0 0 1 1 -0.7 Z" fill="#fff"/>
+          <circle cx="24" cy="38" r="3.6" fill="#fff"/><circle cx="40" cy="38" r="3.6" fill="#fff"/>
+          <circle cx="24" cy="38" r="1.5" fill="#145FB0"/><circle cx="40" cy="38" r="1.5" fill="#145FB0"/>
+        </svg>
+      </span>
+      <b>Cuadra</b>
+    </div>
+    <span class="badge-tech">Documento técnico · de ingeniero a ingeniero</span>
+    <h1>Arquitectura de la solución</h1>
+    <p>Cómo está construido el nuevo SEM de Salta, por qué es rápido, por qué escala y qué falta para producción. Pensado para el jurado técnico de Modernización.</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#tldr">Resumen</a>
+    <a href="#stack">Stack</a>
+    <a href="#capas">Capas</a>
+    <a href="#velocidad">Por qué es rápido</a>
+    <a href="#flujo">Flujo de pago</a>
+    <a href="#reglas">Motor de reglas</a>
+    <a href="#datos">Datos</a>
+    <a href="#seguridad">Seguridad</a>
+    <a href="#escala">Escala &amp; producción</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section id="tldr">
+  <h2><span class="n">0</span> Resumen ejecutivo</h2>
+  <p class="lead">Cuadra es una <b>aplicación web (PWA) en producción real</b>, no un prototipo: base de datos viva, pagos reales por Mercado Pago y despliegue continuo. Una sola base de código sirve a las tres superficies del sistema —conductor, permisionario y Municipalidad— sobre una arquitectura <b>serverless</b> que escala sola y se opera con costo casi nulo.</p>
+  <div class="grid g3">
+    <div class="card"><p class="kicker">Lo que importa</p><h4>Velocidad</h4><p>Pago en segundos, sin redirecciones. Es justo lo que hundió al intento de 2024-25 (≈2&nbsp;min/transacción).</p></div>
+    <div class="card"><p class="kicker">Lo que importa</p><h4>Inclusión</h4><p>El permisionario opera el cobro digital, no es reemplazado. Es el integrador del sistema.</p></div>
+    <div class="card"><p class="kicker">Lo que importa</p><h4>Trazabilidad</h4><p>Cada cobro —efectivo o digital— queda registrado y auditable. La Muni ve todo en vivo.</p></div>
+  </div>
+</section>
+
+<section id="stack">
+  <h2><span class="n">1</span> Stack y por qué cada pieza</h2>
+  <p class="lead">Elegido para minimizar latencia, costo operativo y tiempo a producción. Todo gestionado, sin servidores que mantener.</p>
+  <table class="spec">
+    <tr><th>Capa</th><th>Tecnología</th><th>Por qué</th></tr>
+    <tr><td>Framework</td><td><code>Next.js 15</code> (App Router) sobre <code>React 19</code></td><td>Server Components (HTML renderizado en el servidor → menos JS al celular), Server Actions (mutaciones sin construir una API REST aparte) y streaming. Una sola base para las 3 PWAs.</td></tr>
+    <tr><td>UI</td><td><code>Tailwind 4</code> + design system propio + <code>motion</code></td><td>Tokens de diseño accesibles (tap targets 48px, 18px body, contraste AA), animaciones que respetan <code>prefers-reduced-motion</code>.</td></tr>
+    <tr><td>Datos &amp; Auth</td><td><code>Supabase</code> (Postgres + Auth + Realtime)</td><td>Postgres gestionado con Row-Level Security, autenticación lista, y suscripciones en tiempo real por WebSocket (el panel y el permisionario ven los cobros al instante, sin polling).</td></tr>
+    <tr><td>Pagos</td><td>Mercado Pago <code>Payment Brick</code> + webhooks</td><td>Tokenización de la tarjeta del lado del cliente (PCI: nunca tocamos datos de tarjeta) y cobro en la misma pantalla, sin redirección.</td></tr>
+    <tr><td>Infra</td><td><code>Vercel</code> (Functions, región gru1)</td><td>Serverless: escala a cero y a miles automáticamente. Región São Paulo = baja latencia a Argentina. Deploy en cada push.</td></tr>
+  </table>
+</section>
+
+<section id="capas">
+  <h2><span class="n">2</span> Arquitectura por capas</h2>
+  <p class="lead">Cuatro capas desacopladas. El cliente nunca habla directo con la base ni con Mercado Pago: todo pasa por la capa de aplicación, que valida contra el motor de reglas.</p>
+  <div class="layers">
+    <div class="layer">
+      <div class="lh"><span class="lt">1 · Cliente / PWA</span><span class="tags"><span class="tag">Server Components</span><span class="tag">Client Components</span><span class="tag">PWA</span></span></div>
+      <p class="ld">Tres superficies, una UI accesible: Conductor (paga por QR), Permisionario (cobra y opera), Municipalidad (tablero). Instalable como app; funciona en cualquier celular.</p>
+    </div>
+    <div class="arrow">&#8595;</div>
+    <div class="layer">
+      <div class="lh"><span class="lt">2 · Aplicación / lógica</span><span class="tags"><span class="tag">Server Actions</span><span class="tag">Route Handlers</span><span class="tag">Motor de reglas</span></span></div>
+      <p class="ld">Server Actions para crear sesiones y cobros (revalidan SIEMPRE en el servidor). El motor de reglas declarativo aplica la Ordenanza 12.170. El webhook de MP entra como Route Handler.</p>
+    </div>
+    <div class="arrow">&#8595;</div>
+    <div class="layer">
+      <div class="lh"><span class="lt">3 · Datos</span><span class="tags"><span class="tag">Postgres</span><span class="tag">RLS</span><span class="tag">RPC / funciones</span><span class="tag">Realtime</span></span></div>
+      <p class="ld">14 tablas normalizadas con índices, funciones SQL (cálculo de métricas, verificación de patente, expiración) y canal Realtime que empuja cambios al panel y al permisionario.</p>
+    </div>
+    <div class="arrow">&#8595;</div>
+    <div class="layer">
+      <div class="lh"><span class="lt">4 · Servicios externos</span><span class="tags"><span class="tag">Mercado Pago</span><span class="tag">Resend</span></span></div>
+      <p class="ld">Mercado Pago para el cobro digital (Brick + Payment API + webhook firmado). Resend para comprobantes por email. Aislados detrás de la capa de aplicación.</p>
+    </div>
+  </div>
+</section>
+
+<section id="velocidad">
+  <h2><span class="n">3</span> La base de la velocidad</h2>
+  <p class="lead">El SEM digital anterior (2024-25) se suspendió porque cada transacción tardaba hasta <span class="metric">~2 minutos</span> —inviable en la calle—. La velocidad no es un extra: es la condición de viabilidad. Acá está atacada de raíz.</p>
+  <div class="callout">
+    <p class="kicker">Decisión central</p>
+    <p style="margin:0"><b>Payment Brick sin redirección.</b> La tarjeta se tokeniza en el navegador del conductor y el pago se confirma en la misma pantalla. No hay salto a un portal externo ni vuelta. El cobro se resuelve en <b>segundos</b>.</p>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h4>Render en el servidor</h4><p>Server Components mandan HTML ya armado: menos JavaScript que descargar y ejecutar en celulares modestos.</p></div>
+    <div class="card"><h4>Tiempo real por push</h4><p>Supabase Realtime empuja los cambios (WebSocket). El panel y el permisionario no consultan en bucle: reciben.</p></div>
+    <div class="card"><h4>Índices y funciones en la DB</h4><p>Las consultas calientes (patente activa, métricas del día) usan índices dedicados y funciones SQL: trabajo cerca del dato.</p></div>
+    <div class="card"><h4>Edge + región local</h4><p>Vercel sirve assets desde CDN y ejecuta las funciones en São Paulo (gru1), el datacenter más cercano a Argentina.</p></div>
+  </div>
+</section>
+
+<section id="flujo">
+  <h2><span class="n">4</span> Flujo de pago end-to-end</h2>
+  <p class="lead">Camino del cobro digital. La sesión se crea <b>antes</b> de cobrar (referencia estable) y el webhook confirma de forma idempotente —si MP reintenta la notificación, no se duplica nada—.</p>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><b>Identificación</b><span>QR del permisionario o el permisionario carga la patente.</span></div>
+    <div class="sep">&#8594;</div>
+    <div class="step"><div class="num">2</div><b>Validación</b><span>El motor de reglas calcula tarifa y verifica horario/zona/patente vigente.</span></div>
+    <div class="sep">&#8594;</div>
+    <div class="step"><div class="num">3</div><b>Tokenización</b><span>El Brick tokeniza la tarjeta en el navegador (PCI). Nunca pasa por nuestro server.</span></div>
+    <div class="sep">&#8594;</div>
+    <div class="step"><div class="num">4</div><b>Cobro</b><span>Server Action crea el pago en MP con clave de idempotencia.</span></div>
+    <div class="sep">&#8594;</div>
+    <div class="step"><div class="num">5</div><b>Confirmación</b><span>Webhook firmado (HMAC) marca la sesión activa. El panel se actualiza en vivo.</span></div>
+  </div>
+  <p class="muted">El efectivo sigue el mismo modelo: el permisionario registra el cobro y queda como sesión digital trazable (sin papel obligatorio). Así se cumple el requisito de registro 100% digital, incluso del efectivo.</p>
+</section>
+
+<section id="reglas">
+  <h2><span class="n">5</span> Motor de reglas (Ordenanza 12.170)</h2>
+  <p class="lead">La normativa no está dispersa en <code>if</code> por todo el código: vive en un módulo declarativo, con datos configurables en base (tarifas, horarios, feriados, zonas) y verificado con tests automatizados. Cambia la tarifa → se edita un registro, no el código.</p>
+  <ul>
+    <li><b>Tarifas y fraccionamiento:</b> $700 auto / $300 moto, fracción de 15&nbsp;min desde la 2.ª hora, tolerancia de 5&nbsp;min.</li>
+    <li><b>Descuento digital 20%:</b> aplicado automáticamente; lo absorbe la Muni de su porción, sin tocar el ingreso del permisionario.</li>
+    <li><b>Turnos:</b> diurno L-V 07-21 / sáb 07-14; nocturno 22-05 en zonas habilitadas (Balcarce, Güemes, Plaza Alvarado).</li>
+    <li><b>Feriados:</b> sin cobro diurno, sí nocturno. Calendario configurable.</li>
+    <li><b>Bloqueo de cobros indebidos:</b> si la cuadra está fuera de horario/zona, el sistema impide cobrar y lo explica. La patente con sesión vigente no se cobra dos veces (movilidad entre cuadras).</li>
+  </ul>
+  <p class="muted">Cobertura: 32 tests automatizados (unit + integración) sobre reglas y webhook, verdes en cada despliegue.</p>
+</section>
+
+<section id="datos">
+  <h2><span class="n">6</span> Modelo de datos</h2>
+  <p class="lead">14 tablas en Postgres. La <b>sesión de estacionamiento</b> es la primitiva del sistema (el "papelito" digital); el resto orbita alrededor.</p>
+  <div class="grid g3">
+    <div class="card"><p class="kicker">Identidad</p><h4>permisionarios · cuadras_habilitadas · asignaciones_diarias</h4><p>Quién cobra, dónde y cuándo. El QR es del permisionario; la cuadra se deriva de su asignación del día.</p></div>
+    <div class="card"><p class="kicker">Núcleo</p><h4>parking_sessions · sesiones_extendidas</h4><p>Cada cobro/estadía con patente, monto, medio, vigencia y estado. Índice único evita doble sesión activa por patente.</p></div>
+    <div class="card"><p class="kicker">Normativa</p><h4>tarifas · horarios_turnos · feriados · zonas_nocturnas · config_sistema</h4><p>La Ordenanza como datos configurables, sin tocar código.</p></div>
+    <div class="card"><p class="kicker">Dinero</p><h4>liquidaciones_permisionario · conciliaciones_efectivo</h4><p>Liquidación del 80% al permisionario y rendición del efectivo a la Muni.</p></div>
+    <div class="card"><p class="kicker">Observabilidad</p><h4>metricas_diarias · webhook_events</h4><p>Métricas precalculadas para el tablero y auditoría de cada notificación de pago.</p></div>
+    <div class="card"><p class="kicker">Funciones SQL</p><h4>verificar_patente_activa · expirar_sesiones_vencidas · calcular_metricas_diarias</h4><p>Lógica cerca del dato, invocada por RPC.</p></div>
+  </div>
+</section>
+
+<section id="seguridad">
+  <h2><span class="n">7</span> Seguridad</h2>
+  <div class="grid g2">
+    <div class="card"><h4>Datos de tarjeta · PCI</h4><p>Mercado Pago tokeniza en el cliente. La app nunca recibe ni almacena números de tarjeta.</p></div>
+    <div class="card"><h4>Webhook firmado · HMAC-SHA256</h4><p>Cada notificación de MP se valida con firma (comparación en tiempo constante). Modo estricto activable para producción.</p></div>
+    <div class="card"><h4>Row-Level Security</h4><p>Postgres con RLS; las operaciones sensibles corren con rol de servicio sólo del lado servidor, nunca expuesto al cliente.</p></div>
+    <div class="card"><h4>Validación en el servidor</h4><p>Toda mutación re-valida contra el motor de reglas en el server (evita manipulación desde el cliente o doble envío).</p></div>
+  </div>
+</section>
+
+<section id="escala">
+  <h2><span class="n">8</span> Escalabilidad y camino a producción</h2>
+  <h3>Por qué escala</h3>
+  <ul>
+    <li><b>Serverless:</b> las funciones escalan horizontalmente solas; sin servidor que dimensionar ni mantener. Picos (hora pico del microcentro) absorbidos automáticamente.</li>
+    <li><b>Postgres gestionado:</b> índices en las consultas calientes, métricas precalculadas, conexión por pooler. Crece con réplicas de lectura si hiciera falta.</li>
+    <li><b>Stateless:</b> nada de estado en memoria entre requests; todo en la base. Cualquier instancia atiende cualquier request.</li>
+    <li><b>Costo:</b> escala a cero cuando no hay tráfico. Operarlo cuesta casi nada hasta volumen real.</li>
+  </ul>
+  <h3>Qué falta para producción (poco)</h3>
+  <ul>
+    <li>Cambiar credenciales de Mercado Pago de sandbox a producción (un set de variables de entorno).</li>
+    <li>Activar el modo estricto del webhook (<code>STRICT_WEBHOOK</code>) y endurecer políticas RLS.</li>
+    <li>Onboarding de los permisionarios reales (alta + credencial/QR).</li>
+    <li>Job de expiración de sesiones (la función ya existe; falta el cron).</li>
+  </ul>
+  <div class="callout">
+    <p class="kicker">En una frase</p>
+    <p style="margin:0">La base técnica está <b>terminada y andando en producción</b>. Pasar a real es configuración, no reconstrucción.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Cuadra · Estacionamiento Medido de Salta · Documento técnico — PunaTech 2026<br/>
+  <a href="/">← Volver a la app</a>
+</footer>
+
+</body>
+</html>

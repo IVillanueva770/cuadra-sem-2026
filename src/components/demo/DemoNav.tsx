@@ -16,7 +16,7 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import {AnimatePresence, motion} from 'motion/react';
-import {Car, Ticket, Building2, X, LayoutGrid, ChevronRight, Sparkles} from 'lucide-react';
+import {Car, Ticket, Building2, X, LayoutGrid, ChevronRight, Sparkles, Code2} from 'lucide-react';
 
 type Pantalla = {label: string; href: string};
 type Grupo = {
@@ -168,7 +168,7 @@ export default function DemoNav() {
                 );
               })}
 
-              <div className="px-2 pt-1">
+              <div className="mt-1 border-t px-2 pt-2" style={{borderColor: 'var(--border)'}}>
                 <button
                   type="button"
                   onClick={() => {
@@ -181,6 +181,15 @@ export default function DemoNav() {
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
                   Ver intro de nuevo
                 </button>
+                <a
+                  href="/arquitectura.html"
+                  onClick={() => setOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+                  style={{color: 'var(--fg3)'}}
+                >
+                  <Code2 className="h-4 w-4" aria-hidden="true" />
+                  Arquitectura técnica (jurado)
+                </a>
               </div>
             </div>
           </motion.div>
