@@ -7,6 +7,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    // Excluir specs de Playwright (tienen su propio runner)
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/tests/e2e/**',
+    ],
   },
   resolve: {
     alias: {
