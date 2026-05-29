@@ -2,6 +2,12 @@
 
 ## Estado Actual
 
+**Pulido final 29/05 (post-cascada, deployado):**
+- **Paginadores**: componente `src/components/cuadra/Paginador.tsx` (rango con elipsis si >7 páginas, hover/tap con motion, "Mostrando X–Y de Z"). Integrado en permisionarios (8/pág) y auditoría (15/pág) del admin.
+- **Logo en headers azules sin cuadro**: `CuadraMark` gana variante `plain` (solo el auto, recortes "calados" con `cutout` sobre el fondo azul). Aplicada en header permi (`size 40`) y sidebar admin (`size 44`) — adiós al cuadro que chocaba contra el fondo.
+- **Página técnica para el jurado**: `public/arquitectura.html` (standalone, estilos del DS). De ingeniero a ingeniero: stack, arquitectura por capas, por qué es rápido (Brick sin redirect vs ~2 min del v1), flujo de pago end-to-end, motor de reglas, modelo de datos, seguridad, escalabilidad y pasos a producción. Accesible desde el FAB de DemoNav ("Arquitectura técnica (jurado)").
+- Build limpio + 32/32 verdes. Commit `904386e`.
+
 **Pulido a fondo 29/05 (cascada planes 12-17, todos deployados):**
 - **Bugs/marca (12)**: panel admin ahora responsive (sidebar = drawer con hamburguesa en mobile, fijo en desktop); logo Cuadra en el admin; favicon Cuadra (`app/icon.svg`); fix sesión cruzada entre roles (logins hacen signOut al montar, `/permi` redirige a `/login` si no hay perfil, DemoNav entra por los logins).
 - **Flujo permisionario-céntrico (13, el corazón)**: el permisionario ahora opera el cobro **digital** además del efectivo — en `/permi/nueva` elige medio; digital genera sesión `extended_pending` + pantalla `/permi/cobro/[sid]` con **QR** (`qrcode.react`) que el conductor escanea y paga en `/pagar/sesion/[sid]` (Brick); realtime confirma. **Validación de patente vigente**: no cobra dos veces, avisa "cubierta hasta HH:MM" y ofrece extender (movilidad entre cuadras). Helper `src/lib/sesiones/patente-vigente.ts`.

@@ -89,7 +89,12 @@
   nav.toc .wrap{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;font-weight:600}
   nav.toc a{color:var(--fg2)}
   footer{padding:32px 0;text-align:center;color:var(--fg3);font-size:13px}
-  @media(max-width:680px){.g2,.g3{grid-template-columns:1fr}header.hero h1{font-size:30px}}
+  @media(max-width:680px){
+    .g2,.g3{grid-template-columns:1fr}
+    header.hero h1{font-size:30px}
+    .flow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .flow .sep{display:none}
+  }
 </style>
 </head>
 <body>

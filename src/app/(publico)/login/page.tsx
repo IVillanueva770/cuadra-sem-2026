@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import LoginForm from './LoginForm';
+import CuadraMark from '@/components/cuadra/CuadraMark';
 
 export const metadata: Metadata = {
   title: 'Ingresar · Cuadra Permisionario',
@@ -14,13 +15,7 @@ export default async function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Header institucional */}
         <div className="text-center space-y-1">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{backgroundColor: 'var(--primary)'}}
-            aria-hidden="true"
-          >
-            <span className="text-white text-2xl font-bold">C</span>
-          </div>
+          <CuadraMark size={64} tone="light" className="mb-4" style={{boxShadow: '0 10px 28px rgba(20, 95, 176, 0.30)'}} />
           <h1 className="text-2xl font-bold" style={{color: 'var(--fg1)'}}>
             Cuadra · Permisionario
           </h1>
