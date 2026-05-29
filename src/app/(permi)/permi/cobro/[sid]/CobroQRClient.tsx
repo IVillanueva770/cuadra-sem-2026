@@ -4,6 +4,7 @@ import {useEffect, useState, useTransition} from 'react';
 import {useRouter} from 'next/navigation';
 import {QRCodeSVG} from 'qrcode.react';
 import {CircleCheck, CircleAlert} from 'lucide-react';
+import {motion, useReducedMotion} from 'motion/react';
 import {createClient} from '@/lib/supabase/client';
 import {formatARS} from '@/lib/utils';
 
@@ -33,6 +34,7 @@ async function cancelarCobro(sid: string): Promise<void> {
 
 export default function CobroQRClient({sid, patente, monto, duracionMinutos, pagoUrl}: Props) {
   const router = useRouter();
+  const reduced = useReducedMotion();
   const [pagado, setPagado] = useState(false);
   const [isCancelling, startCancel] = useTransition();
 
@@ -72,14 +74,22 @@ export default function CobroQRClient({sid, patente, monto, duracionMinutos, pag
   if (pagado) {
     return (
       <div className="p-6 space-y-6 text-center">
-        <div
+        <motion.div
           className="mx-auto flex items-center justify-center w-20 h-20 rounded-full"
           style={{backgroundColor: 'var(--success-bg)'}}
           aria-hidden="true"
+          initial={reduced ? false : {opacity: 0, scale: 0.85}}
+          animate={reduced ? {} : {opacity: 1, scale: 1}}
+          transition={{duration: 0.2, ease: [0.4, 0, 0.2, 1]}}
         >
           <CircleCheck className="h-10 w-10" style={{color: 'var(--success)'}} />
-        </div>
-        <div className="space-y-1">
+        </motion.div>
+        <motion.div
+          className="space-y-1"
+          initial={reduced ? false : {opacity: 0, y: 6}}
+          animate={reduced ? {} : {opacity: 1, y: 0}}
+          transition={{duration: 0.2, ease: [0.4, 0, 0.2, 1], delay: 0.05}}
+        >
           <h2 className="text-2xl font-bold" style={{color: 'var(--fg1)'}}>
             Pago confirmado
           </h2>
@@ -89,15 +99,16 @@ export default function CobroQRClient({sid, patente, monto, duracionMinutos, pag
           <p className="text-sm" style={{color: 'var(--fg2)'}}>
             {formatDuracion(duracionMinutos)} · {formatARS(monto)}
           </p>
-        </div>
-        <button
+        </motion.div>
+        <motion.button
           type="button"
           onClick={() => router.push('/permi')}
           className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           style={{backgroundColor: 'var(--primary)', color: 'white'}}
+          whileTap={reduced ? {} : {scale: 0.98}}
         >
           Volver al inicio
-        </button>
+        </motion.button>
       </div>
     );
   }
@@ -149,16 +160,19 @@ export default function CobroQRClient({sid, patente, monto, duracionMinutos, pag
 
       {/* QR */}
       <div className="flex flex-col items-center gap-4">
-        <div
+        <motion.div
           className="rounded-2xl border p-5"
           style={{
             backgroundColor: 'white',
             borderColor: 'var(--border)',
             boxShadow: 'var(--shadow-1)',
           }}
+          initial={reduced ? false : {opacity: 0, scale: 0.96}}
+          animate={reduced ? {} : {opacity: 1, scale: 1}}
+          transition={{duration: 0.2, ease: [0.4, 0, 0.2, 1]}}
         >
           <QRCodeSVG value={pagoUrl} size={220} />
-        </div>
+        </motion.div>
         <p className="text-xs text-center" style={{color: 'var(--fg3)'}}>
           Esperando que el conductor complete el pago…
         </p>
@@ -179,15 +193,16 @@ export default function CobroQRClient({sid, patente, monto, duracionMinutos, pag
       </div>
 
       {/* Cancelar */}
-      <button
+      <motion.button
         type="button"
         onClick={handleCancelar}
         disabled={isCancelling}
         className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         style={{borderColor: 'var(--border-strong)', color: 'var(--fg2)'}}
+        whileTap={reduced ? {} : {scale: 0.98}}
       >
         {isCancelling ? 'Cancelando…' : 'Cancelar cobro'}
-      </button>
+      </motion.button>
     </div>
   );
 }

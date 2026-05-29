@@ -2,6 +2,7 @@
 
 import {useState, useTransition} from 'react';
 import {Car, Bike, MapPin, CircleAlert, Minus, Plus} from 'lucide-react';
+import {motion, useReducedMotion} from 'motion/react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -38,6 +39,7 @@ export default function PagoForm({
   cuadraId,
   cuadraNombre,
 }: Props) {
+  const reduced = useReducedMotion();
   const [step, setStep] = useState<Step>('datos');
   const [patente, setPatente] = useState('');
   const [tipoVehiculo, setTipoVehiculo] = useState<'auto' | 'moto'>('auto');
@@ -79,7 +81,14 @@ export default function PagoForm({
 
   if (step === 'datos') {
     return (
-      <main className="mx-auto max-w-md p-6 space-y-6">
+      <motion.main
+        className="mx-auto max-w-md p-6 space-y-6"
+        key="step-datos"
+        initial={reduced ? false : {opacity: 0, y: 8}}
+        animate={reduced ? {} : {opacity: 1, y: 0}}
+        exit={reduced ? {} : {opacity: 0, y: -8}}
+        transition={{duration: 0.18, ease: [0.4, 0, 0.2, 1]}}
+      >
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4 text-blue-500" aria-hidden="true" />
           <span className="font-semibold">{cuadraNombre}</span>
@@ -229,13 +238,19 @@ export default function PagoForm({
           Identificamos tu auto por la patente. Acordate de tu DNI físico por si
           te lo piden.
         </p>
-      </main>
+      </motion.main>
     );
   }
 
   if (step === 'pagar' && calculo) {
     return (
-      <main className="mx-auto max-w-md p-6 space-y-6">
+      <motion.main
+        className="mx-auto max-w-md p-6 space-y-6"
+        key="step-pagar"
+        initial={reduced ? false : {opacity: 0, y: 8}}
+        animate={reduced ? {} : {opacity: 1, y: 0}}
+        transition={{duration: 0.18, ease: [0.4, 0, 0.2, 1]}}
+      >
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{cuadraNombre}</Badge>
           <Badge variant="outline" className="font-mono">
@@ -244,22 +259,28 @@ export default function PagoForm({
           <Badge variant="secondary">{formatDuracion(duracion)}</Badge>
         </div>
 
-        <Card>
-          <CardContent className="space-y-1 p-5">
-            <div className="text-sm uppercase tracking-wider text-gray-500">
-              Total a pagar
-            </div>
-            <div className="font-mono text-4xl font-semibold text-gray-900">
-              {formatARS(calculo.monto_total)}
-            </div>
-            {calculo.descuento > 0 && (
-              <p className="pt-1 text-sm text-emerald-700">
-                Pago digital · descuento de {formatARS(calculo.descuento)} (lo
-                absorbe la Muni)
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={reduced ? false : {opacity: 0, y: 6}}
+          animate={reduced ? {} : {opacity: 1, y: 0}}
+          transition={{duration: 0.2, ease: [0.4, 0, 0.2, 1], delay: 0.05}}
+        >
+          <Card>
+            <CardContent className="space-y-1 p-5">
+              <div className="text-sm uppercase tracking-wider text-gray-500">
+                Total a pagar
+              </div>
+              <div className="font-mono text-4xl font-semibold text-gray-900">
+                {formatARS(calculo.monto_total)}
+              </div>
+              {calculo.descuento > 0 && (
+                <p className="pt-1 text-sm text-emerald-700">
+                  Pago digital · descuento de {formatARS(calculo.descuento)} (lo
+                  absorbe la Muni)
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
 
         <PaymentBrickWrapper
           amount={calculo.monto_total}
@@ -278,7 +299,7 @@ export default function PagoForm({
         >
           Volver
         </Button>
-      </main>
+      </motion.main>
     );
   }
 

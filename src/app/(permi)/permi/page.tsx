@@ -5,6 +5,7 @@ import {createClient} from '@/lib/supabase/server';
 import {formatARS, formatFecha} from '@/lib/utils';
 import SesionItem from './SesionItem';
 import RealtimeUpdater from './RealtimeUpdater';
+import AnimatedPermiDashboard, {AnimatedPermiItem, FadeUpItem} from './AnimatedPermiDashboard';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -65,88 +66,96 @@ export default async function DashboardPage() {
       </p>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3">
-        <div
-          className="rounded-2xl border p-4 text-center"
-          style={{
-            backgroundColor: 'var(--bg-surface)',
-            borderColor: 'var(--border)',
-            boxShadow: 'var(--shadow-1)',
-          }}
-        >
-          <span
-            className="font-mono text-3xl font-bold block"
-            style={{color: 'var(--primary)'}}
+      <AnimatedPermiDashboard className="grid grid-cols-3 gap-3">
+        <AnimatedPermiItem>
+          <div
+            className="rounded-2xl border p-4 text-center"
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              borderColor: 'var(--border)',
+              boxShadow: 'var(--shadow-1)',
+            }}
           >
-            {activas.length}
-          </span>
-          <span className="text-xs" style={{color: 'var(--fg3)'}}>
-            Activas
-          </span>
-        </div>
-        <div
-          className="rounded-2xl border p-4 text-center"
-          style={{
-            backgroundColor: 'var(--bg-surface)',
-            borderColor: 'var(--border)',
-            boxShadow: 'var(--shadow-1)',
-          }}
-        >
-          <span
-            className="font-mono text-3xl font-bold block"
-            style={{color: 'var(--fg1)'}}
+            <span
+              className="font-mono text-3xl font-bold block"
+              style={{color: 'var(--primary)'}}
+            >
+              {activas.length}
+            </span>
+            <span className="text-xs" style={{color: 'var(--fg3)'}}>
+              Activas
+            </span>
+          </div>
+        </AnimatedPermiItem>
+        <AnimatedPermiItem>
+          <div
+            className="rounded-2xl border p-4 text-center"
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              borderColor: 'var(--border)',
+              boxShadow: 'var(--shadow-1)',
+            }}
           >
-            {todasLasSesiones.length}
-          </span>
-          <span className="text-xs" style={{color: 'var(--fg3)'}}>
-            Total hoy
-          </span>
-        </div>
-        <div
-          className="rounded-2xl border p-4 text-center"
-          style={{
-            backgroundColor: 'var(--bg-surface)',
-            borderColor: 'var(--border)',
-            boxShadow: 'var(--shadow-1)',
-          }}
-        >
-          <span
-            className="font-mono text-xl font-bold block"
-            style={{color: 'var(--fg1)'}}
+            <span
+              className="font-mono text-3xl font-bold block"
+              style={{color: 'var(--fg1)'}}
+            >
+              {todasLasSesiones.length}
+            </span>
+            <span className="text-xs" style={{color: 'var(--fg3)'}}>
+              Total hoy
+            </span>
+          </div>
+        </AnimatedPermiItem>
+        <AnimatedPermiItem>
+          <div
+            className="rounded-2xl border p-4 text-center"
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              borderColor: 'var(--border)',
+              boxShadow: 'var(--shadow-1)',
+            }}
           >
-            {formatARS(totalRecaudado)}
-          </span>
-          <span className="text-xs" style={{color: 'var(--fg3)'}}>
-            Recaudado
-          </span>
-        </div>
-      </div>
+            <span
+              className="font-mono text-xl font-bold block"
+              style={{color: 'var(--fg1)'}}
+            >
+              {formatARS(totalRecaudado)}
+            </span>
+            <span className="text-xs" style={{color: 'var(--fg3)'}}>
+              Recaudado
+            </span>
+          </div>
+        </AnimatedPermiItem>
+      </AnimatedPermiDashboard>
 
       {/* Card a rendir */}
       {totalEfectivo > 0 && (
-        <div
-          className="rounded-2xl border p-4 flex items-center justify-between"
-          style={{
-            backgroundColor: 'var(--gold-50)',
-            borderColor: 'var(--gold-300)',
-            boxShadow: 'var(--shadow-1)',
-          }}
-        >
-          <div>
-            <p className="text-sm font-semibold" style={{color: 'var(--gold-700)'}}>
-              Efectivo a rendir a la Muni
-            </p>
-            <p className="text-xs mt-0.5" style={{color: 'var(--gold-600)'}}>
-              20% de {formatARS(totalEfectivo)} en efectivo
-            </p>
-          </div>
-          <span
-            className="font-mono text-xl font-bold"
-            style={{color: 'var(--gold-700)'}}
+        <FadeUpItem>
+          <div
+            className="rounded-2xl border p-4 flex items-center justify-between"
+            style={{
+              backgroundColor: 'var(--gold-50)',
+              borderColor: 'var(--gold-300)',
+              boxShadow: 'var(--shadow-1)',
+            }}
           >
-            {formatARS(aRendir)}
-          </span>
-        </div>
+            <div>
+              <p className="text-sm font-semibold" style={{color: 'var(--gold-700)'}}>
+                Efectivo a rendir a la Muni
+              </p>
+              <p className="text-xs mt-0.5" style={{color: 'var(--gold-600)'}}>
+                20% de {formatARS(totalEfectivo)} en efectivo
+              </p>
+            </div>
+            <span
+              className="font-mono text-xl font-bold"
+              style={{color: 'var(--gold-700)'}}
+            >
+              {formatARS(aRendir)}
+            </span>
+          </div>
+        </FadeUpItem>
       )}
 
       {/* CTA Cobrar */}

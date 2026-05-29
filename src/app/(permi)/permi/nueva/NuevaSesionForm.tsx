@@ -3,6 +3,7 @@
 import {useState, useTransition} from 'react';
 import {useRouter} from 'next/navigation';
 import {Car, Bike, CircleAlert, CircleCheck, Clock, QrCode} from 'lucide-react';
+import {motion, useReducedMotion} from 'motion/react';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {formatARS, formatHora} from '@/lib/utils';
@@ -38,6 +39,7 @@ interface Calculo {
 
 export default function NuevaSesionForm() {
   const router = useRouter();
+  const reduced = useReducedMotion();
   const [step, setStep] = useState<Step>('datos');
   const [patente, setPatente] = useState('');
   const [tipoVehiculo, setTipoVehiculo] = useState<TipoVehiculo>('auto');
@@ -289,28 +291,30 @@ export default function NuevaSesionForm() {
         )}
 
         <div className="space-y-3">
-          <button
+          <motion.button
             type="button"
             onClick={handleConfirmar}
             disabled={isPending}
             className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
+            whileTap={reduced ? {} : {scale: 0.98}}
           >
             {isPending
               ? 'Procesando…'
               : medioElegido === 'digital'
               ? `Generar QR — ${formatARS(calculo.montoDigital)}`
               : `Confirmar cobro — ${formatARS(calculo.montoEfectivo)}`}
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             onClick={() => setStep('datos')}
             disabled={isPending}
             className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
+            whileTap={reduced ? {} : {scale: 0.98}}
           >
             Volver y editar
-          </button>
+          </motion.button>
         </div>
       </div>
     );
@@ -320,17 +324,25 @@ export default function NuevaSesionForm() {
   if (step === 'exito') {
     return (
       <div className="p-6 space-y-6 text-center">
-        <div
+        <motion.div
           className="mx-auto flex items-center justify-center w-16 h-16 rounded-full"
           style={{backgroundColor: 'var(--success-bg)'}}
           aria-hidden="true"
+          initial={reduced ? false : {opacity: 0, scale: 0.85}}
+          animate={reduced ? {} : {opacity: 1, scale: 1}}
+          transition={{duration: 0.2, ease: [0.4, 0, 0.2, 1]}}
         >
           <CircleCheck
             className="h-8 w-8"
             style={{color: 'var(--success)'}}
           />
-        </div>
-        <div className="space-y-1">
+        </motion.div>
+        <motion.div
+          className="space-y-1"
+          initial={reduced ? false : {opacity: 0, y: 6}}
+          animate={reduced ? {} : {opacity: 1, y: 0}}
+          transition={{duration: 0.2, ease: [0.4, 0, 0.2, 1], delay: 0.05}}
+        >
           <h2 className="text-xl font-bold" style={{color: 'var(--fg1)'}}>
             Cobro registrado
           </h2>
@@ -340,24 +352,26 @@ export default function NuevaSesionForm() {
           <p className="text-sm" style={{color: 'var(--fg2)'}}>
             {formatDuracion(duracion)} · {formatARS(montoConfirmado)}
           </p>
-        </div>
+        </motion.div>
         <div className="space-y-3">
-          <button
+          <motion.button
             type="button"
             onClick={resetForm}
             className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
+            whileTap={reduced ? {} : {scale: 0.98}}
           >
             Registrar otro cobro
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             onClick={() => router.push('/permi')}
             className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
+            whileTap={reduced ? {} : {scale: 0.98}}
           >
             Ir al inicio
-          </button>
+          </motion.button>
         </div>
       </div>
     );
@@ -490,15 +504,16 @@ export default function NuevaSesionForm() {
         </div>
       )}
 
-      <button
+      <motion.button
         type="button"
         onClick={handleCalcular}
         disabled={isPending || !patente.trim()}
         className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         style={{backgroundColor: 'var(--primary)', color: 'white'}}
+        whileTap={reduced ? {} : {scale: 0.98}}
       >
         {isPending ? 'Calculando…' : 'Ver monto y confirmar'}
-      </button>
+      </motion.button>
     </div>
   );
 }

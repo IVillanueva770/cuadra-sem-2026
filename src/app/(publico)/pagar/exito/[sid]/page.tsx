@@ -1,11 +1,12 @@
 import {notFound} from 'next/navigation';
 import Link from 'next/link';
-import {CircleCheck, Info} from 'lucide-react';
+import {Info} from 'lucide-react';
 import {createServiceClient} from '@/lib/supabase/server';
 import {formatHora} from '@/lib/utils';
 import Comprobante from '@/components/cuadra/Comprobante';
 import StatusScreenWrapper from './StatusScreenWrapper';
 import LiberarBoton from './LiberarBoton';
+import ExitoHeader from './ExitoHeader';
 
 interface Props {
   params: Promise<{sid: string}>;
@@ -68,24 +69,7 @@ export default async function ExitoPage({params, searchParams}: Props) {
 
   return (
     <main className="mx-auto max-w-md space-y-6 p-6">
-      <header className="space-y-3 text-center">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-50">
-          <CircleCheck
-            className="h-10 w-10 text-emerald-600"
-            aria-hidden="true"
-          />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Listo, ya estás cubierto
-        </h1>
-        <p className="text-base text-gray-600">
-          Tu estacionamiento está pago hasta las{' '}
-          <strong className="text-gray-900">
-            {formatHora(session.cubierta_hasta)}
-          </strong>
-          .
-        </p>
-      </header>
+      <ExitoHeader cubiertaHasta={formatHora(session.cubierta_hasta)} />
 
       {paymentId && <StatusScreenWrapper paymentId={paymentId} />}
 

@@ -10,6 +10,7 @@ import RangoSelector from './RangoSelector';
 import ComposicionPagos from './ComposicionPagos';
 import EfectivoConciliar from './EfectivoConciliar';
 import TopCuadras from './TopCuadras';
+import AnimatedGrid, {AnimatedItem} from './AnimatedGrid';
 
 export const metadata: Metadata = {
   title: 'Dashboard · Panel Muni Cuadra',
@@ -289,90 +290,102 @@ export default async function AdminDashboardPage({
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          titulo={`Sesiones · ${rangoLabel[rango]}`}
-          valor={totalSesiones}
-          subtitulo={`${rangoLabel[rango]}`}
-          icon={Activity}
-          accentColor="var(--primary)"
-          delta={
-            hasPrevData
-              ? {pct: pctDelta(totalSesiones, totalSesionesPrev), label: diasLabel}
-              : undefined
-          }
-        />
-        <KpiCard
-          titulo="Recaudación"
-          valor={formatARS(recaudacionTotal)}
-          subtitulo={rangoLabel[rango]}
-          icon={DollarSign}
-          accentColor="var(--success)"
-          delta={
-            hasPrevData
-              ? {pct: pctDelta(recaudacionTotal, recaudacionPrev), label: diasLabel}
-              : undefined
-          }
-        />
-        <KpiCard
-          titulo="% Digital"
-          valor={`${pctDigital}%`}
-          subtitulo={`${digitales} de ${totalSesiones} sesiones`}
-          icon={Smartphone}
-          accentColor="var(--accent)"
-          delta={
-            hasPrevData
-              ? {pct: pctDelta(pctDigital, pctDigitalPrev), label: diasLabel}
-              : undefined
-          }
-        />
-        <KpiCard
-          titulo="Permisionarios activos"
-          valor={permActivos > 0 ? permActivos : (permActivosCount ?? 0)}
-          subtitulo={permActivos > 0 ? `Con actividad en el período` : 'Con estado activo'}
-          icon={Users}
-          accentColor="var(--primary)"
-          delta={
-            hasPrevData && permActivos > 0
-              ? {pct: pctDelta(permActivos, permActivosPrev), label: diasLabel}
-              : undefined
-          }
-        />
-      </div>
+      <AnimatedGrid className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <AnimatedItem>
+          <KpiCard
+            titulo={`Sesiones · ${rangoLabel[rango]}`}
+            valor={totalSesiones}
+            subtitulo={`${rangoLabel[rango]}`}
+            icon={Activity}
+            accentColor="var(--primary)"
+            delta={
+              hasPrevData
+                ? {pct: pctDelta(totalSesiones, totalSesionesPrev), label: diasLabel}
+                : undefined
+            }
+          />
+        </AnimatedItem>
+        <AnimatedItem>
+          <KpiCard
+            titulo="Recaudación"
+            valor={formatARS(recaudacionTotal)}
+            subtitulo={rangoLabel[rango]}
+            icon={DollarSign}
+            accentColor="var(--success)"
+            delta={
+              hasPrevData
+                ? {pct: pctDelta(recaudacionTotal, recaudacionPrev), label: diasLabel}
+                : undefined
+            }
+          />
+        </AnimatedItem>
+        <AnimatedItem>
+          <KpiCard
+            titulo="% Digital"
+            valor={`${pctDigital}%`}
+            subtitulo={`${digitales} de ${totalSesiones} sesiones`}
+            icon={Smartphone}
+            accentColor="var(--accent)"
+            delta={
+              hasPrevData
+                ? {pct: pctDelta(pctDigital, pctDigitalPrev), label: diasLabel}
+                : undefined
+            }
+          />
+        </AnimatedItem>
+        <AnimatedItem>
+          <KpiCard
+            titulo="Permisionarios activos"
+            valor={permActivos > 0 ? permActivos : (permActivosCount ?? 0)}
+            subtitulo={permActivos > 0 ? `Con actividad en el período` : 'Con estado activo'}
+            icon={Users}
+            accentColor="var(--primary)"
+            delta={
+              hasPrevData && permActivos > 0
+                ? {pct: pctDelta(permActivos, permActivosPrev), label: diasLabel}
+                : undefined
+            }
+          />
+        </AnimatedItem>
+      </AnimatedGrid>
 
       {/* Composición + Conciliación */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ComposicionPagos
-          montoDigital={montoDigital}
-          montoEfectivo={montoEfectivo}
-          sesionesDigital={digitales}
-          sesionesEfectivo={sesiones.filter((s) => s.medio_pago === 'efectivo').length}
-        />
-        <EfectivoConciliar
-          totalEfectivo={montoEfectivo}
-          permisionariosConEfectivo={permConEfectivo}
-        />
-      </div>
+      <AnimatedGrid className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <AnimatedItem>
+          <ComposicionPagos
+            montoDigital={montoDigital}
+            montoEfectivo={montoEfectivo}
+            sesionesDigital={digitales}
+            sesionesEfectivo={sesiones.filter((s) => s.medio_pago === 'efectivo').length}
+          />
+        </AnimatedItem>
+        <AnimatedItem>
+          <EfectivoConciliar
+            totalEfectivo={montoEfectivo}
+            permisionariosConEfectivo={permConEfectivo}
+          />
+        </AnimatedItem>
+      </AnimatedGrid>
 
       {/* Chart + Top permisionarios */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <AnimatedGrid className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <AnimatedItem className="lg:col-span-2">
           <RecaudacionChart datos={datoChart} titulo={chartLabel} />
-        </div>
-        <div>
+        </AnimatedItem>
+        <AnimatedItem>
           <TopPermisionarios datos={topPermisionarios} />
-        </div>
-      </div>
+        </AnimatedItem>
+      </AnimatedGrid>
 
       {/* Top cuadras + Sesiones activas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
+      <AnimatedGrid className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <AnimatedItem className="lg:col-span-1">
           <TopCuadras datos={topCuadras} labelRango={rangoLabel[rango]} />
-        </div>
-        <div className="lg:col-span-2">
+        </AnimatedItem>
+        <AnimatedItem className="lg:col-span-2">
           <RealtimeDashboard />
-        </div>
-      </div>
+        </AnimatedItem>
+      </AnimatedGrid>
     </div>
   );
 }
