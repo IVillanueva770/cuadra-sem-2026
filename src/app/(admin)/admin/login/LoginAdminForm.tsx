@@ -8,16 +8,46 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 
+function wait(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+function typeInto(setter: (v: string) => void, text: string, speed = 35) {
+  return new Promise<void>((res) => {
+    let i = 1;
+    const tick = () => {
+      setter(text.slice(0, i));
+      if (i < text.length) {
+        i++;
+        setTimeout(tick, speed);
+      } else res();
+    };
+    tick();
+  });
+}
+
 export default function LoginAdminForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [typing, setTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     createClient().auth.signOut().catch(() => {});
   }, []);
+
+  async function autocompletarDemo() {
+    if (typing || loading) return;
+    setError(null);
+    setTyping(true);
+    setEmail('');
+    setPassword('');
+    await typeInto(setEmail, 'admin@municipalidadsalta.gob.ar', 30);
+    await wait(170);
+    await typeInto(setPassword, 'muni2026', 70);
+    setTyping(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -91,20 +121,16 @@ export default function LoginAdminForm() {
         {loading ? 'Ingresando...' : 'Ingresar al panel'}
       </Button>
 
-      {/* DEMO — autocompletar credenciales de prueba */}
+      {/* DEMO — autocompletar credenciales de prueba (con efecto de tipeo) */}
       <button
         type="button"
-        onClick={() => {
-          setEmail('admin@municipalidadsalta.gob.ar');
-          setPassword('muni2026');
-          setError(null);
-        }}
-        disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-colors"
+        onClick={autocompletarDemo}
+        disabled={loading || typing}
+        className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-all duration-150 hover:bg-[var(--blue-50)] hover:border-[var(--primary)] active:scale-[0.98] disabled:opacity-70"
         style={{borderColor: 'var(--border)', color: 'var(--fg3)'}}
       >
-        <Sparkles className="h-4 w-4" aria-hidden="true" />
-        Autocompletar datos de demo
+        <Sparkles className={`h-4 w-4 ${typing ? 'animate-pulse' : ''}`} style={{color: typing ? 'var(--primary)' : undefined}} aria-hidden="true" />
+        {typing ? 'Escribiendo…' : 'Autocompletar datos de demo'}
       </button>
     </form>
   );

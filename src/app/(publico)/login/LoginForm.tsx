@@ -8,13 +8,44 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 
+function wait(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+function typeInto(setter: (v: string) => void, text: string, speed = 60) {
+  return new Promise<void>((res) => {
+    let i = 1;
+    const tick = () => {
+      setter(text.slice(0, i));
+      if (i < text.length) {
+        i++;
+        setTimeout(tick, speed);
+      } else res();
+    };
+    tick();
+  });
+}
+
 export default function LoginForm() {
   const router = useRouter();
   const [dni, setDni] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [typing, setTyping] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  async function autocompletarDemo() {
+    if (typing || isPending) return;
+    setError(null);
+    setShowPassword(true);
+    setTyping(true);
+    setDni('');
+    setPassword('');
+    await typeInto(setDni, '20184567', 55);
+    await wait(170);
+    await typeInto(setPassword, 'test123', 70);
+    setTyping(false);
+  }
 
   // Limpiar cualquier sesión previa (ej: si venías logueado como admin) al entrar al login
   useEffect(() => {
@@ -136,20 +167,16 @@ export default function LoginForm() {
         )}
       </Button>
 
-      {/* DEMO — autocompletar credenciales de prueba */}
+      {/* DEMO — autocompletar credenciales de prueba (con efecto de tipeo) */}
       <button
         type="button"
-        onClick={() => {
-          setDni('20184567');
-          setPassword('test123');
-          setError(null);
-        }}
-        disabled={isPending}
-        className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-colors"
+        onClick={autocompletarDemo}
+        disabled={isPending || typing}
+        className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-all duration-150 hover:bg-[var(--blue-50)] hover:border-[var(--primary)] active:scale-[0.98] disabled:opacity-70"
         style={{borderColor: 'var(--border)', color: 'var(--fg3)'}}
       >
-        <Sparkles className="h-4 w-4" aria-hidden="true" />
-        Autocompletar datos de demo
+        <Sparkles className={`h-4 w-4 ${typing ? 'animate-pulse' : ''}`} style={{color: typing ? 'var(--primary)' : undefined}} aria-hidden="true" />
+        {typing ? 'Escribiendo…' : 'Autocompletar datos de demo'}
       </button>
     </form>
   );
