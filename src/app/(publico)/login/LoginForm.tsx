@@ -2,7 +2,7 @@
 
 import {useState, useTransition} from 'react';
 import {useRouter} from 'next/navigation';
-import {LogIn, AlertCircle, Eye, EyeOff} from 'lucide-react';
+import {LogIn, AlertCircle, Eye, EyeOff, Sparkles} from 'lucide-react';
 import {createClient} from '@/lib/supabase/client';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -130,6 +130,22 @@ export default function LoginForm() {
           </span>
         )}
       </Button>
+
+      {/* DEMO — autocompletar credenciales de prueba */}
+      <button
+        type="button"
+        onClick={() => {
+          setDni('20184567');
+          setPassword('test123');
+          setError(null);
+        }}
+        disabled={isPending}
+        className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-colors"
+        style={{borderColor: 'var(--border)', color: 'var(--fg3)'}}
+      >
+        <Sparkles className="h-4 w-4" aria-hidden="true" />
+        Autocompletar datos de demo
+      </button>
     </form>
   );
 }

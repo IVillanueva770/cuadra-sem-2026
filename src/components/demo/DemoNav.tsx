@@ -16,7 +16,7 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import {AnimatePresence, motion} from 'motion/react';
-import {Car, Ticket, Building2, X, LayoutGrid, ChevronRight} from 'lucide-react';
+import {Car, Ticket, Building2, X, LayoutGrid, ChevronRight, Sparkles} from 'lucide-react';
 
 type Pantalla = {label: string; href: string};
 type Grupo = {
@@ -169,6 +169,21 @@ export default function DemoNav() {
                   </motion.div>
                 );
               })}
+
+              <div className="px-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    window.dispatchEvent(new Event('cuadra:replay-splash'));
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+                  style={{color: 'var(--fg3)'}}
+                >
+                  <Sparkles className="h-4 w-4" aria-hidden="true" />
+                  Ver intro de nuevo
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

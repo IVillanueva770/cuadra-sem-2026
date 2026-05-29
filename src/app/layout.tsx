@@ -1,6 +1,7 @@
 import type {Metadata, Viewport} from 'next';
 import {DM_Sans, DM_Mono} from 'next/font/google';
 import './globals.css';
+import SplashScreen from '@/components/cuadra/SplashScreen';
 // DEMO ONLY — quitar para producción (ver nota en el archivo)
 import DemoNav from '@/components/demo/DemoNav';
 
@@ -47,6 +48,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="es-AR" className={`${dmSans.variable} ${dmMono.variable}`}>
       <body>
+        <SplashScreen />
         {children}
         {/* DEMO ONLY — navegador flotante para el pitch. Borrar esta línea + el archivo para producción. */}
         <DemoNav />

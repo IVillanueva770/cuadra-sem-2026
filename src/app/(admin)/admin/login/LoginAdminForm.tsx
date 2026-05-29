@@ -2,6 +2,7 @@
 
 import {useState} from 'react';
 import {useRouter} from 'next/navigation';
+import {Sparkles} from 'lucide-react';
 import {createClient} from '@/lib/supabase/client';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -85,6 +86,22 @@ export default function LoginAdminForm() {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Ingresando...' : 'Ingresar al panel'}
       </Button>
+
+      {/* DEMO — autocompletar credenciales de prueba */}
+      <button
+        type="button"
+        onClick={() => {
+          setEmail('admin@municipalidadsalta.gob.ar');
+          setPassword('muni2026');
+          setError(null);
+        }}
+        disabled={loading}
+        className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-colors"
+        style={{borderColor: 'var(--border)', color: 'var(--fg3)'}}
+      >
+        <Sparkles className="h-4 w-4" aria-hidden="true" />
+        Autocompletar datos de demo
+      </button>
     </form>
   );
 }
