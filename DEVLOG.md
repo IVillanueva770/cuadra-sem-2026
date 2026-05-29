@@ -2,6 +2,18 @@
 
 ## Estado Actual
 
+**Coherencia de datos + microinteracciones a fondo 29/05:**
+- **Bug crítico de datos resuelto**: el dashboard traía filas de `parking_sessions` y contaba en JS, pero Supabase capea a 1000 → 7d y 30d daban ambos 1000 y permisionarios activos salían al revés. Ahora `traerSesiones()` pagina de a 1000 (`.range`) y trae todo. Verificado: Hoy 780 / 7d 4.542 / 30d 15.320 (crece correcto).
+- **KpiCard**: ícono fijo arriba-derecha (alineado en las 4), número sin truncar (`tabular-nums`), alturas uniformes (título a 2 líneas + `h-full`).
+- **`formatARS`** sin el espacio del locale → `$715.230` pegado (afecta toda la app).
+- **RangoSelector** con estado optimista (se desliza al instante, no se traba) + navegación en `startTransition`.
+- **Listas paginadas** (permisionarios, auditoría): cross-fade por página (`motion.tbody key={pagina}`) en vez de exit/enter por fila (no más parpadeo) + altura reservada. Nuevo **paginador en `/permi`** (`AnterioresList`, 6/pág).
+- **Foco de sesión** (`SesionItem`): la card es tocable y se abre en modal con `layoutId` compartido (vuela al frente y se agranda) — patente/horas grandes para legibilidad, duración + monto, acción extender; cierra volviendo a su lugar.
+- **Microinteracciones**: `Button` base con `active:scale`; todos los CTAs/selectores de `/permi` con hover + hundir; cards (landing + permi KPIs) con hover-lift; **BottomNav** con pastilla deslizante (`layoutId`).
+- **Cierre del día**: jerarquía 2 niveles (desglose liviano + 3 filas-resultado con fondo de color semántico: verde entra / ámbar a rendir / azul total).
+- **Logout** reutilizable (`LogoutButton`) en header permi; **Volver** a la home en el conductor (`/pagar`).
+- **Logos** con auto recentrado (swap assets skill + app + favicon). Página técnica `arquitectura.html` (+ `-hibrida`) con autoevaluación SEM, 4 diagramas SVG, lightbox, scrollspy, typing.
+
 **Pulido diagramas + microinteracciones 29/05:**
 - **Diagramas de la página técnica** rehechos: barras con nombre descriptivo (no `archivo.svg`) + punto verde "en línea" titilante; secuencia de pago con fondo (knockout) detrás de cada label para no pisar las líneas de vida; máquina de estados reorganizada sin la flecha punteada que cruzaba; **DER rehecho** (flechas FK tipo bus, cajas de dinero rotuladas → permisionarios/→Muni, catálogos sin solape, sin flechas sueltas); cada diagrama se **amplía a pantalla completa** al tocarlo (lightbox, clona la figure; sirve en mobile con scroll). "Por qué es rápido" pasó de texto corrido a 4 items.
 - **Microinteracciones app**: todos los botones se hunden al click (`active:scale-[0.97]` en el Button base); card de acciones de la landing con hover-lift como los diferenciales; botón "Autocompletar datos de demo" (permi y admin) ahora **escribe las credenciales con efecto máquina de escribir** (helper `typeInto`, email y luego contraseña).
