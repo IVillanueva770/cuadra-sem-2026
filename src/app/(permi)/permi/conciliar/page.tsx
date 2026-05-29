@@ -95,7 +95,7 @@ export default async function ConciliarPage() {
           <span className="text-base" style={{color: 'var(--fg1)'}}>
             Sesiones completadas
           </span>
-          <span className="font-mono text-base font-semibold" style={{color: 'var(--fg1)'}}>
+          <span className="font-mono text-base font-medium tabular-nums" style={{color: 'var(--fg2)'}}>
             {sesionesCompletadas.length}
           </span>
         </div>
@@ -104,7 +104,7 @@ export default async function ConciliarPage() {
           <span className="text-base" style={{color: 'var(--fg1)'}}>
             Cobro digital (MP)
           </span>
-          <span className="font-mono text-base font-semibold" style={{color: 'var(--fg1)'}}>
+          <span className="font-mono text-base font-medium tabular-nums" style={{color: 'var(--fg2)'}}>
             {formatARS(totalDigital)}
           </span>
         </div>
@@ -113,7 +113,7 @@ export default async function ConciliarPage() {
           <span className="text-base" style={{color: 'var(--fg1)'}}>
             Cobro en efectivo
           </span>
-          <span className="font-mono text-base font-semibold" style={{color: 'var(--fg1)'}}>
+          <span className="font-mono text-base font-medium tabular-nums" style={{color: 'var(--fg2)'}}>
             {formatARS(totalEfectivo)}
           </span>
         </div>
@@ -152,18 +152,21 @@ export default async function ConciliarPage() {
           </p>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3">
+        <div
+          className="flex items-center justify-between px-4 py-4"
+          style={{backgroundColor: 'var(--success-bg)'}}
+        >
           <div>
-            <span className="text-base" style={{color: 'var(--fg1)'}}>
+            <span className="text-base font-semibold" style={{color: '#166534'}}>
               Tu parte (80%)
             </span>
-            <p className="text-xs" style={{color: 'var(--fg3)'}}>
+            <p className="text-xs" style={{color: '#15803d'}}>
               Incluye lo digital ya en tu cuenta
             </p>
           </div>
           <span
-            className="font-mono text-lg font-semibold"
-            style={{color: 'var(--success)'}}
+            className="font-mono text-2xl font-bold tabular-nums"
+            style={{color: '#166534'}}
           >
             {formatARS(partePermisionario)}
           </span>
