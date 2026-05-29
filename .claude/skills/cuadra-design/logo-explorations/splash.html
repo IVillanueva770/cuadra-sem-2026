@@ -78,6 +78,8 @@
         <!-- cuadrado: trazo que se dibuja, luego relleno blanco -->
         <rect class="sq-outline" x="6" y="6" width="156" height="156" rx="36" pathLength="560"/>
         <rect class="sq-fill" x="6" y="6" width="156" height="156" rx="36"/>
+        <!-- grupo del auto recentrado verticalmente (no rompe la animación translateX interna) -->
+        <g transform="translate(0,-9)">
         <!-- auto (azul sobre el cuadrado blanco) que se estaciona -->
         <g class="car" fill="var(--blue)">
           <path d="M40 100 v-9 a6.5 6.5 0 0 1 4.6 -6.2 l6 -1.6 l9.2 -12.4 a11 11 0 0 1 8.7 -4.3 h27.3 a11 11 0 0 1 8.2 3.7 l9.7 11 l8.2 2.4 a6.5 6.5 0 0 1 4.6 6.2 V100 a5.5 5.5 0 0 1 -5.5 5.5 H45.5 A5.5 5.5 0 0 1 40 100 Z"/>
@@ -91,6 +93,7 @@
         </g>
         <!-- línea del lugar -->
         <rect class="ground" x="50" y="118" width="68" height="7" rx="3.5" fill="var(--blue)"/>
+        </g>
       </svg>
     </div>
     <div style="text-align:center">
