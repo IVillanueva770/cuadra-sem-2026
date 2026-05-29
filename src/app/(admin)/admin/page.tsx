@@ -18,7 +18,7 @@ export default async function AdminDashboardPage() {
   const hoy = new Date().toISOString().split('T')[0];
 
   // KPIs del día de hoy
-  const [{data: sesionesHoy}, {data: permActivos}] = await Promise.all([
+  const [{data: sesionesHoy}, {count: permActivosCount}] = await Promise.all([
     supabase
       .from('parking_sessions')
       .select('id, monto, medio_pago')
@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
   const digitalesHoy = sesionesHoy?.filter((s) => s.medio_pago === 'digital_mp').length ?? 0;
   const pctDigital =
     totalSesionesHoy > 0 ? Math.round((digitalesHoy / totalSesionesHoy) * 100) : 0;
-  const totalPermActivos = (permActivos as unknown as {count: number} | null)?.count ?? 0;
+  const totalPermActivos = permActivosCount ?? 0;
 
   // Chart: recaudación 21 días — usando metricas_diarias (agrupadas por fecha)
   const fechaInicio = new Date();
