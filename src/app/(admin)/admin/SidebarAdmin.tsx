@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import CuadraMark from '@/components/cuadra/CuadraMark';
 import {usePathname, useRouter} from 'next/navigation';
 import {AnimatePresence, motion} from 'motion/react';
 import {
@@ -45,12 +45,10 @@ export default function SidebarAdmin({collapsed, setCollapsed, mobileOpen, setMo
       <>
         {/* Logo */}
         <div
-          className="relative flex items-center gap-3 px-4 py-4 border-b"
+          className="flex items-center gap-3 px-4 py-4 border-b"
           style={{borderColor: 'var(--primary-active)', backgroundColor: 'var(--primary)'}}
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white p-1.5">
-            <Image src="/icons/cuadra-symbol.svg" alt="" width={32} height={32} priority />
-          </div>
+          <CuadraMark size={40} tone="dark" />
           <div className="min-w-0">
             <p className="text-lg font-bold leading-tight" style={{color: 'white'}}>
               Cuadra
@@ -59,21 +57,23 @@ export default function SidebarAdmin({collapsed, setCollapsed, mobileOpen, setMo
               Estacionamiento Medido de Salta
             </p>
           </div>
+        </div>
+        <div className="flex items-center justify-between px-5 pt-3 pb-1">
+          <p className="text-xs font-semibold uppercase tracking-wider" style={{color: 'var(--fg3)'}}>
+            Panel Muni
+          </p>
           {showCollapse && (
             <button
               type="button"
               onClick={() => setCollapsed(true)}
               aria-label="Colapsar menú"
-              className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-white/15 active:scale-95"
-              style={{color: 'rgba(255,255,255,0.85)'}}
+              className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-[var(--bg-subtle)] active:scale-95"
+              style={{color: 'var(--fg3)'}}
             >
-              <ChevronLeft size={18} aria-hidden="true" />
+              <ChevronLeft size={16} aria-hidden="true" />
             </button>
           )}
         </div>
-        <p className="px-5 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider" style={{color: 'var(--fg3)'}}>
-          Panel Muni
-        </p>
 
         {/* Nav */}
         <nav className="flex-1 py-2 overflow-y-auto" aria-label="Navegación admin">

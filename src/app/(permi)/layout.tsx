@@ -1,6 +1,7 @@
 import {redirect} from 'next/navigation';
 import {createClient} from '@/lib/supabase/server';
 import BottomNav from '@/components/cuadra/BottomNav';
+import CuadraMark from '@/components/cuadra/CuadraMark';
 
 export default async function PermiLayout({
   children,
@@ -47,13 +48,7 @@ export default async function PermiLayout({
       >
         <div className="mx-auto flex max-w-md items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
-            <div
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold"
-              style={{backgroundColor: 'rgba(255,255,255,0.15)', color: 'white'}}
-              aria-hidden="true"
-            >
-              C
-            </div>
+            <CuadraMark size={36} tone="dark" />
             <span
               className="font-semibold text-base"
               style={{color: 'white'}}

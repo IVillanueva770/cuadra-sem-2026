@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {QrCode, Zap, Users, Eye} from 'lucide-react';
 import {Button} from '@/components/ui/button';
+import CuadraMark from '@/components/cuadra/CuadraMark';
 import VerificarPatenteInput from './VerificarPatenteInput';
 
 const DIFERENCIALES = [
@@ -20,15 +21,7 @@ export default function HomePage() {
 
         {/* Hero */}
         <section className="flex flex-col items-center gap-4 text-center">
-          <Image
-            src="/icons/cuadra-symbol.svg"
-            alt=""
-            width={76}
-            height={76}
-            priority
-            className="rounded-[20px]"
-            style={{boxShadow: '0 8px 24px rgba(20, 95, 176, 0.28)'}}
-          />
+          <CuadraMark size={80} tone="light" style={{boxShadow: '0 10px 28px rgba(20, 95, 176, 0.30)'}} />
           <div>
             <h1
               className="text-4xl font-bold"
@@ -42,27 +35,23 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Diferenciales — 3 columnas en desktop, columna en mobile */}
-        <section className="grid w-full gap-3 sm:grid-cols-3">
+        {/* Diferenciales */}
+        <section className="grid w-full gap-4 sm:grid-cols-3">
           {DIFERENCIALES.map(({Icon, titulo, texto}) => (
             <div
               key={titulo}
-              className="flex items-start gap-3 rounded-2xl p-4 sm:flex-col sm:items-center sm:text-center sm:gap-2"
-              style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow-1)',
-              }}
+              className="group flex flex-col items-start gap-4 rounded-2xl border p-5 shadow-[var(--shadow-1)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-2)]"
+              style={{background: 'var(--bg-surface)', borderColor: 'var(--border)'}}
             >
               <div
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-                style={{backgroundColor: 'var(--blue-50)'}}
+                className="flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
+                style={{backgroundColor: 'var(--primary)', boxShadow: '0 6px 16px rgba(20, 95, 176, 0.32)'}}
               >
-                <Icon style={{width: 20, height: 20, color: 'var(--primary)'}} aria-hidden="true" />
+                <Icon style={{width: 22, height: 22, color: '#fff'}} aria-hidden="true" />
               </div>
               <div>
-                <p className="text-sm font-semibold" style={{color: 'var(--fg1)'}}>{titulo}</p>
-                <p className="text-sm mt-0.5" style={{color: 'var(--fg3)'}}>{texto}</p>
+                <p className="text-base font-bold" style={{color: 'var(--fg1)'}}>{titulo}</p>
+                <p className="text-sm mt-1 leading-relaxed" style={{color: 'var(--fg2)'}}>{texto}</p>
               </div>
             </div>
           ))}
@@ -77,7 +66,7 @@ export default function HomePage() {
             boxShadow: 'var(--shadow-1)',
           }}
         >
-          <p className="overline" style={{color: 'var(--fg3)'}}>¿Qué querés hacer?</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.06em]" style={{color: 'var(--fg3)'}}>¿Qué querés hacer?</p>
 
           <VerificarPatenteInput />
 

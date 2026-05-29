@@ -34,7 +34,7 @@ export default function KpiCard({
 
   return (
     <Card className="relative overflow-hidden">
-      <CardContent className="p-5">
+      <CardContent className="!p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <p
