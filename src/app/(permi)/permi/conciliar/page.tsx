@@ -174,19 +174,19 @@ export default async function ConciliarPage() {
 
         <div
           className="flex items-center justify-between px-4 py-4"
-          style={{backgroundColor: 'var(--gold-50)'}}
+          style={{backgroundColor: '#FEF3C7'}}
         >
           <div>
-            <span className="text-base font-semibold" style={{color: 'var(--gold-700)'}}>
+            <span className="text-base font-semibold" style={{color: '#92400E'}}>
               A rendir a la Muni
             </span>
-            <p className="text-xs" style={{color: 'var(--gold-600)'}}>
+            <p className="text-xs" style={{color: '#B45309'}}>
               20% del efectivo cobrado
             </p>
           </div>
           <span
-            className="font-mono text-2xl font-bold"
-            style={{color: 'var(--gold-700)'}}
+            className="font-mono text-2xl font-bold tabular-nums"
+            style={{color: '#B45309'}}
           >
             {formatARS(aRendirMuni)}
           </span>
