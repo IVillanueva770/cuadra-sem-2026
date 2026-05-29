@@ -33,14 +33,17 @@ export default function SidebarAdmin() {
         className="flex items-center gap-3 px-4 py-4 border-b"
         style={{borderColor: 'var(--primary-active)', backgroundColor: 'var(--primary)'}}
       >
-        <Image
-          src="/icons/cuadra-logo-light.svg"
-          alt="Cuadra"
-          width={150}
-          height={40}
-          priority
-        />
-        <span className="sr-only">Cuadra Panel Muni</span>
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white p-1.5">
+          <Image src="/icons/cuadra-symbol.svg" alt="" width={32} height={32} priority />
+        </div>
+        <div className="min-w-0">
+          <p className="text-lg font-bold leading-tight" style={{color: 'white'}}>
+            Cuadra
+          </p>
+          <p className="text-xs leading-tight" style={{color: 'rgba(255,255,255,0.78)'}}>
+            Estacionamiento Medido de Salta
+          </p>
+        </div>
       </div>
       <p className="px-5 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider" style={{color: 'var(--fg3)'}}>
         Panel Muni

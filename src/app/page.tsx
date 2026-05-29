@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import {QrCode} from 'lucide-react';
+import {QrCode, Zap, Users, Eye} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import VerificarPatenteInput from './VerificarPatenteInput';
 
@@ -24,6 +24,25 @@ export default function HomePage() {
           <p className="body-m" style={{color: 'var(--fg2)'}}>
             El estacionamiento medido de Salta, ahora digital.
           </p>
+        </section>
+
+        {/* Diferenciales */}
+        <section className="flex flex-col gap-3">
+          {[
+            {Icon: Zap, texto: 'Pagás en segundos, sin descargar ninguna app.'},
+            {Icon: Users, texto: 'El permisionario sigue cobrando, ahora también en digital.'},
+            {Icon: Eye, texto: 'La Ordenanza siempre a la vista: sin cobros indebidos.'},
+          ].map(({Icon, texto}, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                style={{backgroundColor: 'var(--blue-50)'}}
+              >
+                <Icon style={{width: 18, height: 18, color: 'var(--primary)'}} aria-hidden="true" />
+              </div>
+              <p className="text-sm" style={{color: 'var(--fg2)'}}>{texto}</p>
+            </div>
+          ))}
         </section>
 
         {/* Card de acciones */}
