@@ -4,23 +4,10 @@
  * Usuario de test: DNI 20184567 / password test123
  * Creado/verificado automáticamente por tests/setup/global-setup.ts.
  *
- * ESTADO: Todos los tests están marcados con test.skip por el siguiente bug
- * de routing de la aplicación:
- *
- * BUG: La ruta /login está dentro del grupo de rutas (permi) que incluye el
- * layout.tsx de ese grupo. Ese layout redirige a /login cuando el usuario no
- * está autenticado. Esto genera un redirect loop infinito (307 → 307 → …)
- * causando ERR_TOO_MANY_REDIRECTS cuando se intenta acceder a /login sin
- * sesión activa.
- *
- * Evidencia: GET /login devuelve 307 en loop cuando Playwright navega sin
- * cookies de sesión.
- *
- * SOLUCIÓN PENDIENTE (para el orquestador):
- * Mover el directorio `src/app/(permi)/login/` fuera del grupo (permi)
- * para que no herede el layout que redirige. Por ejemplo:
- *   src/app/(publico)/login/   ← sin layout de autenticación
- * O crear un layout separado (permi-login) que no tenga redirect.
+ * El bug de redirect loop en /login (la ruta vivía dentro del grupo (permi)
+ * cuyo layout redirige a /login cuando no hay sesión) fue resuelto moviendo
+ * `login/` al grupo (publico), que no tiene auth-guard. La URL /login se
+ * mantiene. Estos tests quedaron activos a partir de ese fix.
  *
  * Selectors verificados contra LoginForm.tsx y NuevaSesionForm.tsx.
  */
@@ -30,17 +17,14 @@ import { test, expect } from '@playwright/test';
 const TEST_DNI = '20184567';
 const TEST_PASSWORD = 'test123';
 
-// TODOS los tests de este spec están en skip hasta que se resuelva el bug de routing.
-// Ver comentario arriba. Descomentá test.skip() de cada test individual cuando el bug esté resuelto.
 test.describe('Flow permisionario - login y dashboard', () => {
 
-  test.skip('Login con DNI y contraseña correctos redirige al dashboard', async ({ page }) => {
-    // BUG: /login hace redirect loop cuando no hay sesión (ver nota arriba)
+  test('Login con DNI y contraseña correctos redirige al dashboard', async ({ page }) => {
     await page.goto('/login');
 
     // Rellenar formulario
     await page.getByLabel('DNI').fill(TEST_DNI);
-    await page.getByLabel('Contraseña').fill(TEST_PASSWORD);
+    await page.getByLabel('Contraseña', { exact: true }).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Ingresar' }).click();
 
     // Esperar redirect a /permi
@@ -48,15 +32,14 @@ test.describe('Flow permisionario - login y dashboard', () => {
     await expect(page).toHaveURL(/\/permi$/);
 
     // El dashboard debe mostrar el link "Registrar cobro"
-    await expect(page.getByText('Registrar cobro')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Registrar cobro' })).toBeVisible();
   });
 
-  test.skip('Login con DNI incorrecto muestra error', async ({ page }) => {
-    // BUG: /login hace redirect loop cuando no hay sesión (ver nota arriba)
+  test('Login con DNI incorrecto muestra error', async ({ page }) => {
     await page.goto('/login');
 
     await page.getByLabel('DNI').fill('99999999');
-    await page.getByLabel('Contraseña').fill('wrongpassword');
+    await page.getByLabel('Contraseña', { exact: true }).fill('wrongpassword');
     await page.getByRole('button', { name: 'Ingresar' }).click();
 
     // Debe mostrar error de auth
@@ -65,11 +48,10 @@ test.describe('Flow permisionario - login y dashboard', () => {
     ).toBeVisible();
   });
 
-  test.skip('Dashboard muestra KPIs y botón de cobro', async ({ page }) => {
-    // BUG: /login hace redirect loop cuando no hay sesión (ver nota arriba)
+  test('Dashboard muestra KPIs y botón de cobro', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('DNI').fill(TEST_DNI);
-    await page.getByLabel('Contraseña').fill(TEST_PASSWORD);
+    await page.getByLabel('Contraseña', { exact: true }).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Ingresar' }).click();
     await page.waitForURL('**/permi', { timeout: 15_000 });
 
@@ -79,26 +61,25 @@ test.describe('Flow permisionario - login y dashboard', () => {
     await expect(page.getByText('Recaudado')).toBeVisible();
 
     // CTA
-    await expect(page.getByText('Registrar cobro')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Registrar cobro' })).toBeVisible();
   });
 
-  test.skip('Registrar sesión en efectivo: formulario muestra duraciones y calcula monto', async ({ page }) => {
-    // BUG: /login hace redirect loop cuando no hay sesión (ver nota arriba)
+  test('Registrar sesión en efectivo: formulario muestra duraciones y calcula monto', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('DNI').fill(TEST_DNI);
-    await page.getByLabel('Contraseña').fill(TEST_PASSWORD);
+    await page.getByLabel('Contraseña', { exact: true }).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Ingresar' }).click();
     await page.waitForURL('**/permi', { timeout: 15_000 });
 
     // Ir a nueva sesión
-    await page.getByText('Registrar cobro').click();
+    await page.getByRole('link', { name: 'Registrar cobro' }).click();
     await page.waitForURL('**/permi/nueva', { timeout: 5_000 });
 
     // Verificar formulario
     await expect(page.getByLabel('Patente del vehículo')).toBeVisible();
 
     // Botones de duración: "1 h" es la primera opción de DURACIONES [60, 75, 90, 120, 150, 180]
-    await expect(page.getByRole('button', { name: '1 h' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '1 h', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '1 h 15 min' })).toBeVisible();
 
     // Ingresar patente
