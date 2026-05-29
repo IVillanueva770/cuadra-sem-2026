@@ -2,6 +2,7 @@ import {redirect} from 'next/navigation';
 import {createClient} from '@/lib/supabase/server';
 import BottomNav from '@/components/cuadra/BottomNav';
 import CuadraMark from '@/components/cuadra/CuadraMark';
+import LogoutButton from '@/components/cuadra/LogoutButton';
 
 export default async function PermiLayout({
   children,
@@ -70,6 +71,7 @@ export default async function PermiLayout({
             >
               {iniciales}
             </div>
+            <LogoutButton tone="light" />
           </div>
         </div>
       </header>
