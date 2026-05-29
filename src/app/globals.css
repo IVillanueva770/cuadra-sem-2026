@@ -39,9 +39,9 @@
   --on-primary: #FFFFFF;
   --accent: #D97706;
   --accent-hover: #B45309;
-  --bg: #FAFAF9;
+  --bg: #ECEFF4;
   --bg-surface: #FFFFFF;
-  --bg-subtle: #F3F4F6;
+  --bg-subtle: #F4F6F9;
   --fg1: #1F2937;
   --fg2: #4B5563;
   --fg3: #6B7280;
@@ -60,7 +60,7 @@
   --info: #0EA5E9;
   --info-bg: #EFF8FE;
 
-  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.05), 0 2px 8px rgba(16, 24, 40, 0.09);
   --shadow-2: 0 4px 8px rgba(16, 24, 40, 0.06), 0 8px 24px rgba(16, 24, 40, 0.08);
   --shadow-focus: 0 0 0 4px rgba(20, 95, 176, 0.25);
 }

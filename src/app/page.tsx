@@ -4,50 +4,73 @@ import {QrCode, Zap, Users, Eye} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import VerificarPatenteInput from './VerificarPatenteInput';
 
+const DIFERENCIALES = [
+  {Icon: Zap, titulo: 'En segundos', texto: 'Pagás al instante, sin descargar ninguna app.'},
+  {Icon: Users, titulo: 'Con el permisionario', texto: 'Sigue siendo quien cobra, ahora también en digital.'},
+  {Icon: Eye, titulo: 'Transparente', texto: 'La Ordenanza siempre a la vista. Sin cobros indebidos.'},
+];
+
 export default function HomePage() {
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-8"
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-10"
       style={{background: 'var(--bg)'}}
     >
-      <div className="w-full max-w-md flex flex-col gap-8">
+      <div className="w-full max-w-3xl flex flex-col items-center gap-9">
 
         {/* Hero */}
-        <section className="flex flex-col items-center gap-3 text-center">
+        <section className="flex flex-col items-center gap-4 text-center">
           <Image
-            src="/icons/cuadra-logo-color.svg"
-            alt="Cuadra"
-            width={200}
-            height={56}
+            src="/icons/cuadra-symbol.svg"
+            alt=""
+            width={76}
+            height={76}
             priority
+            className="rounded-[20px]"
+            style={{boxShadow: '0 8px 24px rgba(20, 95, 176, 0.28)'}}
           />
-          <p className="body-m" style={{color: 'var(--fg2)'}}>
-            El estacionamiento medido de Salta, ahora digital.
-          </p>
+          <div>
+            <h1
+              className="text-4xl font-bold"
+              style={{color: 'var(--fg1)', letterSpacing: '-0.02em'}}
+            >
+              Cuadra
+            </h1>
+            <p className="body-m mt-1.5" style={{color: 'var(--fg2)'}}>
+              El estacionamiento medido de Salta, ahora digital.
+            </p>
+          </div>
         </section>
 
-        {/* Diferenciales */}
-        <section className="flex flex-col gap-3">
-          {[
-            {Icon: Zap, texto: 'Pagás en segundos, sin descargar ninguna app.'},
-            {Icon: Users, texto: 'El permisionario sigue cobrando, ahora también en digital.'},
-            {Icon: Eye, texto: 'La Ordenanza siempre a la vista: sin cobros indebidos.'},
-          ].map(({Icon, texto}, i) => (
-            <div key={i} className="flex items-center gap-3">
+        {/* Diferenciales — 3 columnas en desktop, columna en mobile */}
+        <section className="grid w-full gap-3 sm:grid-cols-3">
+          {DIFERENCIALES.map(({Icon, titulo, texto}) => (
+            <div
+              key={titulo}
+              className="flex items-start gap-3 rounded-2xl p-4 sm:flex-col sm:items-center sm:text-center sm:gap-2"
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-1)',
+              }}
+            >
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
                 style={{backgroundColor: 'var(--blue-50)'}}
               >
-                <Icon style={{width: 18, height: 18, color: 'var(--primary)'}} aria-hidden="true" />
+                <Icon style={{width: 20, height: 20, color: 'var(--primary)'}} aria-hidden="true" />
               </div>
-              <p className="text-sm" style={{color: 'var(--fg2)'}}>{texto}</p>
+              <div>
+                <p className="text-sm font-semibold" style={{color: 'var(--fg1)'}}>{titulo}</p>
+                <p className="text-sm mt-0.5" style={{color: 'var(--fg3)'}}>{texto}</p>
+              </div>
             </div>
           ))}
         </section>
 
         {/* Card de acciones */}
         <section
-          className="rounded-2xl p-6 flex flex-col gap-5"
+          className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-5"
           style={{
             background: 'var(--bg-surface)',
             border: '1px solid var(--border)',
@@ -58,11 +81,7 @@ export default function HomePage() {
 
           <VerificarPatenteInput />
 
-          <div
-            className="border-t"
-            style={{borderColor: 'var(--border)'}}
-            aria-hidden="true"
-          />
+          <div className="border-t" style={{borderColor: 'var(--border)'}} aria-hidden="true" />
 
           <Link href="/ordenanza" className="block">
             <Button variant="secondary" className="w-full">
@@ -72,7 +91,7 @@ export default function HomePage() {
         </section>
 
         {/* Nota al conductor */}
-        <section className="flex items-start gap-2 text-center justify-center">
+        <section className="flex items-start gap-2 text-center justify-center max-w-md">
           <QrCode
             className="shrink-0 mt-0.5"
             style={{width: 16, height: 16, color: 'var(--fg3)'}}
@@ -89,25 +108,17 @@ export default function HomePage() {
           style={{color: 'var(--fg3)'}}
           aria-label="Accesos del sistema"
         >
-          <Link
-            href="/login"
-            className="hover:underline underline-offset-2 transition-colors"
-            style={{color: 'var(--fg3)'}}
-          >
+          <Link href="/login" className="hover:underline underline-offset-2 transition-colors" style={{color: 'var(--fg3)'}}>
             Soy permisionario
           </Link>
           <span aria-hidden="true">·</span>
-          <Link
-            href="/admin/login"
-            className="hover:underline underline-offset-2 transition-colors"
-            style={{color: 'var(--fg3)'}}
-          >
+          <Link href="/admin/login" className="hover:underline underline-offset-2 transition-colors" style={{color: 'var(--fg3)'}}>
             Municipalidad
           </Link>
         </nav>
 
         {/* Pie institucional con co-branding */}
-        <footer className="flex flex-col items-center gap-2 pb-2">
+        <footer className="flex flex-col items-center gap-2">
           <Image
             src="/icons/muni-salta-principal.png"
             alt="Municipalidad de la Ciudad de Salta"
