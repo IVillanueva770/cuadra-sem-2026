@@ -48,11 +48,11 @@ const GRUPOS: Grupo[] = [
   },
   {
     rol: 'Municipalidad',
-    detalle: 'Panel de Modernización',
+    detalle: 'admin@municipalidadsalta.gob.ar · clave muni2026',
     icon: Building2,
     pantallas: [
-      {label: 'Dashboard Muni', href: '/admin'},
       {label: 'Login admin', href: '/admin/login'},
+      {label: 'Dashboard Muni', href: '/admin'},
     ],
   },
 ];

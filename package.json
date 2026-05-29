@@ -13,7 +13,8 @@
     "playwright": "playwright test",
     "playwright:ui": "playwright test --ui",
     "seed": "tsx --env-file=.env.local scripts/seed-dinamico.ts",
-    "seed:hoy": "tsx --env-file=.env.local scripts/seed-hoy.ts"
+    "seed:hoy": "tsx --env-file=.env.local scripts/seed-hoy.ts",
+    "seed:admin": "tsx --env-file=.env.local scripts/seed-admin-demo.ts"
   },
   "dependencies": {
     "@mercadopago/sdk-react": "0.0.19",
