@@ -9,40 +9,34 @@
  * dispara el evento `cuadra:replay-splash`.
  */
 
-import {useEffect, useState, useCallback} from 'react';
+import {useEffect, useState} from 'react';
+import {usePathname} from 'next/navigation';
 import {AnimatePresence, motion, useReducedMotion} from 'motion/react';
 
 const AZUL = '#145FB0';
-const STORAGE_KEY = 'cuadra_splash_seen';
 
 export default function SplashScreen() {
-  const [show, setShow] = useState(false);
+  const pathname = usePathname();
+  // Visible desde el PRIMER render en la home → el overlay azul ya está en el HTML
+  // inicial, no hay flash de la landing antes del splash. Sin sessionStorage: cada
+  // carga completa de la home relanza la intro (no reaparece en navegación SPA porque
+  // el layout no se vuelve a montar).
+  const [show, setShow] = useState(pathname === '/');
   const reduce = useReducedMotion();
 
-  const reproducir = useCallback(() => {
-    setShow(true);
-    const dur = reduce ? 1100 : 3100;
-    const t = setTimeout(() => setShow(false), dur);
-    return () => clearTimeout(t);
-  }, [reduce]);
-
+  // Auto-cierre cada vez que el splash se muestra (carga inicial o replay).
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
-    if (!sessionStorage.getItem(STORAGE_KEY)) {
-      sessionStorage.setItem(STORAGE_KEY, '1');
-      cleanup = reproducir();
-    }
-    // Permite re-disparar la intro desde el menú de demo
-    const onReplay = () => {
-      cleanup?.();
-      cleanup = reproducir();
-    };
+    if (!show) return;
+    const t = setTimeout(() => setShow(false), reduce ? 900 : 3100);
+    return () => clearTimeout(t);
+  }, [show, reduce]);
+
+  // Permite re-disparar la intro desde el menú de demo.
+  useEffect(() => {
+    const onReplay = () => setShow(true);
     window.addEventListener('cuadra:replay-splash', onReplay);
-    return () => {
-      cleanup?.();
-      window.removeEventListener('cuadra:replay-splash', onReplay);
-    };
-  }, [reproducir]);
+    return () => window.removeEventListener('cuadra:replay-splash', onReplay);
+  }, []);
 
   return (
     <AnimatePresence>
