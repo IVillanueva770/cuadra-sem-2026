@@ -40,7 +40,11 @@ export default function MPTestForm({amount}: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError={(error: any) => {
           console.error('MP Brick error:', error);
-          setResult({status: 'error', error: String(error)});
+          const msg =
+            error?.message ??
+            error?.cause?.[0]?.description ??
+            (typeof error === 'string' ? error : 'Error al inicializar el pago.');
+          setResult({status: 'error', error: msg});
         }}
       />
 

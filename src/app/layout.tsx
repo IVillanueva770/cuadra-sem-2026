@@ -1,6 +1,8 @@
 import type {Metadata, Viewport} from 'next';
 import {DM_Sans, DM_Mono} from 'next/font/google';
 import './globals.css';
+// DEMO ONLY — quitar para producción (ver nota en el archivo)
+import DemoNav from '@/components/demo/DemoNav';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -44,7 +46,11 @@ export const viewport: Viewport = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="es-AR" className={`${dmSans.variable} ${dmMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* DEMO ONLY — navegador flotante para el pitch. Borrar esta línea + el archivo para producción. */}
+        <DemoNav />
+      </body>
     </html>
   );
 }
