@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {useState, useTransition} from 'react';
 import {Car, Bike, MapPin, CircleAlert, Minus, Plus, ArrowLeft} from 'lucide-react';
 import {motion, useReducedMotion} from 'motion/react';
@@ -89,13 +90,13 @@ export default function PagoForm({
         exit={reduced ? {} : {opacity: 0, y: -8}}
         transition={{duration: 0.18, ease: [0.4, 0, 0.2, 1]}}
       >
-        <a
+        <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors active:scale-95"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Volver
-        </a>
+        </Link>
 
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-4 w-4 text-blue-500" aria-hidden="true" />
