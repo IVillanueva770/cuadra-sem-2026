@@ -1,6 +1,10 @@
 ## DEVLOG - Cuadra (PunaTech 2026 · Track Ciudad SEM Salta)
 
 ## Estado Actual
+Capa de DEMO para el pitch (28/05 noche): **SplashScreen** de apertura (auto que estaciona, recrea logo-explorations/splash.html con motion, 1x por sesión, re-disparable). **DemoNav** = FAB flotante en todas las pantallas para saltar entre las 3 experiencias con credenciales a la vista (DEMO ONLY, sacable borrando `<DemoNav/>` del layout + el archivo). Botón "Autocompletar datos de demo" en ambos logins. Usuario admin de demo: `admin@municipalidadsalta.gob.ar / muni2026` (script `seed:admin`). Doc de pitch en `docs/PITCH.md`. Dependencia nueva: `motion` (Framer Motion).
+
+PENDIENTE de marca: el auto del logo está ~3.6px bajo del centro vertical del cuadrado (mismo trazo en symbol/logo/splash). Lo ajusta el usuario en el design system y regenera assets (hay PNG raster que no se editan a mano).
+
 🌐 **LIVE EN PRODUCCIÓN: https://cuadra-sem.vercel.app** (Vercel, proyecto `cuadra-sem`, región gru1, conectado al repo GitHub). Next.js 15.5.18 (bump desde 15.2.3 por CVE-2025-66478 que Vercel bloqueaba). 10 env vars de producción seteadas (MP test tokens, Supabase, RESEND, APP_URL, NEXT_PUBLIC_APP_URL, MP_WEBHOOK_SECRET). Webhook MP con HMAC funcionando y auditando en `webhook_events` (verificado con POST de prueba). Supabase conecta en prod (/ordenanza renderiza tarifas reales). Webhook en modo permisivo (STRICT_WEBHOOK no seteado): valida firma y loguea, no rechaza.
 
 Bootstrap Next 15 + Tailwind 4 + Supabase listo. Schema de DB aplicado (14 tablas + funciones + RLS). Motor de reglas Ord 12.170 con 27 tests unit verdes. Datos sintéticos cargados: 15 permisionarios, 21 cuadras del microcentro de Salta, 21 días de asignaciones y ~14k sesiones con métricas diarias calculadas.
@@ -163,3 +167,21 @@ Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy
 **Próximos pasos:**
 - Activar STRICT_WEBHOOK si se quiere endurecer (la firma ya valida).
 - El día de la demo: pnpm seed:hoy.
+
+### [2026-05-28] - Sesión capa de demo + pitch
+**Objetivo:** Hacer la app navegable para el pitch (cualquiera ve las 3 experiencias) + animación de apertura + material de pitch.
+**Hecho:**
+- `SplashScreen` (src/components/cuadra/) montado en layout: recrea la intro del auto que estaciona con motion. 1x por sesión (sessionStorage), respeta prefers-reduced-motion, re-disparable vía evento `cuadra:replay-splash`.
+- `DemoNav` (src/components/demo/) FAB flotante DEMO ONLY: salta a Conductor/Permisionario/Muni con credenciales visibles + "Ver intro de nuevo".
+- Botón "Autocompletar datos de demo" en login permisionario y admin.
+- Usuario admin de demo creado (`scripts/seed-admin-demo.ts`, `pnpm seed:admin`).
+- Fix KPI admin "Permisionarios activos" (0 → 14): el count va en `count`, no en `data`.
+- Pulido de errores de `/mp-test` (mostraba "[object Object]").
+- `docs/PITCH.md`: guion de pitch, diferenciales para el jurado, guion de demo en vivo.
+- Verificado en prod con Playwright: splash en DOM OK, FAB navega, login admin de demo entra al dashboard con datos. Smoke test de pago end-to-end (sesión previa): approved + webhook con HMAC.
+**Decisiones:**
+- DemoNav y credenciales de demo aislados/etiquetados DEMO ONLY para quitar fácil en producción real.
+- Splash es parte del producto (no demo-only): vive en el layout como SplashScreen.
+**Próximos pasos:**
+- Logo: centrar el auto (lo hace el usuario en el design system).
+- Grabar video de pitch (ver docs/PITCH.md). Correr `pnpm seed:hoy` antes.
