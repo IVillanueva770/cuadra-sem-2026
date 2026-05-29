@@ -50,11 +50,12 @@ export default function PagoSesionBrick({sid, amount, email}: Props) {
           payer: email ? {email} : undefined,
         }}
         customization={{
+          // Sólo medios digitales: el efectivo lo cobra el permisionario en mano.
+          // 'ticket' (Rapipago/Pago Fácil) se omite a propósito → no se ofrece.
           paymentMethods: {
             creditCard: 'all',
             debitCard: 'all',
             mercadoPago: 'all',
-            ticket: 'all',
           },
         }}
         onSubmit={async (param: unknown) => {

@@ -301,6 +301,10 @@ export default function PagoForm({
           email={email}
         />
 
+        <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+          <span className="font-medium text-gray-800">¿Preferís pagar en efectivo?</span> Decíselo al permisionario: lo cobra en mano y lo registra al instante, sin papeles.
+        </div>
+
         <Button
           variant="ghost"
           className="w-full"

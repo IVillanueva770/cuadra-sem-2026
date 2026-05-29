@@ -54,11 +54,12 @@ export default function PaymentBrickWrapper(props: Props) {
           payer: props.email ? {email: props.email} : undefined,
         }}
         customization={{
+          // Sólo medios digitales: el efectivo lo cobra el permisionario en mano.
+          // El método 'ticket' (Rapipago/Pago Fácil) se omite a propósito → no se ofrece.
           paymentMethods: {
             creditCard: 'all',
             debitCard: 'all',
             mercadoPago: 'all',
-            ticket: 'all',
           },
         }}
         onSubmit={async (param: unknown) => {
