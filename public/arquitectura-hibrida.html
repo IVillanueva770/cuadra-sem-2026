@@ -85,15 +85,23 @@
   .matrix .ref{font-family:var(--mono);font-size:12px;color:var(--cyan)}
   .matrix .ref code{background:none;border:none;padding:0;color:var(--cyan)}
 
-  /* ── Bloque de diagrama ── */
-  figure.diagram{margin:22px 0 8px;border:1px solid var(--line);border-radius:14px;background:var(--d-bg,var(--surface));overflow:hidden}
-  figure.diagram .bar{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--ink3);background:var(--surface)}
-  figure.diagram .bar .dot{width:8px;height:8px;border-radius:50%;background:var(--line-2)}
-  figure.diagram .bar .fx{margin-left:auto;color:var(--cyan)}
-  figure.diagram .canvas{padding:20px 16px;overflow-x:auto;background:var(--d-bg,transparent)}
+  /* ── Bloque de diagrama (TEMA OSCURO sobre documento claro) ── */
+  figure.diagram{
+    margin:22px 0 8px;border:1px solid #1E2A40;border-radius:14px;overflow:hidden;background:#0F1726;
+    box-shadow:0 1px 2px rgba(16,24,40,.06),0 8px 28px rgba(15,23,38,.16);
+    --d-bg:transparent; --d-surface:#172339; --d-stroke:#4C86C9; --d-stroke-2:#3A4A66;
+    --d-text:#E7EEF8; --d-text-2:#93A3BC; --d-accent:#22D3EE; --d-on-accent:#04222A;
+    --d-fill:#1A2C49; --d-fill-2:#0D3A45; --d-ok:#34D399;
+  }
+  figure.diagram .bar{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #1E2A40;font-family:var(--mono);font-size:11.5px;color:#93A3BC;background:#0B1220}
+  figure.diagram .bar .dot{width:8px;height:8px;border-radius:50%;background:#3A4A66}
+  figure.diagram .bar .fx{margin-left:auto;color:#22D3EE}
+  figure.diagram .canvas{padding:20px 16px;overflow-x:auto;background:#0F1726;
+    background-image:linear-gradient(rgba(76,134,201,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(76,134,201,.08) 1px,transparent 1px);background-size:26px 26px;}
   figure.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
-  figure.diagram figcaption{padding:10px 14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3);background:var(--surface)}
-  figure.diagram figcaption b{color:var(--ink2);font-weight:600}
+  figure.diagram figcaption{padding:11px 14px;border-top:1px solid #1E2A40;font-size:12.5px;color:#93A3BC;background:#0B1220}
+  figure.diagram figcaption b{color:#CBD8EA;font-weight:600}
+  figure.diagram figcaption code{background:#0D3A45;border-color:#155e6b;color:#7DE9F9}
 
   /* ── Callout / nota técnica ── */
   .note{border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:0 10px 10px 0;background:var(--surface);padding:15px 18px;margin:18px 0;max-width:74ch}
