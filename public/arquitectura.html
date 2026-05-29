@@ -121,12 +121,13 @@
     .wrap{padding:0 18px}
     h1.title{font-size:30px}
     .cols{grid-template-columns:1fr}
-    .matrix .row{grid-template-columns:26px 1fr;}
     .matrix .head{display:none}
-    .matrix .cell{border-left:none;border-top:1px dashed var(--line)}
-    .matrix .cell:nth-child(2){border-top:none;padding-bottom:4px}
-    .matrix .chk{border-top:none}
-    .matrix .cell.ref::before{content:'ref → ';color:var(--ink3)}
+    .matrix .row{display:grid;grid-template-columns:22px 1fr;column-gap:9px;row-gap:6px;padding:13px 14px;align-items:start}
+    .matrix .cell{border:none;padding:0;font-size:13px}
+    .matrix .cell.chk{grid-column:1;grid-row:1;justify-content:flex-start}
+    .matrix .cell.req{grid-column:2;grid-row:1}
+    .matrix .cell:not(.chk):not(.req){grid-column:1 / -1}
+    .matrix .cell.ref::before{content:'→ ';color:var(--ink3)}
   }
 </style>
 </head>
