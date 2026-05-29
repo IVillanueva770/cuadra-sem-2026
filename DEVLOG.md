@@ -5,14 +5,17 @@ Bootstrap Next 15 + Tailwind 4 + Supabase listo. Schema de DB aplicado (14 tabla
 
 Flows implementados: PWA Conductor (`/pagar/[qrcode]`, `/pagar/exito/[sid]`, `/verificar/[patente]`, `/ordenanza`). PWA Permisionario (`/login`, `/permi`, `/permi/nueva`, `/permi/extender/[sid]`, `/permi/conciliar`). Dashboard Admin (`/admin/*`). Webhook MP en `/api/webhooks/mp`.
 
-Suite de tests: 27 unit + 5 integration (vitest) todos verdes. 18 E2E (Playwright, desktop+mobile) verdes. 10 E2E skip por bug de routing (ver Tareas Activas).
+Suite de tests: 27 unit + 5 integration (vitest) todos verdes. 24 E2E (Playwright, desktop+mobile) verdes, 4 skip condicionales por horario nocturno (motor bloquea cobro fuera de 07:00-21:00). 0 fallando.
 
-BUG CONOCIDO: La ruta `/login` está dentro del grupo `(permi)` que tiene un layout con redirect a `/login` para usuarios no autenticados. Esto causa redirect loop ERR_TOO_MANY_REDIRECTS. Afecta todos los tests E2E del flujo permisionario.
+El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo `(permi)` al grupo `(publico)` (sin auth-guard). La URL `/login` se mantiene. Verificado: GET /login → 200.
+
+Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
 ## Tareas Activas
-- [ ] BUG CRÍTICO: Mover `/login` fuera del grupo `(permi)` para evitar redirect loop. Opción: moverlo a `src/app/(publico)/login/` o crear grupo separado sin layout de auth.
-- [ ] Cuando el bug de routing esté resuelto: activar tests E2E del flow permisionario (quitar `test.skip` en `tests/e2e/flow-permisionario.spec.ts`).
-- [ ] Test del cálculo $560 (auto 1h digital): se ejecuta con skip automático si el motor bloquea el cobro fuera de horario. Requiere correr durante horario laboral (07:00-21:00 hora Salta L-V, 07:00-14:00 sábados).
+- [ ] Plan 10: Deploy a Vercel. Requiere login del usuario, setear env vars (MP, Supabase, APP_URL, MP_WEBHOOK_SECRET), crear PWA manifest + icons, configurar webhook MP en panel y copiar el Secret Signature.
+- [ ] RECONCILIAR webhook MP antes del deploy: el handler actual (creado en plan 11) es minimal para pasar tests; el plan 10 trae una versión con validación HMAC SHA256 + logging a `webhook_events`. Mergear sin romper los 5 tests de integración.
+- [ ] Poblar `metricas_diarias` del día actual (correr `calcular_metricas_diarias`) para que el chart 21d del dashboard admin se vea con datos en la demo.
+- [ ] Tests por horario: el cálculo $560 (conductor) y el registro de cobro (permisionario) hacen skip automático fuera de 07:00-21:00 Salta. Correr en horario laboral para verlos verdes.
 
 ## Decisiones de Arquitectura
 - Seed dinámico vía `@supabase/supabase-js` con `SERVICE_ROLE_KEY` en lugar de Supabase CLI (no instalado). Inserciones por batches de 500. Inserts de permisionarios y cuadras también vía supabase-js (los SQL en `supabase/seeds/` quedan como referencia documentada).
@@ -89,3 +92,19 @@ BUG CONOCIDO: La ruta `/login` está dentro del grupo `(permi)` que tiene un lay
 **Próximos pasos:**
 - Resolver bug de routing `/login` (ver Tareas Activas).
 - Activar los 8 tests skip de permisionario una vez resuelto el bug.
+
+### [2026-05-28] - Sesión orquestación cascada (Planes 07, 08 + fix routing)
+**Objetivo:** Ejecutar la cadena pendiente de planes vía Opus-orquesta-Sonnet (07 PWA Permisionario → 08 Dashboard Muni → 11 tests), revisando cada resultado.
+**Hecho:**
+- Plan 07 (PWA Permisionario) ejecutado por Sonnet: 16 archivos, build limpio. Commit `b6fee51`.
+- Plan 08 (Dashboard Admin Muni) ejecutado por Sonnet: 22 archivos, recharts, build limpio. Commit `2e418d1`.
+- Plan 11 (tests) ejecutado por Sonnet: ver sesión anterior. Commit `9faa04e`.
+- Fix del bug de redirect loop `/login` (commit `4643f0c`): `git mv` de `(permi)/login` a `(publico)/login`; activados los 4 E2E del permisionario que estaban en skip; corregidos selectors ambiguos (`getByLabel('Contraseña', {exact})`, `getByRole('link', 'Registrar cobro')`, `button '1 h' exact`).
+**Decisiones:**
+- El fix de routing lo hizo el orquestador directamente (no se delegó a Sonnet): cambio acotado y verificable en el momento, con el usuario presente.
+- Guardrails impuestos a cada Sonnet sobre el plan literal: push a `master` (los planes decían `main`), gestor real por lockfile (pnpm, no npm), DS Cuadra manda sobre el JSX genérico, esquema real manda sobre nombres asumidos, honestidad estricta de tests (no marcar verde lo no verificado).
+**Problemas encontrados:**
+- Los planes literales decían `git push origin main` pero el repo usa `master`. Corregido en cada delegación.
+- El webhook MP (`/api/webhooks/mp/route.ts`) no existía pese a figurar el plan 05 como hecho; lo creó el Sonnet del plan 11 en versión minimal. PENDIENTE reconciliar con la versión HMAC del plan 10.
+**Próximos pasos:**
+- Plan 10 (Deploy Vercel) con el usuario presente. Ver Tareas Activas.
