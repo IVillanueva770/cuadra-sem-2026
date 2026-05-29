@@ -17,6 +17,33 @@ El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo
 
 Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
+## Sesiones
+
+### [2026-05-29] - Sesión Plan 13: flujo permisionario-céntrico
+**Objetivo:** Dar al permisionario la capacidad de operar cobro digital (QR) y validar patente vigente para no cobrar dos veces.
+**Hecho:**
+- `src/lib/sesiones/patente-vigente.ts`: helper `buscarSesionVigente(patente)` compartido — busca sesión `active` y `cubierta_hasta > now`, devuelve `minutos_restantes`.
+- `src/app/(permi)/permi/nueva/actions.ts`: `registrarEfectivo` reescrito — nuevo campo `medio` (`efectivo`|`digital`), devuelve AMBOS montos en modo `calcular`, detecta patente vigente (nuevo modo `vigente` en vez del viejo error), crea sesión `extended_pending` para cobro digital.
+- `src/app/(permi)/permi/nueva/NuevaSesionForm.tsx`: reescrito con 4 pasos: datos → vigente (con botón extender) | elegir-medio (selector Efectivo/Digital con precios y 20% off badge) → éxito/redirect a QR.
+- `src/app/(permi)/permi/cobro/[sid]/page.tsx` + `CobroQRClient.tsx`: pantalla con QR (`qrcode.react`) + suscripción realtime a `parking_sessions` id=eq.{sid}; cuando `status='active'` muestra confirmación. Botón cancelar marca `rejected`.
+- `src/app/(publico)/pagar/sesion/[sid]/page.tsx`: ruta pública de pago de sesión existente — valida status (active/rejected/vencida), muestra datos + monto con descuento, renderiza Brick.
+- `src/app/(publico)/pagar/sesion/[sid]/PagoSesionBrick.tsx` + `actions.ts` (`pagarSesion`): copia de PaymentBrickWrapper ajustada para sesión existente. Action crea payment MP con `metadata.parking_session_id`.
+- `src/app/(publico)/pagar/[qrcode]/actions.ts`: `validarYCalcular` usa `buscarSesionVigente` con mensaje claro en voseo y minutos restantes.
+- `src/app/(permi)/permi/page.tsx`: sección nueva "Esperando pago" con sesiones `extended_pending` + `digital_mp` (badge ámbar via QrCode).
+- `src/app/(permi)/permi/SesionItem.tsx`: badge diferenciado para `extended_pending` con `digital_mp` = "Esperando pago".
+- `pnpm add qrcode.react` → v4.2.0.
+**Decisiones:**
+- `extended_pending` reusado tal cual (ya existía en el flujo conductor). No se agregó estado nuevo.
+- `buscarSesionVigente` usa `createServiceClient` (bypass RLS) para que funcione tanto en server actions autenticadas como en rutas públicas.
+- El webhook ya busca por `mp_payment_id` — cuando `pagarSesion` actualiza la sesión con el ID, el webhook posterior la encontrará bien. La metadata `parking_session_id` queda como refuerzo pero no es el path primario.
+- TypeScript: el discriminated union de `pagarSesion` requería cast explícito en el Brick client por limitación del inferencer.
+**Resultado build/tests:** `pnpm build` limpio. `pnpm test:run` 32/32 verdes. Ningún test ajustado (el viejo mensaje de patente activa no estaba en tests de vitest).
+**Commit:** `c43dd22` — push a master OK.
+**Próximos pasos (pendientes para el orquestador):**
+- Realtime del QR: la suscripción usa `postgres_changes` con `filter: id=eq.{sid}`. Requiere que Supabase tenga realtime habilitado para la tabla `parking_sessions` (ya lo estaba para el dashboard permi, así que debería funcionar).
+- Webhook con `metadata.parking_session_id`: el webhook actual busca por `mp_payment_id` (path feliz). Si por alguna razón el pago llega antes de que `pagarSesion` actualice `mp_payment_id`, el webhook no encontrará la sesión. Pendiente: agregar fallback por `metadata.parking_session_id` en el webhook.
+- `/permi/extender/[sid]`: ya existe y funciona. El botón "Extender estadía" del step `vigente` apunta ahí correctamente.
+
 ## Tareas Activas
 - [x] SMOKE TEST — HECHO y exitoso (Playwright en prod, 28/05 noche). Pago sandbox APRO → approved (Payment ID 1327288274). MP envió la notificación al webhook → registrada en webhook_events con firma HMAC válida (sin warning de firma inválida en logs). Motor de reglas verificado: bloqueó cobro nocturno en cuadra diurna. Screenshots en screenshots/smoke-test-prod/.
 - [x] Plan 10: Deploy a Vercel — HECHO. App live en https://cuadra-sem.vercel.app, env vars + webhook MP configurados.

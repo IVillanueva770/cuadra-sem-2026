@@ -18,6 +18,7 @@ interface DatoGrafico {
 
 interface RecaudacionChartProps {
   datos: DatoGrafico[];
+  titulo?: string;
 }
 
 function formatARSK(value: number) {
@@ -25,13 +26,14 @@ function formatARSK(value: number) {
   return `$${value}`;
 }
 
-export default function RecaudacionChart({datos}: RecaudacionChartProps) {
+export default function RecaudacionChart({datos, titulo}: RecaudacionChartProps) {
+  const tituloFinal = titulo ?? 'Recaudación — últimos 21 días';
   if (!datos || datos.length === 0) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-semibold" style={{color: 'var(--fg1)'}}>
-            Recaudación — últimos 21 días
+            {tituloFinal}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -52,7 +54,7 @@ export default function RecaudacionChart({datos}: RecaudacionChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base font-semibold" style={{color: 'var(--fg1)'}}>
-          Recaudación — últimos 21 días
+          {tituloFinal}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">

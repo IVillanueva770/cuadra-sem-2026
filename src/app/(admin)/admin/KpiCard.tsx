@@ -1,11 +1,14 @@
 import {Card, CardContent} from '@/components/ui/card';
 import type {LucideIcon} from 'lucide-react';
+import {TrendingUp, TrendingDown, Minus} from 'lucide-react';
 
 interface KpiCardProps {
   titulo: string;
   valor: string | number;
   subtitulo?: string;
   icon: LucideIcon;
+  /** Delta vs período anterior. pct positivo = sube, negativo = baja. */
+  delta?: {pct: number; label: string; positiveIsGood?: boolean};
   trend?: {value: number; label: string};
   accentColor?: string;
 }
@@ -15,8 +18,20 @@ export default function KpiCard({
   valor,
   subtitulo,
   icon: Icon,
+  delta,
   accentColor = 'var(--primary)',
 }: KpiCardProps) {
+  const positiveIsGood = delta?.positiveIsGood ?? true;
+  const isGood = delta ? (positiveIsGood ? delta.pct >= 0 : delta.pct <= 0) : null;
+  const DeltaIcon = !delta
+    ? null
+    : delta.pct === 0
+      ? Minus
+      : delta.pct > 0
+        ? TrendingUp
+        : TrendingDown;
+  const deltaColor = isGood === null ? 'var(--fg3)' : isGood ? 'var(--success)' : 'var(--destructive, #dc2626)';
+
   return (
     <Card className="relative overflow-hidden">
       <CardContent className="p-5">
@@ -38,6 +53,17 @@ export default function KpiCard({
               <p className="text-sm mt-1" style={{color: 'var(--fg2)'}}>
                 {subtitulo}
               </p>
+            )}
+            {delta && DeltaIcon && (
+              <div className="flex items-center gap-1 mt-1.5">
+                <DeltaIcon size={13} style={{color: deltaColor}} />
+                <span className="text-xs font-medium" style={{color: deltaColor}}>
+                  {delta.pct > 0 ? '+' : ''}{delta.pct}%
+                </span>
+                <span className="text-xs" style={{color: 'var(--fg3)'}}>
+                  {delta.label}
+                </span>
+              </div>
             )}
           </div>
           <div
