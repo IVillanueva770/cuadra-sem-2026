@@ -2,8 +2,18 @@ import type {ContextoValidacion, ValidacionResult} from './tipos';
 import {turnoActivo, minutosHastaFinTurno} from './horarios';
 import {esFeriado} from './feriados';
 
+// ⚠️ DEMO ONLY — permite cobrar fuera de horario para grabar el video.
+// Poner en false para restaurar el cumplimiento normativo real (Ord. 12.170).
+const DEMO_PERMITIR_FUERA_DE_HORARIO = true;
+
 export function validarCobro(ctx: ContextoValidacion): ValidacionResult {
   const turno = turnoActivo(ctx.momento, ctx.horarios);
+
+  if (DEMO_PERMITIR_FUERA_DE_HORARIO) {
+    // Salteamos sólo los bloqueos por tiempo (turno/horario/feriado/fin de turno).
+    // El resto del flujo (cálculo de monto, patente vigente, etc.) sigue igual.
+    return {permitido: true, turno_actual: turno ?? 'diurno'};
+  }
 
   if (!turno) {
     return {
