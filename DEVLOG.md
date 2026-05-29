@@ -2,6 +2,11 @@
 
 ## Estado Actual
 
+**Pulido diagramas + microinteracciones 29/05:**
+- **Diagramas de la página técnica** rehechos: barras con nombre descriptivo (no `archivo.svg`) + punto verde "en línea" titilante; secuencia de pago con fondo (knockout) detrás de cada label para no pisar las líneas de vida; máquina de estados reorganizada sin la flecha punteada que cruzaba; **DER rehecho** (flechas FK tipo bus, cajas de dinero rotuladas → permisionarios/→Muni, catálogos sin solape, sin flechas sueltas); cada diagrama se **amplía a pantalla completa** al tocarlo (lightbox, clona la figure; sirve en mobile con scroll). "Por qué es rápido" pasó de texto corrido a 4 items.
+- **Microinteracciones app**: todos los botones se hunden al click (`active:scale-[0.97]` en el Button base); card de acciones de la landing con hover-lift como los diferenciales; botón "Autocompletar datos de demo" (permi y admin) ahora **escribe las credenciales con efecto máquina de escribir** (helper `typeInto`, email y luego contraseña).
+- Verificado en producción (desktop + mobile). Commits `a12f663` (diagramas) y `207f31a` (app).
+
 **Logo recentrado + página técnica de ingeniería 29/05:**
 - **Logo:** el usuario recentró el auto dentro del cartel (el pendiente de marca). Se reemplazaron los 7 assets en el skill `cuadra-design` (symbol, lockups color/light/mono, íconos PWA 192/512, splash) y se propagaron a `public/icons/` + `app/icon.svg` (favicon). El symbol nuevo envuelve el auto en `<g transform="translate(0,-2.6)">`. `CuadraMark` ya estaba consistente (usa viewBox propio recortado al auto).
 - **Página técnica `public/arquitectura.html`** reescrita a fondo como documento de ingeniería entre pares (sin frases de venta): §1 problema en términos técnicos, §2 **autoevaluación punto por punto contra el pliego SEM** (6 requisitos obligatorios + 5 consideraciones + mapeo a criterios 33/33/33), §3 diagrama de capas, §4 secuencia del pago + análisis de latencia, §5 registro del efectivo, §6 DER de las 14 tablas + máquina de estados, §7 motor de reglas, §8 integridad/seguridad, §9 escala, §10 stack. **4 diagramas SVG hechos a mano** (capas, secuencia, DER, estados). Estética blueprint (grilla técnica, mono, acento cian, numeración §, engranaje decorativo).
