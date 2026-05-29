@@ -2,6 +2,12 @@
 
 ## Estado Actual
 
+**Logo recentrado + página técnica de ingeniería 29/05:**
+- **Logo:** el usuario recentró el auto dentro del cartel (el pendiente de marca). Se reemplazaron los 7 assets en el skill `cuadra-design` (symbol, lockups color/light/mono, íconos PWA 192/512, splash) y se propagaron a `public/icons/` + `app/icon.svg` (favicon). El symbol nuevo envuelve el auto en `<g transform="translate(0,-2.6)">`. `CuadraMark` ya estaba consistente (usa viewBox propio recortado al auto).
+- **Página técnica `public/arquitectura.html`** reescrita a fondo como documento de ingeniería entre pares (sin frases de venta): §1 problema en términos técnicos, §2 **autoevaluación punto por punto contra el pliego SEM** (6 requisitos obligatorios + 5 consideraciones + mapeo a criterios 33/33/33), §3 diagrama de capas, §4 secuencia del pago + análisis de latencia, §5 registro del efectivo, §6 DER de las 14 tablas + máquina de estados, §7 motor de reglas, §8 integridad/seguridad, §9 escala, §10 stack. **4 diagramas SVG hechos a mano** (capas, secuencia, DER, estados). Estética blueprint (grilla técnica, mono, acento cian, numeración §, engranaje decorativo).
+- **Dos versiones para que el usuario elija:** `arquitectura.html` (blueprint clara) y `arquitectura-hibrida.html` (texto claro + diagramas sobre paneles oscuros). Los SVG usan tokens `--d-*` heredados, así el mismo markup sirve en ambos temas. Ambas linkeadas desde el FAB de DemoNav. **PENDIENTE: el usuario elige una y se borra la otra.**
+- Fuentes de verdad usadas: documento SEM original (`Downloads/SEM Diagnostico PunaTech 2026.docx`) y el schema real (`supabase/migrations/00000000_initial_schema.sql`).
+
 **Pulido final 29/05 (post-cascada, deployado):**
 - **Paginadores**: componente `src/components/cuadra/Paginador.tsx` (rango con elipsis si >7 páginas, hover/tap con motion, "Mostrando X–Y de Z"). Integrado en permisionarios (8/pág) y auditoría (15/pág) del admin.
 - **Logo en headers azules sin cuadro**: `CuadraMark` gana variante `plain` (solo el auto, recortes "calados" con `cutout` sobre el fondo azul). Aplicada en header permi (`size 40`) y sidebar admin (`size 44`) — adiós al cuadro que chocaba contra el fondo.
