@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import TarjetaPrueba from './TarjetaPrueba';
 import {useState, useTransition} from 'react';
 import {Car, Bike, MapPin, CircleAlert, Minus, Plus, ArrowLeft} from 'lucide-react';
 import {motion, useReducedMotion} from 'motion/react';
@@ -290,6 +291,8 @@ export default function PagoForm({
             </CardContent>
           </Card>
         </motion.div>
+
+        <TarjetaPrueba />
 
         <PaymentBrickWrapper
           amount={calculo.monto_total}
