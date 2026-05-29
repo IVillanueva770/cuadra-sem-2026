@@ -4,6 +4,7 @@ import {createServiceClient} from '@/lib/supabase/server';
 import {motorReglas} from '@/lib/motor-reglas';
 import {cargarContextoValidacion} from '@/lib/motor-reglas/db-helpers';
 import {mpClient, Payment} from '@/lib/mp/server';
+import {buscarSesionVigente} from '@/lib/sesiones/patente-vigente';
 
 interface ValidarInput {
   cuadraId: string;
@@ -32,24 +33,17 @@ export async function validarYCalcular(input: ValidarInput): Promise<
     };
   }
 
-  // Verificar que no hay sesión activa para esa patente (D12)
-  const supabase = createServiceClient();
-  const {data: sesionActiva} = await supabase
-    .from('parking_sessions')
-    .select('cubierta_hasta')
-    .eq('patente', input.patente)
-    .eq('status', 'active')
-    .maybeSingle();
-
-  if (sesionActiva) {
-    const hasta = new Date(sesionActiva.cubierta_hasta).toLocaleString('es-AR', {
+  // Verificar que no hay sesión activa y vigente para esa patente (D12)
+  const sesionVigente = await buscarSesionVigente(input.patente);
+  if (sesionVigente) {
+    const hasta = new Date(sesionVigente.cubierta_hasta).toLocaleTimeString('es-AR', {
       timeZone: 'America/Argentina/Salta',
       hour: '2-digit',
       minute: '2-digit',
     });
     return {
       ok: false,
-      error: `Esta patente ya tiene una sesión activa hasta las ${hasta}. Si la cuadra está libre, contactá al permisionario para liberarla.`,
+      error: `Esta patente ya está cubierta hasta las ${hasta} (le quedan ${sesionVigente.minutos_restantes} min). No hace falta pagar de nuevo.`,
     };
   }
 

@@ -2,10 +2,10 @@
 
 import {useState, useTransition} from 'react';
 import {useRouter} from 'next/navigation';
-import {Car, Bike, AlertCircle, CheckCircle2} from 'lucide-react';
+import {Car, Bike, CircleAlert, CircleCheck, Clock, QrCode} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
-import {formatARS} from '@/lib/utils';
+import {formatARS, formatHora} from '@/lib/utils';
 import {registrarEfectivo} from './actions';
 import type {TipoVehiculo} from '@/lib/motor-reglas/tipos';
 
@@ -19,11 +19,18 @@ function formatDuracion(mins: number): string {
   return `${h} h ${m} min`;
 }
 
-type Step = 'datos' | 'confirmar' | 'exito';
+type Step = 'datos' | 'vigente' | 'elegir-medio' | 'confirmar-efectivo' | 'exito';
+
+interface SesionVigenteInfo {
+  sesionId: string;
+  patente: string;
+  cubierta_hasta: string;
+  minutos_restantes: number;
+}
 
 interface Calculo {
-  monto: number;
-  montoSinDescuento: number;
+  montoEfectivo: number;
+  montoDigital: number;
   cuadraId: string;
   cuadraNombre: string;
   asignacionId: string | null;
@@ -38,8 +45,22 @@ export default function NuevaSesionForm() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [calculo, setCalculo] = useState<Calculo | null>(null);
+  const [sesionVigente, setSesionVigente] = useState<SesionVigenteInfo | null>(null);
+  const [medioElegido, setMedioElegido] = useState<'efectivo' | 'digital'>('efectivo');
+  const [montoConfirmado, setMontoConfirmado] = useState<number>(0);
   const [, setSesionId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  function resetForm() {
+    setStep('datos');
+    setPatente('');
+    setEmail('');
+    setDuracion(60);
+    setCalculo(null);
+    setSesionVigente(null);
+    setSesionId(null);
+    setError(null);
+  }
 
   function handleCalcular() {
     if (!patente.trim()) {
@@ -62,15 +83,26 @@ export default function NuevaSesionForm() {
         return;
       }
 
+      if (res.modo === 'vigente') {
+        setSesionVigente({
+          sesionId: res.sesionId,
+          patente: res.patente,
+          cubierta_hasta: res.cubierta_hasta,
+          minutos_restantes: res.minutos_restantes,
+        });
+        setStep('vigente');
+        return;
+      }
+
       if (res.modo === 'calcular') {
         setCalculo({
-          monto: res.monto,
-          montoSinDescuento: res.montoSinDescuento,
+          montoEfectivo: res.montoEfectivo,
+          montoDigital: res.montoDigital,
           cuadraId: res.cuadraId,
           cuadraNombre: res.cuadraNombre,
           asignacionId: res.asignacionId,
         });
-        setStep('confirmar');
+        setStep('elegir-medio');
       }
     });
   }
@@ -84,6 +116,7 @@ export default function NuevaSesionForm() {
         duracionMinutos: duracion,
         emailConductor: email || undefined,
         modo: 'confirmar',
+        medio: medioElegido,
       });
 
       if (!res.ok) {
@@ -94,127 +127,151 @@ export default function NuevaSesionForm() {
 
       if (res.modo === 'confirmar') {
         setSesionId(res.sesionId);
-        setStep('exito');
+        if (res.medio === 'digital') {
+          // Redirigir a pantalla del QR
+          router.push(`/permi/cobro/${res.sesionId}`);
+        } else {
+          setMontoConfirmado(res.monto);
+          setStep('exito');
+        }
       }
     });
   }
 
-  // — ÉXITO —
-  if (step === 'exito') {
+  // — PATENTE VIGENTE —
+  if (step === 'vigente' && sesionVigente) {
+    const hora = formatHora(sesionVigente.cubierta_hasta);
     return (
-      <div className="p-6 space-y-6 text-center">
+      <div className="p-6 space-y-6">
         <div
-          className="mx-auto flex items-center justify-center w-16 h-16 rounded-full"
-          style={{backgroundColor: 'var(--success-bg)'}}
-          aria-hidden="true"
+          className="rounded-2xl border p-5 space-y-3"
+          style={{
+            backgroundColor: 'var(--blue-50)',
+            borderColor: 'var(--primary)',
+          }}
         >
-          <CheckCircle2
-            className="h-8 w-8"
-            style={{color: 'var(--success)'}}
-          />
-        </div>
-        <div className="space-y-1">
-          <h2 className="text-xl font-bold" style={{color: 'var(--fg1)'}}>
-            Cobro registrado
-          </h2>
-          <p className="text-base font-mono tracking-wider" style={{color: 'var(--primary)'}}>
-            {patente}
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 flex-none" style={{color: 'var(--primary)'}} aria-hidden="true" />
+            <span className="text-base font-bold" style={{color: 'var(--primary)'}}>
+              Patente ya cubierta
+            </span>
+          </div>
+          <p className="text-sm leading-relaxed" style={{color: 'var(--fg1)'}}>
+            La patente{' '}
+            <span className="font-mono font-bold tracking-wider">
+              {sesionVigente.patente}
+            </span>{' '}
+            ya está cubierta hasta las <strong>{hora}</strong> — le quedan{' '}
+            <strong>{sesionVigente.minutos_restantes} min</strong>. No hace
+            falta cobrarle de nuevo.
           </p>
-          <p className="text-sm" style={{color: 'var(--fg2)'}}>
-            {formatDuracion(duracion)} · {calculo ? formatARS(calculo.monto) : ''}
-          </p>
         </div>
+
         <div className="space-y-3">
           <button
             type="button"
-            onClick={() => {
-              setStep('datos');
-              setPatente('');
-              setEmail('');
-              setDuracion(60);
-              setCalculo(null);
-              setSesionId(null);
-            }}
+            onClick={() => router.push(`/permi/extender/${sesionVigente.sesionId}`)}
             className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
           >
-            Registrar otro cobro
+            Extender estadía
           </button>
           <button
             type="button"
-            onClick={() => router.push('/permi')}
+            onClick={resetForm}
             className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
           >
-            Ir al inicio
+            Cobrar otra patente
           </button>
         </div>
       </div>
     );
   }
 
-  // — CONFIRMAR —
-  if (step === 'confirmar' && calculo) {
+  // — ELEGIR MEDIO DE PAGO —
+  if (step === 'elegir-medio' && calculo) {
     return (
       <div className="p-6 space-y-6">
         <div>
           <h2 className="text-xl font-bold" style={{color: 'var(--fg1)'}}>
-            Confirmá el cobro
+            ¿Cómo cobra?
           </h2>
           <p className="text-sm mt-1" style={{color: 'var(--fg2)'}}>
-            Revisá los datos antes de registrar.
+            {calculo.cuadraNombre} · Patente{' '}
+            <span className="font-mono font-semibold tracking-wider">{patente}</span>
+            {' '}· {formatDuracion(duracion)}
           </p>
         </div>
 
-        <div
-          className="rounded-2xl border divide-y"
-          style={{
-            backgroundColor: 'var(--bg-surface)',
-            borderColor: 'var(--border)',
-            boxShadow: 'var(--shadow-1)',
-          }}
-        >
-          {[
-            {label: 'Cuadra', value: calculo.cuadraNombre},
-            {
-              label: 'Patente',
-              value: patente,
-              mono: true,
-            },
-            {
-              label: 'Vehículo',
-              value: tipoVehiculo === 'auto' ? 'Auto' : 'Moto',
-            },
-            {label: 'Duración', value: formatDuracion(duracion)},
-            {label: 'Medio de pago', value: 'Efectivo'},
-          ].map(({label, value, mono}) => (
-            <div
-              key={label}
-              className="flex items-center justify-between px-4 py-3"
-            >
-              <span className="text-sm" style={{color: 'var(--fg2)'}}>
-                {label}
-              </span>
-              <span
-                className={`text-base font-semibold ${mono ? 'font-mono tracking-wider' : ''}`}
-                style={{color: 'var(--fg1)'}}
-              >
-                {value}
-              </span>
-            </div>
-          ))}
-          <div className="flex items-center justify-between px-4 py-4">
-            <span className="text-base font-semibold" style={{color: 'var(--fg1)'}}>
-              Total
+        {/* Selector de medio */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Efectivo */}
+          <button
+            type="button"
+            onClick={() => setMedioElegido('efectivo')}
+            aria-pressed={medioElegido === 'efectivo'}
+            className="flex flex-col items-start gap-1 rounded-[10px] border-2 p-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            style={{
+              borderColor: medioElegido === 'efectivo' ? 'var(--primary)' : 'var(--border-strong)',
+              backgroundColor: medioElegido === 'efectivo' ? 'var(--blue-50)' : 'var(--bg-surface)',
+            }}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide" style={{color: 'var(--fg3)'}}>
+              Efectivo
             </span>
             <span
-              className="font-mono text-2xl font-bold"
-              style={{color: 'var(--primary)'}}
+              className="font-mono text-xl font-bold"
+              style={{color: medioElegido === 'efectivo' ? 'var(--primary)' : 'var(--fg1)'}}
             >
-              {formatARS(calculo.monto)}
+              {formatARS(calculo.montoEfectivo)}
+            </span>
+          </button>
+
+          {/* Digital */}
+          <button
+            type="button"
+            onClick={() => setMedioElegido('digital')}
+            aria-pressed={medioElegido === 'digital'}
+            className="flex flex-col items-start gap-1 rounded-[10px] border-2 p-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 relative"
+            style={{
+              borderColor: medioElegido === 'digital' ? 'var(--primary)' : 'var(--border-strong)',
+              backgroundColor: medioElegido === 'digital' ? 'var(--blue-50)' : 'var(--bg-surface)',
+            }}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide" style={{color: 'var(--fg3)'}}>
+              Digital
+            </span>
+            <span
+              className="font-mono text-xl font-bold"
+              style={{color: medioElegido === 'digital' ? 'var(--primary)' : 'var(--fg1)'}}
+            >
+              {formatARS(calculo.montoDigital)}
+            </span>
+            <span
+              className="text-xs font-semibold"
+              style={{color: 'var(--success)'}}
+            >
+              20% off
+            </span>
+          </button>
+        </div>
+
+        {medioElegido === 'digital' && (
+          <div
+            className="flex items-start gap-2 rounded-[10px] border p-3 text-sm"
+            style={{
+              borderColor: 'var(--primary)',
+              backgroundColor: 'var(--blue-50)',
+              color: 'var(--fg2)',
+            }}
+          >
+            <QrCode className="mt-0.5 h-4 w-4 flex-none" style={{color: 'var(--primary)'}} aria-hidden="true" />
+            <span>
+              Se genera un QR que el conductor escanea y paga desde su celular.
             </span>
           </div>
-        </div>
+        )}
 
         {error && (
           <div
@@ -226,7 +283,7 @@ export default function NuevaSesionForm() {
               color: '#991B1B',
             }}
           >
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-none" aria-hidden="true" />
+            <CircleAlert className="mt-0.5 h-4 w-4 flex-none" aria-hidden="true" />
             <span>{error}</span>
           </div>
         )}
@@ -239,7 +296,11 @@ export default function NuevaSesionForm() {
             className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             style={{backgroundColor: 'var(--primary)', color: 'white'}}
           >
-            {isPending ? 'Registrando…' : 'Confirmar cobro'}
+            {isPending
+              ? 'Procesando…'
+              : medioElegido === 'digital'
+              ? `Generar QR — ${formatARS(calculo.montoDigital)}`
+              : `Confirmar cobro — ${formatARS(calculo.montoEfectivo)}`}
           </button>
           <button
             type="button"
@@ -249,6 +310,53 @@ export default function NuevaSesionForm() {
             style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
           >
             Volver y editar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // — ÉXITO (solo efectivo; digital redirige a /permi/cobro/[sid]) —
+  if (step === 'exito') {
+    return (
+      <div className="p-6 space-y-6 text-center">
+        <div
+          className="mx-auto flex items-center justify-center w-16 h-16 rounded-full"
+          style={{backgroundColor: 'var(--success-bg)'}}
+          aria-hidden="true"
+        >
+          <CircleCheck
+            className="h-8 w-8"
+            style={{color: 'var(--success)'}}
+          />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold" style={{color: 'var(--fg1)'}}>
+            Cobro registrado
+          </h2>
+          <p className="text-base font-mono tracking-wider" style={{color: 'var(--primary)'}}>
+            {patente}
+          </p>
+          <p className="text-sm" style={{color: 'var(--fg2)'}}>
+            {formatDuracion(duracion)} · {formatARS(montoConfirmado)}
+          </p>
+        </div>
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={resetForm}
+            className="w-full h-14 rounded-[10px] text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            style={{backgroundColor: 'var(--primary)', color: 'white'}}
+          >
+            Registrar otro cobro
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/permi')}
+            className="w-full h-12 rounded-[10px] text-base font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            style={{borderColor: 'var(--border-strong)', color: 'var(--fg1)'}}
+          >
+            Ir al inicio
           </button>
         </div>
       </div>
@@ -377,7 +485,7 @@ export default function NuevaSesionForm() {
             color: '#991B1B',
           }}
         >
-          <AlertCircle className="mt-0.5 h-4 w-4 flex-none" aria-hidden="true" />
+          <CircleAlert className="mt-0.5 h-4 w-4 flex-none" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}

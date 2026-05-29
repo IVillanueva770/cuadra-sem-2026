@@ -39,7 +39,12 @@ export default async function DashboardPage() {
 
   const todasLasSesiones = sesiones ?? [];
   const activas = todasLasSesiones.filter((s) => s.status === 'active');
-  const anteriores = todasLasSesiones.filter((s) => s.status !== 'active');
+  const esperandoPago = todasLasSesiones.filter(
+    (s) => s.status === 'extended_pending' && s.medio_pago === 'digital_mp'
+  );
+  const anteriores = todasLasSesiones.filter(
+    (s) => s.status !== 'active' && !(s.status === 'extended_pending' && s.medio_pago === 'digital_mp')
+  );
 
   const totalRecaudado = todasLasSesiones.reduce(
     (sum, s) => sum + Number(s.monto),
@@ -156,6 +161,23 @@ export default async function DashboardPage() {
         <Plus className="h-5 w-5" aria-hidden="true" />
         Registrar cobro
       </Link>
+
+      {/* Cobros digitales esperando pago */}
+      {esperandoPago.length > 0 && (
+        <section>
+          <h2
+            className="text-sm font-semibold mb-3"
+            style={{color: 'var(--fg2)'}}
+          >
+            Esperando pago ({esperandoPago.length})
+          </h2>
+          <div className="space-y-3">
+            {esperandoPago.map((s) => (
+              <SesionItem key={s.id} sesion={s} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Sesiones activas */}
       {activas.length > 0 && (

@@ -4,6 +4,7 @@ import {createClient, createServiceClient} from '@/lib/supabase/server';
 import {cargarContextoValidacion} from '@/lib/motor-reglas/db-helpers';
 import {motorReglas} from '@/lib/motor-reglas';
 import type {TipoVehiculo} from '@/lib/motor-reglas/tipos';
+import {buscarSesionVigente} from '@/lib/sesiones/patente-vigente';
 
 interface RegistrarInput {
   patente: string;
@@ -11,20 +12,29 @@ interface RegistrarInput {
   duracionMinutos: number;
   emailConductor?: string;
   modo: 'calcular' | 'confirmar';
+  medio?: 'efectivo' | 'digital';
 }
 
 type RegistrarResult =
   | {ok: false; error: string}
   | {
       ok: true;
+      modo: 'vigente';
+      sesionId: string;
+      patente: string;
+      cubierta_hasta: string;
+      minutos_restantes: number;
+    }
+  | {
+      ok: true;
       modo: 'calcular';
-      monto: number;
-      montoSinDescuento: number;
+      montoEfectivo: number;
+      montoDigital: number;
       cuadraId: string;
       cuadraNombre: string;
       asignacionId: string | null;
     }
-  | {ok: true; modo: 'confirmar'; sesionId: string; monto: number};
+  | {ok: true; modo: 'confirmar'; sesionId: string; monto: number; medio: 'efectivo' | 'digital'};
 
 export async function registrarEfectivo(
   input: RegistrarInput
@@ -86,33 +96,36 @@ export async function registrarEfectivo(
     return {ok: false, error: validacion.mensaje_user};
   }
 
-  // Verificar que la patente no tenga sesión activa
+  // Normalizar patente
   const patente = input.patente.toUpperCase().replace(/\s/g, '');
-  const {data: sesionActiva} = await supabase
-    .from('parking_sessions')
-    .select('id, cubierta_hasta')
-    .eq('patente', patente)
-    .eq('status', 'active')
-    .maybeSingle();
 
-  if (sesionActiva) {
-    return {
-      ok: false,
-      error: `La patente ${patente} ya tiene una sesión activa hasta las ${new Date(
-        sesionActiva.cubierta_hasta
-      ).toLocaleTimeString('es-AR', {
-        timeZone: 'America/Argentina/Salta',
-        hour: '2-digit',
-        minute: '2-digit',
-      })}.`,
-    };
+  // Verificar si la patente ya tiene sesión vigente
+  if (input.modo === 'calcular') {
+    const sesionVigente = await buscarSesionVigente(patente);
+    if (sesionVigente) {
+      return {
+        ok: true,
+        modo: 'vigente',
+        sesionId: sesionVigente.id,
+        patente: sesionVigente.patente,
+        cubierta_hasta: sesionVigente.cubierta_hasta,
+        minutos_restantes: sesionVigente.minutos_restantes,
+      };
+    }
   }
 
-  // Calcular monto
-  const calculo = motorReglas.calcularMonto({
+  // Calcular AMBOS montos (efectivo y digital)
+  const calculoEfectivo = motorReglas.calcularMonto({
     duracion_minutos: input.duracionMinutos,
     tipo_vehiculo: input.tipoVehiculo,
     medio_pago: 'efectivo',
+    tarifas: ctx.tarifas,
+  });
+
+  const calculoDigital = motorReglas.calcularMonto({
+    duracion_minutos: input.duracionMinutos,
+    tipo_vehiculo: input.tipoVehiculo,
+    medio_pago: 'digital_mp',
     tarifas: ctx.tarifas,
   });
 
@@ -120,46 +133,82 @@ export async function registrarEfectivo(
     return {
       ok: true,
       modo: 'calcular',
-      monto: calculo.monto_total,
-      montoSinDescuento: calculo.monto_sin_descuento,
+      montoEfectivo: calculoEfectivo.monto_total,
+      montoDigital: calculoDigital.monto_total,
       cuadraId: asignacion.cuadra_id,
       cuadraNombre,
       asignacionId: asignacion.id,
     };
   }
 
-  // Confirmar: insertar sesión
+  // CONFIRMAR
+  const medio = input.medio ?? 'efectivo';
+  const calculo = medio === 'digital' ? calculoDigital : calculoEfectivo;
+
   const iniciada_a = new Date();
   const cubierta_hasta = new Date(
     iniciada_a.getTime() + input.duracionMinutos * 60 * 1000
   );
 
-  const {data: sesion, error: insertError} = await serviceClient
-    .from('parking_sessions')
-    .insert({
-      patente,
-      tipo_vehiculo: input.tipoVehiculo,
-      permisionario_id: permisionario.id,
-      cuadra_id: asignacion.cuadra_id,
-      asignacion_id: asignacion.id,
-      iniciada_a: iniciada_a.toISOString(),
-      cubierta_hasta: cubierta_hasta.toISOString(),
-      duracion_minutos: input.duracionMinutos,
-      monto: calculo.monto_total,
-      monto_sin_descuento: calculo.monto_sin_descuento,
-      medio_pago: 'efectivo',
-      status: 'active',
-      conductor_email: input.emailConductor || null,
-    })
-    .select('id')
-    .single();
+  if (medio === 'efectivo') {
+    // Cobro efectivo: sesión activa inmediatamente
+    const {data: sesion, error: insertError} = await serviceClient
+      .from('parking_sessions')
+      .insert({
+        patente,
+        tipo_vehiculo: input.tipoVehiculo,
+        permisionario_id: permisionario.id,
+        cuadra_id: asignacion.cuadra_id,
+        asignacion_id: asignacion.id,
+        iniciada_a: iniciada_a.toISOString(),
+        cubierta_hasta: cubierta_hasta.toISOString(),
+        duracion_minutos: input.duracionMinutos,
+        monto: calculo.monto_total,
+        monto_sin_descuento: calculo.monto_sin_descuento,
+        medio_pago: 'efectivo',
+        status: 'active',
+        conductor_email: input.emailConductor || null,
+      })
+      .select('id')
+      .single();
 
-  if (insertError || !sesion) {
-    return {
-      ok: false,
-      error: 'Error al registrar la sesión. Intentá de nuevo.',
-    };
+    if (insertError || !sesion) {
+      return {
+        ok: false,
+        error: 'Error al registrar la sesión. Intentá de nuevo.',
+      };
+    }
+
+    return {ok: true, modo: 'confirmar', sesionId: sesion.id, monto: calculo.monto_total, medio: 'efectivo'};
+  } else {
+    // Cobro digital: sesión extended_pending hasta que MP confirme
+    const {data: sesion, error: insertError} = await serviceClient
+      .from('parking_sessions')
+      .insert({
+        patente,
+        tipo_vehiculo: input.tipoVehiculo,
+        permisionario_id: permisionario.id,
+        cuadra_id: asignacion.cuadra_id,
+        asignacion_id: asignacion.id,
+        iniciada_a: iniciada_a.toISOString(),
+        cubierta_hasta: cubierta_hasta.toISOString(),
+        duracion_minutos: input.duracionMinutos,
+        monto: calculo.monto_total,
+        monto_sin_descuento: calculo.monto_sin_descuento,
+        medio_pago: 'digital_mp',
+        status: 'extended_pending',
+        conductor_email: input.emailConductor || null,
+      })
+      .select('id')
+      .single();
+
+    if (insertError || !sesion) {
+      return {
+        ok: false,
+        error: 'Error al generar el cobro digital. Intentá de nuevo.',
+      };
+    }
+
+    return {ok: true, modo: 'confirmar', sesionId: sesion.id, monto: calculo.monto_total, medio: 'digital'};
   }
-
-  return {ok: true, modo: 'confirmar', sesionId: sesion.id, monto: calculo.monto_total};
 }

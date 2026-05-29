@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {Car, Bike, Clock, CheckCircle2, AlertTriangle} from 'lucide-react';
+import {Car, Bike, Clock, CheckCircle2, AlertTriangle, QrCode} from 'lucide-react';
 import {formatARS, formatHora} from '@/lib/utils';
 
 interface Sesion {
@@ -24,7 +24,7 @@ function minutosRestantes(hasta: string): number {
   return Math.max(0, Math.floor(diff / 60000));
 }
 
-function StatusBadge({status}: {status: string}) {
+function StatusBadge({status, medioPago}: {status: string; medioPago: string}) {
   if (status === 'active') {
     return (
       <span
@@ -33,6 +33,17 @@ function StatusBadge({status}: {status: string}) {
       >
         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
         Activa
+      </span>
+    );
+  }
+  if (status === 'extended_pending' && medioPago === 'digital_mp') {
+    return (
+      <span
+        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+        style={{backgroundColor: '#FEF3C7', color: '#92400E'}}
+      >
+        <QrCode className="h-3 w-3" aria-hidden="true" />
+        Esperando pago
       </span>
     );
   }
@@ -114,7 +125,7 @@ export default function SesionItem({sesion}: Props) {
 
       {/* Estado y tiempo */}
       <div className="flex items-center justify-between">
-        <StatusBadge status={sesion.status} />
+        <StatusBadge status={sesion.status} medioPago={sesion.medio_pago} />
         {isActive && (
           <div
             className="flex items-center gap-1 text-sm"
