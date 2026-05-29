@@ -12,9 +12,9 @@ El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo
 Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
 ## Tareas Activas
-- [ ] Plan 10: Deploy a Vercel. Requiere login del usuario, setear env vars (MP, Supabase, APP_URL, MP_WEBHOOK_SECRET), crear PWA manifest + icons, configurar webhook MP en panel y copiar el Secret Signature.
-- [ ] RECONCILIAR webhook MP antes del deploy: el handler actual (creado en plan 11) es minimal para pasar tests; el plan 10 trae una versión con validación HMAC SHA256 + logging a `webhook_events`. Mergear sin romper los 5 tests de integración.
-- [ ] Poblar `metricas_diarias` del día actual (correr `calcular_metricas_diarias`) para que el chart 21d del dashboard admin se vea con datos en la demo.
+- [ ] Plan 10: Deploy a Vercel. Requiere login del usuario, setear env vars (MP, Supabase, APP_URL, MP_WEBHOOK_SECRET), configurar webhook MP en panel y copiar el Secret Signature. (PWA manifest + icons YA existen; webhook con HMAC YA reconciliado.)
+- [ ] EL DÍA DE LA DEMO: correr `pnpm seed:hoy` para refrescar la actividad del día (KPIs, dashboard permisionario, sesiones activas). El seed completo genera datos relativos a su día de corrida, así que "hoy" queda viejo al día siguiente. Idealmente correrlo de día (ver nota timezone).
+- [ ] DEUDA TÉCNICA timezone: el dashboard (admin y permisionario) calcula "hoy" con `new Date().toISOString()` = día UTC, no día Salta. De día no afecta; de noche (>21 Salta = 00 UTC) el "día" rota. Para producción real, hacer los queries de "hoy" timezone-aware (America/Argentina/Salta).
 - [ ] Tests por horario: el cálculo $560 (conductor) y el registro de cobro (permisionario) hacen skip automático fuera de 07:00-21:00 Salta. Correr en horario laboral para verlos verdes.
 
 ## Decisiones de Arquitectura
@@ -108,3 +108,19 @@ Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy
 - El webhook MP (`/api/webhooks/mp/route.ts`) no existía pese a figurar el plan 05 como hecho; lo creó el Sonnet del plan 11 en versión minimal. PENDIENTE reconciliar con la versión HMAC del plan 10.
 **Próximos pasos:**
 - Plan 10 (Deploy Vercel) con el usuario presente. Ver Tareas Activas.
+
+### [2026-05-28] - Sesión preparación pre-deploy (orquestador)
+**Objetivo:** Dejar listos los pendientes que no requieren al usuario, antes del deploy del plan 10.
+**Hecho:**
+- Webhook MP reconciliado (`src/app/api/webhooks/mp/route.ts`): se mantuvieron los shapes que cubren los 5 tests de integración y se agregó encima: validación de firma HMAC-SHA256 (con `timingSafeEqual`, modo estricto vía `STRICT_WEBHOOK`), auditoría en `webhook_events` (best-effort), consulta del status real del pago a la API de MP (import dinámico de `@/lib/mp/server`), y `runtime = 'nodejs'`. Mock del test actualizado para incluir `insert`.
+- Script `scripts/seed-hoy.ts` + alias `pnpm seed:hoy`: refresca idempotente la actividad del día (borra sesiones de hoy, asignaciones upsert, ~30-80 sesiones/permi, recalcula métricas). Usa día UTC + horas UTC 10-21 (= 07-18 Salta) para coincidir con el criterio "hoy" del dashboard.
+- Script `scripts/check-metricas.ts`: diagnóstico del estado de `metricas_diarias`/`parking_sessions` por fecha.
+- Verificado: `metricas_diarias` ahora tiene datos de hoy (2026-05-29 UTC). Antes llegaba solo al 28.
+**Decisiones:**
+- No re-correr el seed completo (es aditivo, duplicaría las ~14k sesiones históricas). En su lugar, script acotado al día.
+- Manifest PWA + icons ya existían (plan 06); no se regeneraron.
+- Descubierta deuda técnica de timezone (dashboard razona en UTC). No se refactorizó ahora (scope/riesgo); documentada en Tareas Activas. De día no afecta la demo.
+**Problemas encontrados:**
+- Primera versión de seed-hoy usó `setHours` local → generó "28" mientras el dashboard lee "29" (UTC). Corregido a criterio UTC explícito (`Date.UTC`). La corrida fallida dejó el día 28 con sesiones regeneradas pero coherentes (métricas recalculadas); aceptable para datos de demo.
+**Próximos pasos:**
+- Plan 10 (Deploy Vercel) con el usuario.

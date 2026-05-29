@@ -16,13 +16,16 @@ import { describe, test, expect, vi } from 'vitest';
 vi.mock('@/lib/supabase/server', () => ({
   createServiceClient: () => ({
     from: () => ({
+      insert: async () => ({ error: null }),
       select: () => ({
         eq: () => ({
           maybeSingle: async () => ({ data: null, error: null }),
         }),
       }),
       update: () => ({
-        eq: async () => ({ error: null }),
+        eq: () => ({
+          eq: async () => ({ error: null }),
+        }),
       }),
     }),
   }),

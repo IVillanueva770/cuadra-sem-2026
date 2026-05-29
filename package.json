@@ -12,7 +12,8 @@
     "test:ui": "vitest --ui",
     "playwright": "playwright test",
     "playwright:ui": "playwright test --ui",
-    "seed": "tsx --env-file=.env.local scripts/seed-dinamico.ts"
+    "seed": "tsx --env-file=.env.local scripts/seed-dinamico.ts",
+    "seed:hoy": "tsx --env-file=.env.local scripts/seed-hoy.ts"
   },
   "dependencies": {
     "@mercadopago/sdk-react": "0.0.19",
