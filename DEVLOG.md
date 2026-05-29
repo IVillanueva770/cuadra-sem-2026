@@ -1,6 +1,19 @@
 ## DEVLOG - Cuadra (PunaTech 2026 · Track Ciudad SEM Salta)
 
 ## Estado Actual
+
+**Pulido a fondo 29/05 (cascada planes 12-17, todos deployados):**
+- **Bugs/marca (12)**: panel admin ahora responsive (sidebar = drawer con hamburguesa en mobile, fijo en desktop); logo Cuadra en el admin; favicon Cuadra (`app/icon.svg`); fix sesión cruzada entre roles (logins hacen signOut al montar, `/permi` redirige a `/login` si no hay perfil, DemoNav entra por los logins).
+- **Flujo permisionario-céntrico (13, el corazón)**: el permisionario ahora opera el cobro **digital** además del efectivo — en `/permi/nueva` elige medio; digital genera sesión `extended_pending` + pantalla `/permi/cobro/[sid]` con **QR** (`qrcode.react`) que el conductor escanea y paga en `/pagar/sesion/[sid]` (Brick); realtime confirma. **Validación de patente vigente**: no cobra dos veces, avisa "cubierta hasta HH:MM" y ofrece extender (movilidad entre cuadras). Helper `src/lib/sesiones/patente-vigente.ts`.
+- **Dashboard Muni (14)**: filtro de rango (Hoy/7d/30d con `?rango=`), KPIs con comparativa vs período anterior, composición digital/efectivo, efectivo a conciliar (20% Muni), top cuadras por recaudación.
+- **Tablas admin (15)**: permisionarios con buscador + filtros + recaudación 30d; auditoría con filtros + contadores.
+- **Animaciones (16)**: entrada stagger sobria en los 3 perfiles + microinteracciones, respeta `prefers-reduced-motion`. Helper `src/lib/anim.ts`.
+- **Landing pública (17)**: home institucional one-screen — input real "verificar patente", accesos por actor, nota al conductor sobre el QR, **co-branding con logo Muni** en el pie.
+- Doc `docs/PITCH.md` corregido: el antecedente 2024-25 murió por **latencia** (no política); diferencial central = velocidad + permisionario como agente activo del cobro digital.
+- Build limpio + 32/32 tests verdes en cada plan. Screenshots en `screenshots/pulido-29may/`.
+
+---
+
 Capa de DEMO para el pitch (28/05 noche): **SplashScreen** de apertura (auto que estaciona, recrea logo-explorations/splash.html con motion, 1x por sesión, re-disparable). **DemoNav** = FAB flotante en todas las pantallas para saltar entre las 3 experiencias con credenciales a la vista (DEMO ONLY, sacable borrando `<DemoNav/>` del layout + el archivo). Botón "Autocompletar datos de demo" en ambos logins. Usuario admin de demo: `admin@municipalidadsalta.gob.ar / muni2026` (script `seed:admin`). Doc de pitch en `docs/PITCH.md`. Dependencia nueva: `motion` (Framer Motion).
 
 PENDIENTE de marca: el auto del logo está ~3.6px bajo del centro vertical del cuadrado (mismo trazo en symbol/logo/splash). Lo ajusta el usuario en el design system y regenera assets (hay PNG raster que no se editan a mano).
