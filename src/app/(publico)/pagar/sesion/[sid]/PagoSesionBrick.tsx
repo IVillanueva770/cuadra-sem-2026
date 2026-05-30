@@ -56,6 +56,8 @@ export default function PagoSesionBrick({sid, amount, email}: Props) {
             creditCard: 'all',
             debitCard: 'all',
             mercadoPago: 'all',
+            // Transferencia a través de MP (requisito del pliego).
+            bankTransfer: 'all',
           },
         }}
         onSubmit={async (param: unknown) => {

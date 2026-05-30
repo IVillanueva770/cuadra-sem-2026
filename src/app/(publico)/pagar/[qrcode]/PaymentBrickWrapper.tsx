@@ -60,6 +60,9 @@ export default function PaymentBrickWrapper(props: Props) {
             creditCard: 'all',
             debitCard: 'all',
             mercadoPago: 'all',
+            // Transferencia a través de MP (requisito del pliego). Si AR no lo
+            // ofrece en sandbox, el Brick simplemente no lo muestra.
+            bankTransfer: 'all',
           },
         }}
         onSubmit={async (param: unknown) => {
