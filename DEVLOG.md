@@ -2,6 +2,13 @@
 
 ## Estado Actual
 
+**Preparación de la demo + entrega 30/05:**
+- **Pago del conductor**: se quitó el efectivo offline de MP (Rapipago/Pago Fácil, método `ticket` omitido) → sólo medios digitales; el efectivo lo cobra el permisionario. Se habilitó `bankTransfer` (transferencia vía MP; el sandbox AR muestra sólo tarjetas, en prod aparecen todos). Botón **"Tarjeta de prueba"** (`TarjetaPrueba.tsx`, DEMO) que copia cada dato para pegar en el Brick.
+- **Datos del día**: `pnpm seed:hoy` siembra sesiones/asignaciones/métricas del día actual (ojo timezone UTC: re-correr si se cruza medianoche UTC = 21 hs Salta).
+- **Flag de horario**: `DEMO_PERMITIR_FUERA_DE_HORARIO` en `validaciones.ts` permitió cobrar fuera de horario para grabar; **restaurado a `false`** (cumple Ord. 12.170).
+- **Botones de salir/volver**: logout en header permi (`LogoutButton`), volver a home en el conductor.
+- **Entrega**: respuestas del formulario (Página 4) en `docs/postulacion-cuadra.txt`. QR de demo en `screenshots/demo/`. Repo público, app en `cuadra-sem.vercel.app`.
+
 **Coherencia de datos + microinteracciones a fondo 29/05:**
 - **Bug crítico de datos resuelto**: el dashboard traía filas de `parking_sessions` y contaba en JS, pero Supabase capea a 1000 → 7d y 30d daban ambos 1000 y permisionarios activos salían al revés. Ahora `traerSesiones()` pagina de a 1000 (`.range`) y trae todo. Verificado: Hoy 780 / 7d 4.542 / 30d 15.320 (crece correcto).
 - **KpiCard**: ícono fijo arriba-derecha (alineado en las 4), número sin truncar (`tabular-nums`), alturas uniformes (título a 2 líneas + `h-full`).

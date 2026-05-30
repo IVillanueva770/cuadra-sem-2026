@@ -2,9 +2,9 @@ import type {ContextoValidacion, ValidacionResult} from './tipos';
 import {turnoActivo, minutosHastaFinTurno} from './horarios';
 import {esFeriado} from './feriados';
 
-// ⚠️ DEMO ONLY — permite cobrar fuera de horario para grabar el video.
-// Poner en false para restaurar el cumplimiento normativo real (Ord. 12.170).
-const DEMO_PERMITIR_FUERA_DE_HORARIO = true;
+// Permite cobrar fuera de horario (se usó sólo para grabar la demo).
+// En false respeta el cumplimiento normativo real de la Ordenanza 12.170.
+const DEMO_PERMITIR_FUERA_DE_HORARIO = false;
 
 export function validarCobro(ctx: ContextoValidacion): ValidacionResult {
   const turno = turnoActivo(ctx.momento, ctx.horarios);

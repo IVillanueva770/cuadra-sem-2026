@@ -1,0 +1,58 @@
+CUADRA — Desafío SEM · PunaTech 2026
+Propuesta (Página 4 del formulario)
+App: https://cuadra-sem.vercel.app  ·  Repo: https://github.com/IVillanueva770/cuadra-sem-2026
+
+
+1) FLUJO COMPLETO DE PAGO PARA EL CONDUCTOR
+
+El conductor escanea el QR del permisionario (en su credencial o pegado en la cuadra) y abre la pantalla de pago: sin instalar ninguna app y sin registrarse. Ingresa su patente, tipo de vehículo y cuánto tiempo va a estar; el sistema calcula el monto y aplica solo el descuento digital del 20% (lo absorbe la Muni). Paga con tarjeta de crédito o débito a través de Mercado Pago, con el formulario embebido en la misma pantalla (sin redirección a un portal externo). Al confirmar el pago, un webhook activa la sesión y el conductor recibe el comprobante. Todo ocurre en segundos.
+
+Variante (permisionario operando el cobro): el permisionario carga la patente y el tiempo, elige "Digital" y genera un QR con el monto ya cargado; el conductor solo lo escanea y paga. La sesión es el "papelito digital" que reemplaza al ticket de papel.
+
+
+2) ROL DEL PERMISIONARIO EN EL NUEVO SISTEMA
+
+El permisionario sigue siendo el actor central: la app no lo reemplaza, lo potencia. Es quien opera el cobro, tanto en efectivo (lo registra en su app) como en digital (genera el QR de cobro para que el conductor pague). Conserva su 80% de la recaudación, con liquidación trazable; el descuento del 20% por pago digital lo absorbe la Municipalidad, sin tocar su ingreso. Si no tiene celular propio, su QR de credencial fijo permite que el conductor pague igual y el cobro se le atribuye automáticamente. Su participación e ingresos quedan garantizados.
+
+
+3) MECANISMO DE REGISTRO DIGITAL DEL PAGO EN EFECTIVO
+
+Cada cobro en efectivo se registra en el momento como una sesión digital en la base de datos (tabla parking_sessions, medio_pago = efectivo), con patente, monto, hora, cuadra y permisionario. Esto elimina el talonario físico: el efectivo queda trazado igual que el digital. Al cierre del día, el sistema concilia automáticamente y calcula el 20% del efectivo que el permisionario debe rendir a la Municipalidad (tabla conciliaciones_efectivo). Resultado: trazabilidad total del efectivo, sin papel.
+
+
+4) CÓMO CUMPLEN LA ORDENANZA 12.170
+
+La normativa está modelada como datos configurables más un motor de reglas que valida cada cobro antes de permitirlo:
+
+- Turnos: diurno (L-V 07:00-21:00, sáb 07:00-14:00) y nocturno (22:00-05:00) solo en zonas habilitadas.
+- Feriados: sin cobro diurno, sí nocturno.
+- Descuento del 20% por pago digital, aplicado automáticamente y absorbido por la Municipalidad.
+- Fraccionamiento de 15 minutos a partir de la segunda hora, para todos los vehículos y ambos turnos.
+- Zonas nocturnas: Paseo Balcarce, Paseo Güemes, Plaza Alvarado (configurables).
+- Tarifas: $700 auto / $300 moto, con tolerancia de 5 minutos.
+
+El motor bloquea y explica cualquier cobro fuera de norma, previniendo el cobro indebido. Además, un índice único garantiza una sola sesión activa por patente: no se puede cobrar dos veces y se habilita la movilidad entre cuadras (el auto se mueve sin pagar de nuevo hasta que vence su tiempo).
+
+
+5) INTEGRACIÓN CON MERCADO PAGO
+
+Integramos el Payment Brick de Mercado Pago: la tarjeta se tokeniza en el navegador del conductor (estándar PCI, nunca tocamos datos de tarjeta), el pago se crea con clave de idempotencia desde el servidor, y un webhook firmado con HMAC-SHA256 confirma la transacción de forma idempotente. Medios habilitados: tarjeta de crédito, tarjeta de débito y transferencia / dinero en cuenta a través de Mercado Pago (los cuatro configurados en el Brick; en el entorno de prueba MP habilita las tarjetas, y en producción se activan todos los medios de la cuenta). El efectivo se cobra y registra del lado del permisionario. La app está desplegada y funcionando con Mercado Pago en modo de prueba.
+
+
+6) CÓMO GARANTIZAN VELOCIDAD (POCOS SEGUNDOS)
+
+El antecedente 2024-2025 se suspendió porque cada transacción tardaba hasta ~2 minutos, por la redirección a un portal de pago externo. Lo resolvimos de raíz: el Payment Brick tokeniza la tarjeta en el cliente y el cobro se confirma en la misma pantalla, sin redirección ni salto a otro sitio. El webhook confirma de forma asincrónica (la interfaz no se bloquea esperándolo) y Realtime empuja el estado "pagado" sin necesidad de consultar en bucle. Sumado al render en el servidor (Server Components, menos JavaScript en el celular) y al despliegue en la región de São Paulo (la más cercana a Argentina), el pago se resuelve en segundos.
+
+
+7) ACCESIBILIDAD
+
+El sistema funciona en los tres escenarios reales de la calle, sin asumir que el permisionario tenga dispositivo:
+
+- A) Permisionario y conductor con celular: el permisionario genera el QR de cobro digital y el conductor paga.
+- B) Permisionario sin celular: su QR de credencial fijo alcanza; el conductor se autogestiona y paga, y el cobro se le atribuye al permisionario igual.
+- C) Conductor sin celular o sin manejo del smartphone: el permisionario lo cobra en efectivo y lo registra digitalmente.
+
+La interfaz es simple y pensada para todos los niveles: textos y montos grandes, botones amplios, pasos mínimos, y la Ordenanza siempre a la vista. Se asume conectividad de datos razonable, como indica el pliego.
+
+
+Stack: Next.js 15 (React) · Supabase (Postgres) · Mercado Pago (Payment Brick) · Vercel. En producción real, a un paso de pasar a operación.
