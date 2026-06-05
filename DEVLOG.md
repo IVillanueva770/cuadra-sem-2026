@@ -68,6 +68,17 @@ Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy
 
 ## Sesiones
 
+### [2026-06-05] - Keep-alive contra pausa de Supabase
+**Objetivo:** Evitar que el proyecto Supabase se pause por inactividad (free tier pausa a los 7 días) y rompa el link del demo, que queda linkeado en la página de proyectos del autor.
+**Hecho:**
+- Nueva ruta `src/app/api/keep-alive/route.ts`: query mínima (`config_sistema`, head+count) vía service client (bypassa RLS). Soporta `CRON_SECRET` opcional.
+- Cron diario en `vercel.json` (`0 6 * * *` UTC) que pega a la ruta.
+**Decisiones:**
+- Frecuencia diaria (no cada 6-7d) por margen ante corridas salteadas; costo ~0.
+- NO se desacopla de Supabase: la app tiene auth+realtime+pagos sobre Supabase en ~50 archivos, reescribir a sintético no rinde para un demo.
+**Pendiente:**
+- Seguridad: tabla con RLS deshabilitado (advisor de Supabase). Data sintética, impacto bajo → diferido.
+
 ### [2026-05-29] - Sesión Plan 14: dashboard Muni con filtros + comparativas + composición
 **Objetivo:** Hacer el dashboard admin mucho más útil para el jurado Muni: filtro de rango temporal, KPIs con comparativa vs período anterior, composición digital/efectivo, conciliación de efectivo, top cuadras.
 **Hecho:**
