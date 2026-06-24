@@ -10,6 +10,9 @@ on:
     - cron: '0 9 */5 * *' # cada ~5 días, 09:00 UTC
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -23,3 +26,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/seed-refresh.mjs 8
+      - name: Marcar actividad en el repo (evita que GitHub desactive el cron a los 60 días de inactividad)
+        run: |
+          git config user.name "keepalive-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B keepalive
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git add .keepalive
+          git commit -m "keep-alive $(date -u +%F)"
+          git push -f origin keepalive
