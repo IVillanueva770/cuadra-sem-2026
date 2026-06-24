@@ -1,0 +1,25 @@
+name: keep-alive-demo
+
+# Mantiene la demo de Cuadra viva y fresca sin intervención:
+#  - Refresca los últimos 8 días de actividad (datos siempre terminan en "hoy").
+#  - Esa escritura cuenta como actividad → Supabase no pausa el proyecto (pausa a los 7 días).
+# Corre cada ~5 días (margen seguro bajo el límite de 7) y se puede disparar a mano.
+
+on:
+  schedule:
+    - cron: '0 9 */5 * *' # cada ~5 días, 09:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Refrescar datos demo + keep-alive Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/seed-refresh.mjs 8
