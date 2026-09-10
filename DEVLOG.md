@@ -2,6 +2,16 @@
 
 ## Estado Actual
 
+**Sin Supabase desde el 2026-09-10 (decision del user, ejecutada entera en una sesion).**
+- **Por que**: Supabase free tiene un CUPO de 2 proyectos activos por cuenta y son 4. `cuadra-sem` quedo pausado por cupo desde julio; los dos keep-alive (cron de Vercel + GitHub Action) fallaban en silencio desde el 2026-07-11 porque un keep-alive no puede resucitar un proyecto pausado. La app entera era ya una simulacion (MP en sandbox, datos sembrados), asi que sacarla de Supabase no destruye nada real. Revoca la decision del 05/06 ("no desacoplar, no rinde"): lo que cambio no fue el costo de desacoplar sino que la base dejo de existir.
+- **Como**: una sola capa `src/lib/datos/` (tipos + semilla + store). La **semilla es determinista por fecha** (PRNG sembrado con la fecha): cualquier instancia de Vercel genera exactamente la misma actividad para un mismo dia, sin compartir nada. Lo que la app escribe (cobros, tarifas editadas, cierres) vive en memoria de la instancia; el flujo pagar/comprobante del mismo navegador no depende de caer en la misma lambda porque las sesiones propias van tambien en una cookie (`sesiones-propias.ts`, ultimas 5) que rehidrata la memoria al leer. El estado active/expired se **deriva del reloj al leer** (reemplaza la funcion SQL `expirar_sesiones_vencidas`).
+- **Login**: cookie firmada HMAC con las credenciales publicas de la demo (`src/lib/auth-demo/`). Los formularios y el boton "Autocompletar datos de demo" quedaron iguales; DemoNav, tests y formularios leen las credenciales de una sola fuente. `/admin` se guarda en el servidor con un route group `(protegido)`: ya no puede quedar colgado en "Verificando sesion...".
+- **Realtime**: reemplazado por `<AutoRefresh>` (router.refresh cada N segundos) en los dashboards y polling del estado del cobro cada 3 s en la pantalla del QR.
+- **MP**: Brick y webhook intactos contra sandbox. Limite honesto: el webhook solo encuentra la sesion si cae en la misma instancia que creo el pago; si no, responde `session_not_found` y no pasa nada porque el status ya se fijo al crear el pago.
+- **Fuera del repo**: `@supabase/*`, `supabase/` (schema y seeds SQL, quedan en git antes del commit `3660194`), `scripts/seed-*`, `tests/setup/`, `/api/keep-alive`, el cron y el workflow. Env vars de Supabase borradas de Vercel. El proyecto Supabase `cuadra-sem` queda **pausado** (decision del user, reversible).
+- **Verificado**: build limpio, 45/45 vitest (12 nuevos contra el store), 28/28 Playwright mobile+desktop. El e2e del cobro en efectivo ahora confirma y lee el cobro en `/permi` y `/verificar`: antes se salteaba SIEMPRE porque tomaba el route announcer de Next como alert del formulario (el instrumento callaba). Rutas live medidas tras el deploy (`cuadra-sem.vercel.app`): `/`, `/arquitectura.html`, `/ordenanza`, `/verificar/*`, `/pagar/CUADRA-001` en 200; `/admin` y `/permi` redirigen al login (307) en vez de colgarse; `/api/keep-alive` 404. **Un pago sandbox real de punta a punta en produccion** (MP payment 1328141696, $560, patente FAB510) llego al comprobante, y `/verificar/FAB510` desde otro cliente sin cookie dio activa 3 de 3 veces (misma instancia caliente; no es garantia).
+- **Lo que no se hizo a proposito**: `public/arquitectura.html` sigue describiendo la arquitectura con Supabase, porque es el documento del hackathon tal como se entrego al jurado.
+
 **Preparación de la demo + entrega 30/05:**
 - **Pago del conductor**: se quitó el efectivo offline de MP (Rapipago/Pago Fácil, método `ticket` omitido) → sólo medios digitales; el efectivo lo cobra el permisionario. Se habilitó `bankTransfer` (transferencia vía MP; el sandbox AR muestra sólo tarjetas, en prod aparecen todos). Botón **"Tarjeta de prueba"** (`TarjetaPrueba.tsx`, DEMO) que copia cada dato para pegar en el Brick.
 - **Datos del día**: `pnpm seed:hoy` siembra sesiones/asignaciones/métricas del día actual (ojo timezone UTC: re-correr si se cruza medianoche UTC = 21 hs Salta).
@@ -67,6 +77,26 @@ El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo
 Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
 ## Sesiones
+
+### [2026-09-10] - Salida de Supabase
+**Objetivo:** que la demo no dependa de Supabase (cupo de 2 proyectos free) y libere el slot, manteniendo funcionando todo lo posible.
+**Hecho:**
+- Keep-alives apagados (cron + workflow + endpoint).
+- Capa `src/lib/datos/` (tipos, semilla determinista por fecha, store con estado derivado del reloj, cookie de sesiones propias). 12 tests.
+- Auth de demo por cookie firmada; `/admin` protegido en servidor (route group `(protegido)` + `AdminShell`).
+- 36 archivos reescritos contra la capa nueva; realtime a polling; MP y webhook intactos.
+- Dependencias, scripts, seeds, setup de Playwright y env vars de Supabase eliminados.
+**Decisiones:**
+- Semilla determinista en vez de exportar la base: los datos eran 100% sembrados y aleatorios, asi que no hacia falta restaurar el proyecto pausado para "rescatar" nada.
+- Persistencia = memoria de la instancia + cookie del navegador. Se declara como simulacion; no se agrego otra base (Neon, KV) porque el objetivo era cero infra.
+- El proyecto Supabase se deja pausado, no se borra (user).
+**Problemas encontrados:**
+- MP sandbox rechaza con `Payer email forbidden` (4390) si el email del pagador es el del usuario de prueba vendedor; con un email cualquiera aprueba. No es de la app.
+- El `git add` explicito abortó en un pathspec ya borrado y el primer commit salio solo con renames y deletes (deploy en ERROR); el segundo commit lo completo.
+- El e2e del cobro en efectivo tenia un skip permanente por el route announcer de Next; corregido y ampliado.
+- El plan heredado decia "35 escrituras": eran 18 en la app (9 archivos si coincidian).
+**Proximos pasos:**
+- `agenda-ya` a modo visor (spec en su project-wiki) para liberar el otro slot.
 
 ### [2026-06-05] - Keep-alive contra pausa de Supabase
 **Objetivo:** Evitar que el proyecto Supabase se pause por inactividad (free tier pausa a los 7 días) y rompa el link del demo, que queda linkeado en la página de proyectos del autor.

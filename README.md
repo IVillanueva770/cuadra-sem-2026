@@ -4,7 +4,7 @@
 
 Hackathon **PunaTech 2026** · Track de la Ciudad · 28-30 mayo 2026
 
-🔗 **Live**: https://cuadra-sem-2026.vercel.app *(deploy pendiente)*
+🔗 **Live**: https://cuadra-sem.vercel.app
 
 ## Equipo
 
@@ -26,10 +26,10 @@ Cuadra digitaliza el cobro del estacionamiento medido en las cuadras del microce
 ## Stack
 
 - **Frontend**: Next.js 15 (App Router) + React 19 + TypeScript + Tailwind CSS 4
-- **Backend**: Server Actions Next.js + Supabase Postgres + Supabase Auth + Realtime
+- **Backend**: Server Actions Next.js sobre una capa de datos en memoria (`src/lib/datos/`, semilla determinista por fecha). Durante el hackathon corrio sobre Supabase Postgres + Auth + Realtime; desde 2026-09 la demo no depende de ninguna base (ver DEVLOG).
 - **Pagos**: Mercado Pago Payment Brick + SDK Node + webhooks (cuenta única Muni)
 - **Email**: Resend
-- **Deploy**: Vercel + Supabase Cloud
+- **Deploy**: Vercel
 - **Tipografía**: DM Sans + DM Mono (Google Fonts)
 - **Íconos**: Lucide
 - **Idioma**: Español argentino (es-AR), zona horaria America/Argentina/Salta
@@ -54,7 +54,7 @@ git clone https://github.com/IVillanueva770/cuadra-sem-2026.git
 cd cuadra-sem-2026
 pnpm install
 cp .env.example .env.local
-# Completar variables (Supabase URL + keys; MP test credentials)
+# Completar variables (MP test credentials; el resto es opcional)
 pnpm dev
 ```
 
