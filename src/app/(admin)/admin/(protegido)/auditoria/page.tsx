@@ -1,5 +1,5 @@
 import type {Metadata} from 'next';
-import {createServiceClient} from '@/lib/supabase/server';
+import {listarWebhookEvents} from '@/lib/datos';
 import AuditoriaClient, {type WebhookEvento} from './AuditoriaClient';
 
 export const metadata: Metadata = {
@@ -9,13 +9,16 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function AuditoriaPage() {
-  const supabase = createServiceClient();
-
-  const {data: eventos, error} = await supabase
-    .from('webhook_events')
-    .select('id, source, event_type, payment_id, processed, error_message, received_at, processed_at')
-    .order('received_at', {ascending: false})
-    .limit(100);
+  const eventos: WebhookEvento[] = listarWebhookEvents(100).map((e) => ({
+    id: e.id,
+    source: e.source,
+    event_type: e.event_type,
+    payment_id: e.payment_id,
+    processed: e.processed,
+    error_message: e.error_message,
+    received_at: e.received_at,
+    processed_at: e.processed_at,
+  }));
 
   return (
     <div className="space-y-6">
@@ -28,13 +31,7 @@ export default async function AuditoriaPage() {
         </p>
       </div>
 
-      {error && (
-        <p className="text-sm" style={{color: 'var(--error)'}}>
-          Error al cargar eventos: {error.message}
-        </p>
-      )}
-
-      <AuditoriaClient eventos={(eventos ?? []) as WebhookEvento[]} />
+      <AuditoriaClient eventos={eventos} />
     </div>
   );
 }

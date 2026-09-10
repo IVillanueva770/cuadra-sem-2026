@@ -1,15 +1,11 @@
 import {CircleCheck, MapPin, CircleX} from 'lucide-react';
-import {createServiceClient} from '@/lib/supabase/server';
+import {cuadraPorId, permisionarioPorId, sesionVigentePorPatente} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Badge} from '@/components/ui/badge';
 import {formatHora} from '@/lib/utils';
 
-interface VerificacionRow {
-  sesion_id: string;
-  cubierta_hasta: string;
-  permisionario_nombre: string;
-  cuadra_nombre: string;
-}
+export const dynamic = 'force-dynamic';
 
 export default async function VerificarPage({
   params,
@@ -19,13 +15,11 @@ export default async function VerificarPage({
   const {patente} = await params;
   const patenteUpper = patente.toUpperCase();
 
-  const supabase = createServiceClient();
-  const {data: sesion} = await supabase.rpc('verificar_patente_activa', {
-    p_patente: patenteUpper,
-  });
-
-  const filas: VerificacionRow[] = Array.isArray(sesion) ? sesion : [];
-  const activa = filas.length > 0;
+  await rehidratarSesionesPropias();
+  const sesion = sesionVigentePorPatente(patenteUpper);
+  const activa = sesion !== null;
+  const cuadraNombre = sesion ? cuadraPorId(sesion.cuadra_id)?.nombre_display ?? 'Cuadra asignada' : '';
+  const permisionarioNombre = sesion ? permisionarioPorId(sesion.permisionario_id)?.nombre_completo ?? '' : '';
 
   return (
     <main className="mx-auto max-w-md space-y-6 p-6">
@@ -58,12 +52,12 @@ export default async function VerificarPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {activa ? (
+          {sesion ? (
             <div className="space-y-3 text-sm">
               <p className="text-gray-700">
                 Habilitada hasta las{' '}
                 <strong className="text-gray-900">
-                  {formatHora(filas[0].cubierta_hasta)}
+                  {formatHora(sesion.cubierta_hasta)}
                 </strong>
                 .
               </p>
@@ -76,11 +70,11 @@ export default async function VerificarPage({
                   <div>
                     Cobrado en{' '}
                     <strong className="text-gray-900">
-                      {filas[0].cuadra_nombre}
+                      {cuadraNombre}
                     </strong>
                   </div>
                   <div className="text-xs text-gray-500">
-                    Permisionario: {filas[0].permisionario_nombre}
+                    Permisionario: {permisionarioNombre}
                   </div>
                 </div>
               </div>

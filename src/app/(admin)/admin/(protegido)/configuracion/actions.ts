@@ -1,12 +1,15 @@
 'use server';
 
 import {revalidatePath} from 'next/cache';
-import {createServiceClient} from '@/lib/supabase/server';
+import {esAdmin} from '@/lib/auth-demo/servidor';
+import {actualizarConfig, actualizarTarifa, borrarFeriado} from '@/lib/datos';
 
 // =====================================================
 // Tarifas
 // =====================================================
 export async function updateTarifa(formData: FormData) {
+  if (!(await esAdmin())) return {error: 'No autorizado'};
+
   const id = formData.get('id') as string;
   const monto_por_hora = parseFloat(formData.get('monto_por_hora') as string);
   const monto_por_fraccion_15min = parseFloat(formData.get('monto_por_fraccion_15min') as string);
@@ -16,13 +19,9 @@ export async function updateTarifa(formData: FormData) {
     return {error: 'Datos inválidos'};
   }
 
-  const supabase = createServiceClient();
-  const {error} = await supabase
-    .from('tarifas')
-    .update({monto_por_hora, monto_por_fraccion_15min, descuento_digital_pct})
-    .eq('id', id);
-
-  if (error) return {error: error.message};
+  if (!actualizarTarifa(id, {monto_por_hora, monto_por_fraccion_15min, descuento_digital_pct})) {
+    return {error: 'Tarifa no encontrada'};
+  }
 
   revalidatePath('/admin/configuracion');
   return {success: true};
@@ -32,14 +31,14 @@ export async function updateTarifa(formData: FormData) {
 // Config sistema
 // =====================================================
 export async function updateConfigSistema(formData: FormData) {
+  if (!(await esAdmin())) return {error: 'No autorizado'};
+
   const clave = formData.get('clave') as string;
   const valor = formData.get('valor') as string;
 
   if (!clave || valor === null) return {error: 'Datos inválidos'};
 
-  const supabase = createServiceClient();
-
-  // Intentar parsear como JSON, si falla usar como string JSON
+  // Intentar parsear como JSON, si falla usar como string
   let valorJson: unknown;
   try {
     valorJson = JSON.parse(valor);
@@ -47,24 +46,18 @@ export async function updateConfigSistema(formData: FormData) {
     valorJson = valor;
   }
 
-  const {error} = await supabase
-    .from('config_sistema')
-    .update({valor: valorJson})
-    .eq('clave', clave);
-
-  if (error) return {error: error.message};
+  if (!actualizarConfig(clave, valorJson)) return {error: 'Clave no encontrada'};
 
   revalidatePath('/admin/configuracion');
   return {success: true};
 }
 
 // =====================================================
-// Feriados (stub — viewer con delete funcional)
+// Feriados (stub: viewer con delete funcional)
 // =====================================================
 export async function deleteFeriado(id: string) {
-  const supabase = createServiceClient();
-  const {error} = await supabase.from('feriados').delete().eq('id', id);
-  if (error) return {error: error.message};
+  if (!(await esAdmin())) return {error: 'No autorizado'};
+  if (!borrarFeriado(id)) return {error: 'Feriado no encontrado'};
   revalidatePath('/admin/configuracion');
   return {success: true};
 }

@@ -2,7 +2,7 @@
 
 import {useState, useTransition} from 'react';
 import {ClipboardCheck, CheckCircle2, AlertCircle} from 'lucide-react';
-import {createClient} from '@/lib/supabase/client';
+import {registrarCierreDelDia} from './actions';
 
 interface Props {
   asignacionId: string | null;
@@ -29,39 +29,10 @@ export default function ConciliarBoton({
     }
 
     startTransition(async () => {
-      const supabase = createClient();
-      const {
-        data: {user},
-      } = await supabase.auth.getUser();
+      const res = await registrarCierreDelDia({asignacionId, totalEfectivo, saldoARendir});
 
-      if (!user) {
-        setErrorMsg('No autenticado.');
-        setResultado('error');
-        return;
-      }
-
-      const {data: permisionario} = await supabase
-        .from('permisionarios')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!permisionario) {
-        setErrorMsg('No encontramos tu perfil.');
-        setResultado('error');
-        return;
-      }
-
-      const {error} = await supabase.from('conciliaciones_efectivo').insert({
-        permisionario_id: permisionario.id,
-        asignacion_id: asignacionId,
-        total_efectivo_recaudado: totalEfectivo,
-        saldo_a_rendir: saldoARendir,
-        status: 'pending',
-      });
-
-      if (error) {
-        setErrorMsg('Error al registrar el cierre. Intentá de nuevo.');
+      if (!res.ok) {
+        setErrorMsg(res.error);
         setResultado('error');
         return;
       }

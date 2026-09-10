@@ -1,45 +1,23 @@
 import {redirect} from 'next/navigation';
 import Link from 'next/link';
 import {Plus} from 'lucide-react';
-import {createClient} from '@/lib/supabase/server';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
+import {sesionesDelPermisionarioHoy} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {formatARS, formatFecha} from '@/lib/utils';
 import SesionItem from './SesionItem';
 import AnterioresList from './AnterioresList';
-import RealtimeUpdater from './RealtimeUpdater';
+import AutoRefresh from '@/components/cuadra/AutoRefresh';
 import AnimatedPermiDashboard, {AnimatedPermiItem, FadeUpItem} from './AnimatedPermiDashboard';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
-  const supabase = await createClient();
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) redirect('/login');
 
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect('/login');
-
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id, nombre_completo')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!permisionario) {
-    redirect('/login');
-  }
-
-  const hoy = new Date().toISOString().slice(0, 10);
-
-  // Sesiones del día
-  const {data: sesiones} = await supabase
-    .from('parking_sessions')
-    .select(
-      'id, patente, tipo_vehiculo, monto, medio_pago, status, iniciada_a, cubierta_hasta'
-    )
-    .eq('permisionario_id', permisionario.id)
-    .gte('iniciada_a', `${hoy}T00:00:00`)
-    .order('iniciada_a', {ascending: false});
-
-  const todasLasSesiones = sesiones ?? [];
+  await rehidratarSesionesPropias();
+  const todasLasSesiones = sesionesDelPermisionarioHoy(permisionario.id);
   const activas = todasLasSesiones.filter((s) => s.status === 'active');
   const esperandoPago = todasLasSesiones.filter(
     (s) => s.status === 'extended_pending' && s.medio_pago === 'digital_mp'
@@ -59,7 +37,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-md p-4 space-y-5">
-      <RealtimeUpdater permisionarioId={permisionario.id} />
+      <AutoRefresh segundos={8} />
 
       {/* Fecha */}
       <p className="overline text-xs" style={{color: 'var(--fg3)'}}>

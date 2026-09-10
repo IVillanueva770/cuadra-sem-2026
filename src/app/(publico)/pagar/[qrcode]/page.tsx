@@ -1,39 +1,25 @@
 import {notFound} from 'next/navigation';
-import {createServiceClient} from '@/lib/supabase/server';
+import {asignacionDelDia, cuadraPorId, fechaISO, permisionarioPorQr} from '@/lib/datos';
 import PagoForm from './PagoForm';
 
 interface Props {
   params: Promise<{qrcode: string}>;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function PagarPage({params}: Props) {
   const {qrcode} = await params;
 
-  const supabase = createServiceClient();
-
   // Buscar permisionario por QR
-  const {data: permi} = await supabase
-    .from('permisionarios')
-    .select('id, nombre_completo, qr_code, estado')
-    .eq('qr_code', qrcode)
-    .single();
+  const permi = permisionarioPorQr(qrcode);
 
   if (!permi || permi.estado !== 'activo') {
     notFound();
   }
 
   // Buscar asignación del día actual
-  const hoy = new Date().toISOString().slice(0, 10);
-  const {data: asignacion} = await supabase
-    .from('asignaciones_diarias')
-    .select(
-      'id, cuadra_id, turno, cuadra:cuadras_habilitadas(id, nombre_display, habilitada_diurno, habilitada_nocturno)'
-    )
-    .eq('permisionario_id', permi.id)
-    .eq('fecha', hoy)
-    .order('created_at', {ascending: false})
-    .limit(1)
-    .maybeSingle();
+  const asignacion = asignacionDelDia(permi.id, fechaISO());
 
   if (!asignacion) {
     return (
@@ -56,7 +42,7 @@ export default async function PagarPage({params}: Props) {
       permisionarioId={permi.id}
       permisionarioNombre={permi.nombre_completo}
       cuadraId={asignacion.cuadra_id}
-      cuadraNombre={(asignacion.cuadra as unknown as {nombre_display: string}).nombre_display}
+      cuadraNombre={cuadraPorId(asignacion.cuadra_id)?.nombre_display ?? 'Cuadra asignada'}
     />
   );
 }

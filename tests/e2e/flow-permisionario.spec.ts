@@ -1,8 +1,9 @@
 /**
  * E2E: Flujo del permisionario (autenticado).
  *
- * Usuario de test: DNI 20184567 / password test123
- * Creado/verificado automáticamente por tests/setup/global-setup.ts.
+ * Usuario de test: DNI 20184567 / password test123 (credenciales de la demo,
+ * ver src/lib/auth-demo/credenciales.ts). No hace falta ningún setup: los
+ * datos salen del store en memoria.
  *
  * El bug de redirect loop en /login (la ruta vivía dentro del grupo (permi)
  * cuyo layout redirige a /login cuando no hay sesión) fue resuelto moviendo
@@ -56,7 +57,7 @@ test.describe('Flow permisionario - login y dashboard', () => {
     await page.waitForURL('**/permi', { timeout: 15_000 });
 
     // KPIs: Activas, Total hoy, Recaudado
-    await expect(page.getByText('Activas')).toBeVisible();
+    await expect(page.getByText('Activas', { exact: true })).toBeVisible();
     await expect(page.getByText('Total hoy')).toBeVisible();
     await expect(page.getByText('Recaudado')).toBeVisible();
 
@@ -82,14 +83,17 @@ test.describe('Flow permisionario - login y dashboard', () => {
     await expect(page.getByRole('button', { name: '1 h', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '1 h 15 min' })).toBeVisible();
 
-    // Ingresar patente
-    await page.getByLabel('Patente del vehículo').fill('TST001');
+    // Patente única por corrida: el store en memoria persiste entre tests (y entre
+    // proyectos de Playwright) y una patente ya cubierta no pasa por el cálculo.
+    const patente = `TST${String(Date.now() % 1000).padStart(3, '0')}`;
+    await page.getByLabel('Patente del vehículo').fill(patente);
 
     // Click en "Ver monto y confirmar"
     await page.getByRole('button', { name: 'Ver monto y confirmar' }).click();
 
-    // Esperar server action
-    const errorAlert = page.getByRole('alert').filter({ hasText: /\S/ }).first();
+    // Esperar server action. Se busca el alert DENTRO de <main>: el route announcer
+    // de Next también tiene role="alert" y vive fuera, y hacía saltear el test siempre.
+    const errorAlert = page.locator('main').getByRole('alert').filter({ hasText: /\S/ }).first();
     const errorVisible = await errorAlert.isVisible().catch(() => false);
 
     if (errorVisible) {
@@ -100,15 +104,21 @@ test.describe('Flow permisionario - login y dashboard', () => {
       }
     }
 
-    // Paso "confirmar": debe mostrar el título y el monto
-    await expect(page.getByText('Confirmá el cobro')).toBeVisible({ timeout: 8000 });
-    await expect(page.getByText('TST001')).toBeVisible();
+    // Paso "elegir medio": título, patente y los dos montos (efectivo $700 / digital $560)
+    await expect(page.getByRole('heading', { name: '¿Cómo cobra?' })).toBeVisible({ timeout: 8000 });
+    await expect(page.getByText(`Patente ${patente}`)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Efectivo \$700/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: /Digital \$560/ })).toBeVisible();
 
-    // El monto para auto 1h en efectivo = $700
-    await expect(page.getByText('$700')).toBeVisible();
+    // Confirmar el cobro en efectivo: escribe en el store en memoria
+    await page.getByRole('button', { name: /Confirmar cobro/ }).click();
+    await expect(page.getByRole('heading', { name: 'Cobro registrado' })).toBeVisible({ timeout: 8000 });
 
-    // Botón de confirmar
-    await expect(page.getByRole('button', { name: 'Confirmar cobro' })).toBeVisible();
+    // Y la sesión aparece en el dashboard del permisionario y en la verificación pública
+    await page.goto('/permi');
+    await expect(page.getByText(patente).first()).toBeVisible();
+    await page.goto(`/verificar/${patente}`);
+    await expect(page.getByText('Sesión activa')).toBeVisible();
   });
 
 });

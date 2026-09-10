@@ -1,5 +1,5 @@
 import {Phone, Mail, MapPin, FileText} from 'lucide-react';
-import {createServiceClient} from '@/lib/supabase/server';
+import {tarifasVigentes, zonasActivas} from '@/lib/datos';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {formatARS} from '@/lib/utils';
 
@@ -16,22 +16,11 @@ interface ZonaNocturna {
   nombre: string;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function OrdenanzaPage() {
-  const supabase = createServiceClient();
-  const [tarifasRes, zonasRes] = await Promise.all([
-    supabase.from('tarifas').select('*').is('vigente_hasta', null),
-    supabase.from('zonas_nocturnas').select('id, nombre').eq('activa', true),
-  ]);
-
-  const tarifas: Tarifa[] = (tarifasRes.data ?? []).map((t) => ({
-    id: t.id,
-    tipo_vehiculo: t.tipo_vehiculo,
-    monto_por_hora: Number(t.monto_por_hora),
-    monto_por_fraccion_15min: Number(t.monto_por_fraccion_15min),
-    descuento_digital_pct: Number(t.descuento_digital_pct),
-  }));
-
-  const zonas: ZonaNocturna[] = zonasRes.data ?? [];
+  const tarifas: Tarifa[] = tarifasVigentes();
+  const zonas: ZonaNocturna[] = zonasActivas();
 
   return (
     <main className="mx-auto max-w-md space-y-6 p-6">

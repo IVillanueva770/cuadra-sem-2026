@@ -2,7 +2,7 @@
 
 import {useRouter} from 'next/navigation';
 import {LogOut} from 'lucide-react';
-import {createClient} from '@/lib/supabase/client';
+import {cerrarSesion} from '@/lib/auth-demo/actions';
 
 interface Props {
   /** A dónde volver tras cerrar sesión */
@@ -16,7 +16,7 @@ export default function LogoutButton({redirectTo = '/login', tone = 'default'}: 
   const light = tone === 'light';
 
   async function handleLogout() {
-    await createClient().auth.signOut();
+    await cerrarSesion();
     router.replace(redirectTo);
     router.refresh();
   }

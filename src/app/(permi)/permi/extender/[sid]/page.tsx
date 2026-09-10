@@ -1,6 +1,10 @@
 import {notFound, redirect} from 'next/navigation';
-import {createClient} from '@/lib/supabase/server';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
+import {obtenerSesion} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import ExtenderForm from './ExtenderForm';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{sid: string}>;
@@ -8,32 +12,12 @@ interface Props {
 
 export default async function ExtenderPage({params}: Props) {
   const {sid} = await params;
-  const supabase = await createClient();
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) redirect('/login');
 
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect('/login');
-
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!permisionario) redirect('/permi');
-
-  const {data: sesion} = await supabase
-    .from('parking_sessions')
-    .select(
-      'id, patente, tipo_vehiculo, cubierta_hasta, status, conductor_email, monto, duracion_minutos'
-    )
-    .eq('id', sid)
-    .eq('permisionario_id', permisionario.id)
-    .single();
-
-  if (!sesion) notFound();
+  await rehidratarSesionesPropias();
+  const sesion = obtenerSesion(sid);
+  if (!sesion || sesion.permisionario_id !== permisionario.id) notFound();
 
   if (sesion.status !== 'active') {
     redirect('/permi');

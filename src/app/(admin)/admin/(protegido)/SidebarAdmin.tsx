@@ -14,7 +14,7 @@ import {
   X,
   ChevronLeft,
 } from 'lucide-react';
-import {createClient} from '@/lib/supabase/client';
+import {cerrarSesion} from '@/lib/auth-demo/actions';
 
 const NAV_ITEMS = [
   {href: '/admin', label: 'Dashboard', icon: LayoutDashboard},
@@ -35,8 +35,7 @@ export default function SidebarAdmin({collapsed, setCollapsed, mobileOpen, setMo
   const router = useRouter();
 
   async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await cerrarSesion();
     router.replace('/admin/login');
   }
 

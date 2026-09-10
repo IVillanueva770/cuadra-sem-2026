@@ -1,7 +1,8 @@
 import {notFound} from 'next/navigation';
 import Link from 'next/link';
 import {Info} from 'lucide-react';
-import {createServiceClient} from '@/lib/supabase/server';
+import {cuadraPorId, obtenerSesion, permisionarioPorId} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {formatHora} from '@/lib/utils';
 import Comprobante from '@/components/cuadra/Comprobante';
 import StatusScreenWrapper from './StatusScreenWrapper';
@@ -13,42 +14,19 @@ interface Props {
   searchParams: Promise<{paymentId?: string}>;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function ExitoPage({params, searchParams}: Props) {
   const {sid} = await params;
   const {paymentId} = await searchParams;
 
-  const supabase = createServiceClient();
-  const {data: session} = await supabase
-    .from('parking_sessions')
-    .select(
-      `
-      id,
-      patente,
-      tipo_vehiculo,
-      iniciada_a,
-      cubierta_hasta,
-      duracion_minutos,
-      monto,
-      monto_sin_descuento,
-      medio_pago,
-      mp_payment_id,
-      status,
-      permisionario:permisionarios(nombre_completo),
-      cuadra:cuadras_habilitadas(nombre_display)
-    `
-    )
-    .eq('id', sid)
-    .single();
+  await rehidratarSesionesPropias();
+  const session = obtenerSesion(sid);
 
   if (!session) notFound();
 
-  // Supabase devuelve arrays para relaciones cuando no son single hints
-  const permi = Array.isArray(session.permisionario)
-    ? session.permisionario[0]
-    : session.permisionario;
-  const cuadra = Array.isArray(session.cuadra)
-    ? session.cuadra[0]
-    : session.cuadra;
+  const permi = permisionarioPorId(session.permisionario_id);
+  const cuadra = cuadraPorId(session.cuadra_id);
 
   const sessionForComprobante = {
     id: session.id,
@@ -57,14 +35,12 @@ export default async function ExitoPage({params, searchParams}: Props) {
     iniciada_a: session.iniciada_a,
     cubierta_hasta: session.cubierta_hasta,
     duracion_minutos: session.duracion_minutos,
-    monto: Number(session.monto),
-    monto_sin_descuento: session.monto_sin_descuento
-      ? Number(session.monto_sin_descuento)
-      : null,
+    monto: session.monto,
+    monto_sin_descuento: session.monto_sin_descuento,
     medio_pago: session.medio_pago,
     mp_payment_id: session.mp_payment_id,
-    permisionario: permi ?? null,
-    cuadra: cuadra ?? null,
+    permisionario: permi ? {nombre_completo: permi.nombre_completo} : null,
+    cuadra: cuadra ? {nombre_display: cuadra.nombre_display} : null,
   };
 
   return (

@@ -5,8 +5,8 @@ import {useRouter} from 'next/navigation';
 import {QRCodeSVG} from 'qrcode.react';
 import {CircleCheck, CircleAlert} from 'lucide-react';
 import {motion, useReducedMotion} from 'motion/react';
-import {createClient} from '@/lib/supabase/client';
 import {formatARS} from '@/lib/utils';
+import {cancelarCobro, consultarEstadoCobro} from './actions';
 
 interface Props {
   sid: string;
@@ -24,43 +24,22 @@ function formatDuracion(mins: number): string {
   return `${h} h ${m} min`;
 }
 
-async function cancelarCobro(sid: string): Promise<void> {
-  const supabase = createClient();
-  await supabase
-    .from('parking_sessions')
-    .update({status: 'rejected'})
-    .eq('id', sid);
-}
-
 export default function CobroQRClient({sid, patente, monto, duracionMinutos, pagoUrl}: Props) {
   const router = useRouter();
   const reduced = useReducedMotion();
   const [pagado, setPagado] = useState(false);
   const [isCancelling, startCancel] = useTransition();
 
+  // Sin realtime: se consulta el estado del cobro cada 3 segundos hasta que MP lo confirme.
   useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel(`cobro-${sid}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'parking_sessions',
-          filter: `id=eq.${sid}`,
-        },
-        (payload) => {
-          const updated = payload.new as {status?: string};
-          if (updated.status === 'active') {
-            setPagado(true);
-          }
-        }
-      )
-      .subscribe();
-
+    let vivo = true;
+    const id = setInterval(async () => {
+      const status = await consultarEstadoCobro(sid);
+      if (vivo && status === 'active') setPagado(true);
+    }, 3000);
     return () => {
-      void supabase.removeChannel(channel);
+      vivo = false;
+      clearInterval(id);
     };
   }, [sid]);
 

@@ -1,9 +1,8 @@
 /**
  * E2E: Flujo del conductor (público).
  *
- * Usa el QR real CUADRA-001 (María Cristina Aramayo) que tiene asignación hoy.
- * Para correr: asegurate de tener la asignación vigente con
- *   pnpm tsx --env-file=.env.local tests/setup/ensure-test-assignment.ts
+ * Usa el QR CUADRA-001 (María Cristina Aramayo), que en la semilla tiene
+ * asignación todos los días menos los domingos. No hace falta setup.
  *
  * Montos (motor de reglas, Ordenanza 12.170):
  *   Auto 1 h digital = $560 (20% descuento absorbido por la Muni)

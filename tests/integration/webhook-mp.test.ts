@@ -1,8 +1,8 @@
 /**
  * Integration tests: webhook de MercadoPago.
  *
- * Usa el handler real exportado desde src/app/api/webhooks/mp/route.ts.
- * No hace calls a Supabase reales — mockea createServiceClient.
+ * Usa el handler real exportado desde src/app/api/webhooks/mp/route.ts
+ * contra el store en memoria (sin mocks: el store ES la base de la demo).
  *
  * Verificado contra el route.ts real:
  *   - Body no-JSON → 400 { error: 'invalid_json' }
@@ -10,34 +10,12 @@
  *   - Evento payment sin data.id → 400 { error: 'missing_payment_id' }
  */
 
-import { describe, test, expect, vi } from 'vitest';
+import { beforeEach, describe, test, expect } from 'vitest';
+import { listarWebhookEvents, reiniciarStore } from '@/lib/datos';
 
-// Mockear createServiceClient antes de importar el route
-vi.mock('@/lib/supabase/server', () => ({
-  createServiceClient: () => ({
-    from: () => ({
-      insert: async () => ({ error: null }),
-      select: () => ({
-        eq: () => ({
-          maybeSingle: async () => ({ data: null, error: null }),
-        }),
-      }),
-      update: () => ({
-        eq: () => ({
-          eq: async () => ({ error: null }),
-        }),
-      }),
-    }),
-  }),
-  createClient: async () => ({
-    auth: {
-      getUser: async () => ({ data: { user: null }, error: null }),
-    },
-  }),
-}));
-
-// Importar DESPUÉS del mock
 const { POST } = await import('@/app/api/webhooks/mp/route');
+
+beforeEach(() => reiniciarStore());
 
 /**
  * Helper: construir un NextRequest mínimo para el handler.
@@ -98,6 +76,16 @@ describe('POST /api/webhooks/mp', () => {
     const json = await res.json();
     expect(json.skipped).toBe(true);
     expect(json.reason).toBe('session_not_found');
+  });
+
+  test('Todo evento queda auditado en el registro de webhooks', async () => {
+    await POST(makeRequest(JSON.stringify({ type: 'merchant_order', data: { id: '456' } })));
+    await POST(makeRequest(JSON.stringify({ type: 'payment', data: { id: '789' } })));
+
+    const eventos = listarWebhookEvents();
+    expect(eventos).toHaveLength(2);
+    expect(eventos.map((e) => e.event_type).sort()).toEqual(['merchant_order', 'payment']);
+    expect(eventos.every((e) => e.processed === false)).toBe(true);
   });
 
 });

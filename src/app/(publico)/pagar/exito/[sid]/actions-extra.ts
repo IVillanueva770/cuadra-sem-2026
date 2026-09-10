@@ -1,16 +1,16 @@
 'use server';
 
-import {createServiceClient} from '@/lib/supabase/server';
+import {actualizarSesion, obtenerSesion} from '@/lib/datos';
+import {recordarSesionPropia, rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 
 export async function liberarCuadra(sessionId: string) {
-  const supabase = createServiceClient();
-  await supabase
-    .from('parking_sessions')
-    .update({
-      status: 'left_early',
-      liberada_a: new Date().toISOString(),
-      liberada_por: 'conductor',
-    })
-    .eq('id', sessionId)
-    .eq('status', 'active');
+  await rehidratarSesionesPropias();
+  const sesion = obtenerSesion(sessionId);
+  if (!sesion || sesion.status !== 'active') return;
+  const liberada = actualizarSesion(sessionId, {
+    status: 'left_early',
+    liberada_a: new Date().toISOString(),
+    liberada_por: 'conductor',
+  });
+  if (liberada) await recordarSesionPropia(liberada);
 }

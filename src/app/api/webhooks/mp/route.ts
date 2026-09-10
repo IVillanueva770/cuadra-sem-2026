@@ -2,8 +2,14 @@
  * Webhook de MercadoPago.
  *
  * Recibe notificaciones de pago, valida la firma HMAC, audita el evento en
- * `webhook_events` y actualiza el status de la parking_session consultando el
+ * el registro de webhooks y actualiza el status de la sesión consultando el
  * estado real del pago en la API de MP.
+ *
+ * Desde la salida de Supabase (2026-09) escribe en el store en memoria: la
+ * sesión que busca solo existe si la instancia que atiende el webhook es la
+ * misma que creó el pago. En sandbox eso es lo habitual; si no, responde
+ * `session_not_found` y el flujo sigue igual (el status ya se fijó al crear
+ * el pago, ver pagar/[qrcode]/actions.ts).
  *
  * Contrato de respuestas (cubierto por tests/integration/webhook-mp.test.ts):
  *   - Body no-JSON                  -> 400 { error: 'invalid_json' }
@@ -15,7 +21,13 @@
  */
 import {NextRequest, NextResponse} from 'next/server';
 import crypto from 'crypto';
-import {createServiceClient} from '@/lib/supabase/server';
+import {
+  actualizarSesion,
+  marcarWebhookProcesado,
+  registrarWebhookEvent,
+  sesionPorMpPaymentId,
+  type StatusSesion,
+} from '@/lib/datos';
 
 // crypto (HMAC) y el SDK de MercadoPago requieren el runtime de Node.
 export const runtime = 'nodejs';
@@ -93,21 +105,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const supabase = createServiceClient();
-
-  // --- Auditoría: registrar el evento (best-effort, no debe romper el webhook) ---
+  // --- Auditoría: registrar el evento ---
   const eventType = typeof data.type === 'string' ? data.type : 'unknown';
-  try {
-    await supabase.from('webhook_events').insert({
-      source: 'mercadopago',
-      event_type: eventType,
-      payment_id: paymentId ? String(paymentId) : null,
-      payload: data,
-      processed: false,
-    });
-  } catch (e) {
-    console.error('MP webhook: fallo al auditar evento', e);
-  }
+  registrarWebhookEvent({
+    source: 'mercadopago',
+    event_type: eventType,
+    payment_id: paymentId ? String(paymentId) : null,
+    payload: data,
+    processed: false,
+    error_message: null,
+  });
 
   // Solo procesamos eventos tipo "payment"
   if (data.type !== 'payment') {
@@ -119,19 +126,15 @@ export async function POST(req: NextRequest) {
   }
 
   // Buscar la sesión asociada al pago
-  const {data: session, error: sessionError} = await supabase
-    .from('parking_sessions')
-    .select('id, status')
-    .eq('mp_payment_id', String(paymentId))
-    .maybeSingle();
+  const session = sesionPorMpPaymentId(String(paymentId));
 
-  if (sessionError || !session) {
+  if (!session) {
     return NextResponse.json({skipped: true, reason: 'session_not_found'});
   }
 
   // Consultar el status real del pago en MP y mapearlo al status de la sesión.
   // Import dinámico: evita cargar el SDK de MP (y su config) fuera de este path.
-  let nuevoStatus: string = 'active';
+  let nuevoStatus: StatusSesion = 'active';
   try {
     const {mpClient, Payment} = await import('@/lib/mp/server');
     const payment = await new Payment(mpClient).get({id: String(paymentId)});
@@ -146,21 +149,10 @@ export async function POST(req: NextRequest) {
     console.error('MP webhook: fallo al consultar el pago en MP', e);
   }
 
-  await supabase
-    .from('parking_sessions')
-    .update({status: nuevoStatus})
-    .eq('id', session.id);
+  actualizarSesion(session.id, {status: nuevoStatus});
 
-  // Marcar el evento como procesado (best-effort)
-  try {
-    await supabase
-      .from('webhook_events')
-      .update({processed: true, processed_at: new Date().toISOString()})
-      .eq('payment_id', String(paymentId))
-      .eq('processed', false);
-  } catch (e) {
-    console.error('MP webhook: fallo al marcar evento procesado', e);
-  }
+  // Marcar el evento como procesado
+  marcarWebhookProcesado(String(paymentId));
 
   return NextResponse.json({ok: true, session_id: session.id});
 }

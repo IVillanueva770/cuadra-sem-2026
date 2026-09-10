@@ -1,6 +1,8 @@
 import type {Metadata} from 'next';
 import {redirect} from 'next/navigation';
-import {createClient} from '@/lib/supabase/server';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
+import {asignacionDelDia, fechaISO, sesionesDelPermisionarioHoy} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {formatARS} from '@/lib/utils';
 import ConciliarBoton from './ConciliarBoton';
 
@@ -8,33 +10,15 @@ export const metadata: Metadata = {
   title: 'Cierre del día · Cuadra',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ConciliarPage() {
-  const supabase = await createClient();
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) redirect('/login');
 
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect('/login');
-
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id, nombre_completo')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!permisionario) redirect('/permi');
-
-  const hoy = new Date().toISOString().slice(0, 10);
-
-  // Sesiones del día
-  const {data: sesiones} = await supabase
-    .from('parking_sessions')
-    .select('id, monto, medio_pago, status')
-    .eq('permisionario_id', permisionario.id)
-    .gte('iniciada_a', `${hoy}T00:00:00`);
-
-  const todasLasSesiones = sesiones ?? [];
+  const hoy = fechaISO();
+  await rehidratarSesionesPropias();
+  const todasLasSesiones = sesionesDelPermisionarioHoy(permisionario.id);
 
   const sesionesCompletadas = todasLasSesiones.filter(
     (s) => s.status !== 'rejected'
@@ -55,12 +39,7 @@ export default async function ConciliarPage() {
   const aRendirMuni = totalEfectivo * 0.2;
 
   // Asignación del día
-  const {data: asignacion} = await supabase
-    .from('asignaciones_diarias')
-    .select('id')
-    .eq('permisionario_id', permisionario.id)
-    .eq('fecha', hoy)
-    .maybeSingle();
+  const asignacion = asignacionDelDia(permisionario.id, hoy);
 
   return (
     <div className="mx-auto max-w-md p-4 space-y-5">

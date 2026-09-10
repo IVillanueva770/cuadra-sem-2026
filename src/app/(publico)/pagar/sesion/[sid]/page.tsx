@@ -1,6 +1,9 @@
-import {createServiceClient} from '@/lib/supabase/server';
+import {cuadraPorId, obtenerSesion} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {formatARS, formatHora} from '@/lib/utils';
 import PagoSesionBrick from './PagoSesionBrick';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{sid: string}>;
@@ -16,15 +19,8 @@ function formatDuracion(mins: number): string {
 
 export default async function PagarSesionPage({params}: Props) {
   const {sid} = await params;
-  const supabase = createServiceClient();
-
-  const {data: sesion} = await supabase
-    .from('parking_sessions')
-    .select(
-      'id, patente, monto, monto_sin_descuento, duracion_minutos, status, cubierta_hasta, conductor_email, cuadra_id, cuadras_habilitadas(nombre_display)'
-    )
-    .eq('id', sid)
-    .maybeSingle();
+  await rehidratarSesionesPropias();
+  const sesion = obtenerSesion(sid);
 
   if (!sesion) {
     return (
@@ -109,13 +105,10 @@ export default async function PagarSesionPage({params}: Props) {
     );
   }
 
-  const cuadraNombre =
-    sesion.cuadras_habilitadas && typeof sesion.cuadras_habilitadas === 'object' && !Array.isArray(sesion.cuadras_habilitadas)
-      ? (sesion.cuadras_habilitadas as {nombre_display: string}).nombre_display
-      : 'Cuadra asignada';
+  const cuadraNombre = cuadraPorId(sesion.cuadra_id)?.nombre_display ?? 'Cuadra asignada';
 
-  const monto = Number(sesion.monto);
-  const montoSinDescuento = Number(sesion.monto_sin_descuento);
+  const monto = sesion.monto;
+  const montoSinDescuento = sesion.monto_sin_descuento;
 
   return (
     <main className="mx-auto max-w-md p-4 space-y-5">

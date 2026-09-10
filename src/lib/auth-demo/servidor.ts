@@ -9,6 +9,7 @@
 import 'server-only';
 import {createHmac, timingSafeEqual} from 'crypto';
 import {cookies} from 'next/headers';
+import {permisionarioPorId, type Permisionario} from '@/lib/datos';
 
 export const COOKIE_AUTH = 'cuadra_auth';
 const HORAS_VIDA = 12;
@@ -72,4 +73,10 @@ export async function permisionarioActualId(): Promise<string | null> {
 export async function esAdmin(): Promise<boolean> {
   const u = await usuarioActual();
   return u?.rol === 'admin';
+}
+
+/** Permisionario logueado (cookie más registro en la semilla), o null. */
+export async function permisionarioLogueado(): Promise<Permisionario | null> {
+  const id = await permisionarioActualId();
+  return id ? permisionarioPorId(id) : null;
 }

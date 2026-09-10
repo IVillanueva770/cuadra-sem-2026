@@ -1,5 +1,5 @@
 import {redirect} from 'next/navigation';
-import {createClient} from '@/lib/supabase/server';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
 import BottomNav from '@/components/cuadra/BottomNav';
 import CuadraMark from '@/components/cuadra/CuadraMark';
 import LogoutButton from '@/components/cuadra/LogoutButton';
@@ -9,24 +9,10 @@ export default async function PermiLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) redirect('/login');
 
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Obtener datos del permisionario
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id, nombre_completo, dni')
-    .eq('user_id', user.id)
-    .single();
-
-  const nombre = permisionario?.nombre_completo ?? 'Permisionario';
+  const nombre = permisionario.nombre_completo;
   const iniciales = nombre
     .split(' ')
     .map((n: string) => n[0])

@@ -1,6 +1,7 @@
 'use server';
 
-import {createServiceClient} from '@/lib/supabase/server';
+import {actualizarSesion, obtenerSesion} from '@/lib/datos';
+import {recordarSesionPropia, rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {mpClient, Payment} from '@/lib/mp/server';
 
 export async function pagarSesion(
@@ -13,13 +14,8 @@ export async function pagarSesion(
     payer: {email: string};
   }
 ): Promise<{ok: true; sessionId: string; paymentId: number} | {ok: true; sessionId: string; alreadyPaid: true} | {ok: false; error: string}> {
-  const supabase = createServiceClient();
-
-  const {data: sesion} = await supabase
-    .from('parking_sessions')
-    .select('id, patente, monto, status, permisionario_id, cuadra_id')
-    .eq('id', sid)
-    .maybeSingle();
+  await rehidratarSesionesPropias();
+  const sesion = obtenerSesion(sid);
 
   if (!sesion) return {ok: false, error: 'Sesión no encontrada.'};
   if (sesion.status === 'active') return {ok: true, sessionId: sid, alreadyPaid: true};
@@ -35,7 +31,7 @@ export async function pagarSesion(
   try {
     const payment = await new Payment(mpClient).create({
       body: {
-        transaction_amount: Number(sesion.monto),
+        transaction_amount: sesion.monto,
         token: paymentData.token,
         description: `Estacionamiento Salta - Patente ${sesion.patente}`,
         installments: paymentData.installments,
@@ -61,14 +57,12 @@ export async function pagarSesion(
         ? 'extended_pending'
         : 'rejected';
 
-    await supabase
-      .from('parking_sessions')
-      .update({
-        mp_payment_id: String(payment.id),
-        mp_payment_status: payment.status,
-        status: newStatus,
-      })
-      .eq('id', sid);
+    const actualizada = actualizarSesion(sid, {
+      mp_payment_id: String(payment.id),
+      mp_payment_status: payment.status ?? null,
+      status: newStatus,
+    });
+    if (actualizada) await recordarSesionPropia(actualizada);
 
     return {ok: true, sessionId: sid, paymentId: payment.id!};
   } catch (e) {

@@ -1,7 +1,9 @@
 'use server';
 
-import {createClient, createServiceClient} from '@/lib/supabase/server';
 import {randomBytes} from 'crypto';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
+import {actualizarExtension, actualizarSesion, crearExtension, obtenerSesion} from '@/lib/datos';
+import {recordarSesionPropia, rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 
 interface ExtenderInput {
   sesionId: string;
@@ -15,36 +17,14 @@ type ExtenderResult =
 export async function marcarExtension(
   input: ExtenderInput
 ): Promise<ExtenderResult> {
-  const supabase = await createClient();
-  const serviceClient = createServiceClient();
-
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) return {ok: false, error: 'No autenticado.'};
-
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!permisionario) {
-    return {ok: false, error: 'No encontramos tu perfil.'};
-  }
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) return {ok: false, error: 'No autenticado.'};
 
   // Verificar que la sesión existe y pertenece al permisionario
-  const {data: sesion} = await supabase
-    .from('parking_sessions')
-    .select(
-      'id, patente, tipo_vehiculo, cubierta_hasta, status, conductor_email, monto, duracion_minutos, cuadra_id'
-    )
-    .eq('id', input.sesionId)
-    .eq('permisionario_id', permisionario.id)
-    .single();
+  await rehidratarSesionesPropias();
+  const sesion = obtenerSesion(input.sesionId);
 
-  if (!sesion) {
+  if (!sesion || sesion.permisionario_id !== permisionario.id) {
     return {ok: false, error: 'Sesión no encontrada o no te pertenece.'};
   }
 
@@ -53,7 +33,7 @@ export async function marcarExtension(
   }
 
   // Calcular monto extra proporcional (misma tarifa/hora)
-  const montoPorMinuto = Number(sesion.monto) / Number(sesion.duracion_minutos);
+  const montoPorMinuto = sesion.monto / sesion.duracion_minutos;
   const montoExtra = Math.round(montoPorMinuto * input.duracionExtraMinutos);
 
   const horaEstimadaExtension = new Date(
@@ -63,32 +43,21 @@ export async function marcarExtension(
   const token = randomBytes(32).toString('hex');
   const expira = new Date(Date.now() + 30 * 60 * 1000); // 30 min
 
-  // Insertar en sesiones_extendidas
-  const {data: extension, error: extError} = await serviceClient
-    .from('sesiones_extendidas')
-    .insert({
-      sesion_original_id: input.sesionId,
-      permisionario_id: permisionario.id,
-      hora_estimada_extension: horaEstimadaExtension.toISOString(),
-      duracion_extra_minutos: input.duracionExtraMinutos,
-      monto_extra: montoExtra,
-      link_pago_token: token,
-      link_pago_expira: expira.toISOString(),
-      status: 'pending',
-      email_enviado_a: sesion.conductor_email || null,
-    })
-    .select('id')
-    .single();
+  const extension = crearExtension({
+    sesion_original_id: input.sesionId,
+    permisionario_id: permisionario.id,
+    hora_estimada_extension: horaEstimadaExtension.toISOString(),
+    duracion_extra_minutos: input.duracionExtraMinutos,
+    monto_extra: montoExtra,
+    link_pago_token: token,
+    link_pago_expira: expira.toISOString(),
+    status: 'pending',
+    email_enviado_a: sesion.conductor_email || null,
+    email_enviado_at: null,
+  });
 
-  if (extError || !extension) {
-    return {ok: false, error: 'Error al registrar la extensión. Intentá de nuevo.'};
-  }
-
-  // Actualizar status de la sesión
-  await serviceClient
-    .from('parking_sessions')
-    .update({status: 'extended_pending'})
-    .eq('id', input.sesionId);
+  const actualizada = actualizarSesion(input.sesionId, {status: 'extended_pending'});
+  if (actualizada) await recordarSesionPropia(actualizada);
 
   // Enviar email si hay conductor_email y Resend configurado
   let emailEnviado = false;
@@ -115,7 +84,7 @@ export async function marcarExtension(
               Pagar extensión
             </a>
             <p style="margin-top: 24px; font-size: 12px; color: #6B7280;">
-              Este link expira en 30 minutos. Cuadra — Estacionamiento Medido, Municipalidad de Salta.
+              Este link expira en 30 minutos. Cuadra, Estacionamiento Medido, Municipalidad de Salta.
             </p>
           </div>
         `,
@@ -123,15 +92,12 @@ export async function marcarExtension(
 
       emailEnviado = true;
 
-      await serviceClient
-        .from('sesiones_extendidas')
-        .update({
-          email_enviado_a: sesion.conductor_email,
-          email_enviado_at: new Date().toISOString(),
-        })
-        .eq('id', extension.id);
+      actualizarExtension(extension.id, {
+        email_enviado_a: sesion.conductor_email,
+        email_enviado_at: new Date().toISOString(),
+      });
     } catch (e) {
-      // Email falla gracefully — la extensión ya se registró
+      // Email falla gracefully: la extensión ya se registró
       console.warn('[cuadra] Error enviando email de extensión:', e);
     }
   }

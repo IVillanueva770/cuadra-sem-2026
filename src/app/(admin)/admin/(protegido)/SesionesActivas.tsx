@@ -1,74 +1,27 @@
-'use client';
-
-import {useEffect, useState} from 'react';
-import {createClient} from '@/lib/supabase/client';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Badge} from '@/components/ui/badge';
 import {formatHora} from '@/lib/utils';
 
-interface SesionActiva {
+export interface SesionActivaFila {
   id: string;
   patente: string;
   tipo_vehiculo: string;
   iniciada_a: string;
   cubierta_hasta: string;
   medio_pago: string;
-  permisionario_nombre?: string;
+  permisionario_nombre: string | null;
 }
 
-export default function RealtimeDashboard() {
-  const [sesiones, setSesiones] = useState<SesionActiva[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Props {
+  sesiones: SesionActivaFila[];
+}
 
-  async function fetchSesiones() {
-    const supabase = createClient();
-    const {data} = await supabase
-      .from('parking_sessions')
-      .select(
-        `id, patente, tipo_vehiculo, iniciada_a, cubierta_hasta, medio_pago,
-         permisionarios!inner(nombre_completo)`
-      )
-      .eq('status', 'active')
-      .order('iniciada_a', {ascending: false})
-      .limit(20);
-
-    if (data) {
-      const mapped = data.map((s: Record<string, unknown>) => ({
-        id: s.id as string,
-        patente: s.patente as string,
-        tipo_vehiculo: s.tipo_vehiculo as string,
-        iniciada_a: s.iniciada_a as string,
-        cubierta_hasta: s.cubierta_hasta as string,
-        medio_pago: s.medio_pago as string,
-        permisionario_nombre: (s.permisionarios as {nombre_completo: string})?.nombre_completo,
-      }));
-      setSesiones(mapped);
-    }
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    fetchSesiones();
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel('realtime-sesiones')
-      .on(
-        'postgres_changes',
-        {event: '*', schema: 'public', table: 'parking_sessions'},
-        () => {
-          fetchSesiones();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  // fetchSesiones se define dentro del efecto; la dependencia está bien vacía
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+/**
+ * Tabla de sesiones activas. Recibe los datos del server component (antes se
+ * suscribía al realtime de Supabase desde el navegador); la página la refresca
+ * con <AutoRefresh />.
+ */
+export default function SesionesActivas({sesiones}: Props) {
   return (
     <Card>
       <CardHeader>
@@ -92,17 +45,7 @@ export default function RealtimeDashboard() {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        {loading ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-12 rounded-xl animate-pulse"
-                style={{backgroundColor: 'var(--bg-subtle)'}}
-              />
-            ))}
-          </div>
-        ) : sesiones.length === 0 ? (
+        {sesiones.length === 0 ? (
           <p className="text-sm py-4 text-center" style={{color: 'var(--fg3)'}}>
             Sin sesiones activas en este momento
           </p>
@@ -111,36 +54,15 @@ export default function RealtimeDashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{borderBottom: '1px solid var(--border)'}}>
-                  <th
-                    className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
-                    style={{color: 'var(--fg3)'}}
-                  >
-                    Patente
-                  </th>
-                  <th
-                    className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
-                    style={{color: 'var(--fg3)'}}
-                  >
-                    Inicio
-                  </th>
-                  <th
-                    className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
-                    style={{color: 'var(--fg3)'}}
-                  >
-                    Cubre hasta
-                  </th>
-                  <th
-                    className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
-                    style={{color: 'var(--fg3)'}}
-                  >
-                    Medio
-                  </th>
-                  <th
-                    className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
-                    style={{color: 'var(--fg3)'}}
-                  >
-                    Permisionario
-                  </th>
+                  {['Patente', 'Inicio', 'Cubre hasta', 'Medio', 'Permisionario'].map((h) => (
+                    <th
+                      key={h}
+                      className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
+                      style={{color: 'var(--fg3)'}}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>

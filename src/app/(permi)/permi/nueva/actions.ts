@@ -1,7 +1,8 @@
 'use server';
 
-import {createClient, createServiceClient} from '@/lib/supabase/server';
-import {cargarContextoValidacion} from '@/lib/motor-reglas/db-helpers';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
+import {asignacionDelDia, contextoValidacion, crearSesion, cuadraPorId, fechaISO} from '@/lib/datos';
+import {recordarSesionPropia, rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {motorReglas} from '@/lib/motor-reglas';
 import type {TipoVehiculo} from '@/lib/motor-reglas/tipos';
 import {buscarSesionVigente} from '@/lib/sesiones/patente-vigente';
@@ -39,37 +40,12 @@ type RegistrarResult =
 export async function registrarEfectivo(
   input: RegistrarInput
 ): Promise<RegistrarResult> {
-  const supabase = await createClient();
-  const serviceClient = createServiceClient();
-
-  // Obtener el usuario autenticado
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) return {ok: false, error: 'No autenticado.'};
-
-  // Obtener el permisionario
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!permisionario) {
-    return {ok: false, error: 'No encontramos tu perfil de permisionario.'};
-  }
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) return {ok: false, error: 'No autenticado.'};
 
   // Obtener la asignación diaria activa
-  const hoy = new Date().toISOString().slice(0, 10);
-  const {data: asignacion} = await supabase
-    .from('asignaciones_diarias')
-    .select('id, cuadra_id')
-    .eq('permisionario_id', permisionario.id)
-    .eq('fecha', hoy)
-    .order('created_at', {ascending: false})
-    .limit(1)
-    .maybeSingle();
+  const hoy = fechaISO();
+  const asignacion = asignacionDelDia(permisionario.id, hoy);
 
   if (!asignacion) {
     return {
@@ -79,17 +55,10 @@ export async function registrarEfectivo(
     };
   }
 
-  // Obtener nombre de la cuadra
-  const {data: cuadra} = await supabase
-    .from('cuadras_habilitadas')
-    .select('nombre_display')
-    .eq('id', asignacion.cuadra_id)
-    .single();
-
-  const cuadraNombre = cuadra?.nombre_display ?? 'Cuadra asignada';
+  const cuadraNombre = cuadraPorId(asignacion.cuadra_id)?.nombre_display ?? 'Cuadra asignada';
 
   // Cargar contexto y validar
-  const ctx = await cargarContextoValidacion(asignacion.cuadra_id);
+  const ctx = contextoValidacion(asignacion.cuadra_id);
   const validacion = motorReglas.validarCobro(ctx);
 
   if (!validacion.permitido) {
@@ -101,6 +70,7 @@ export async function registrarEfectivo(
 
   // Verificar si la patente ya tiene sesión vigente
   if (input.modo === 'calcular') {
+    await rehidratarSesionesPropias();
     const sesionVigente = await buscarSesionVigente(patente);
     if (sesionVigente) {
       return {
@@ -150,65 +120,23 @@ export async function registrarEfectivo(
     iniciada_a.getTime() + input.duracionMinutos * 60 * 1000
   );
 
-  if (medio === 'efectivo') {
-    // Cobro efectivo: sesión activa inmediatamente
-    const {data: sesion, error: insertError} = await serviceClient
-      .from('parking_sessions')
-      .insert({
-        patente,
-        tipo_vehiculo: input.tipoVehiculo,
-        permisionario_id: permisionario.id,
-        cuadra_id: asignacion.cuadra_id,
-        asignacion_id: asignacion.id,
-        iniciada_a: iniciada_a.toISOString(),
-        cubierta_hasta: cubierta_hasta.toISOString(),
-        duracion_minutos: input.duracionMinutos,
-        monto: calculo.monto_total,
-        monto_sin_descuento: calculo.monto_sin_descuento,
-        medio_pago: 'efectivo',
-        status: 'active',
-        conductor_email: input.emailConductor || null,
-      })
-      .select('id')
-      .single();
+  // Efectivo: sesión activa al instante. Digital: extended_pending hasta que MP confirme.
+  const sesion = crearSesion({
+    patente,
+    tipo_vehiculo: input.tipoVehiculo,
+    permisionario_id: permisionario.id,
+    cuadra_id: asignacion.cuadra_id,
+    asignacion_id: asignacion.id,
+    iniciada_a: iniciada_a.toISOString(),
+    cubierta_hasta: cubierta_hasta.toISOString(),
+    duracion_minutos: input.duracionMinutos,
+    monto: calculo.monto_total,
+    monto_sin_descuento: calculo.monto_sin_descuento,
+    medio_pago: medio === 'digital' ? 'digital_mp' : 'efectivo',
+    status: medio === 'digital' ? 'extended_pending' : 'active',
+    conductor_email: input.emailConductor || null,
+  });
+  await recordarSesionPropia(sesion);
 
-    if (insertError || !sesion) {
-      return {
-        ok: false,
-        error: 'Error al registrar la sesión. Intentá de nuevo.',
-      };
-    }
-
-    return {ok: true, modo: 'confirmar', sesionId: sesion.id, monto: calculo.monto_total, medio: 'efectivo'};
-  } else {
-    // Cobro digital: sesión extended_pending hasta que MP confirme
-    const {data: sesion, error: insertError} = await serviceClient
-      .from('parking_sessions')
-      .insert({
-        patente,
-        tipo_vehiculo: input.tipoVehiculo,
-        permisionario_id: permisionario.id,
-        cuadra_id: asignacion.cuadra_id,
-        asignacion_id: asignacion.id,
-        iniciada_a: iniciada_a.toISOString(),
-        cubierta_hasta: cubierta_hasta.toISOString(),
-        duracion_minutos: input.duracionMinutos,
-        monto: calculo.monto_total,
-        monto_sin_descuento: calculo.monto_sin_descuento,
-        medio_pago: 'digital_mp',
-        status: 'extended_pending',
-        conductor_email: input.emailConductor || null,
-      })
-      .select('id')
-      .single();
-
-    if (insertError || !sesion) {
-      return {
-        ok: false,
-        error: 'Error al generar el cobro digital. Intentá de nuevo.',
-      };
-    }
-
-    return {ok: true, modo: 'confirmar', sesionId: sesion.id, monto: calculo.monto_total, medio: 'digital'};
-  }
+  return {ok: true, modo: 'confirmar', sesionId: sesion.id, monto: calculo.monto_total, medio};
 }

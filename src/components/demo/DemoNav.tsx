@@ -17,6 +17,7 @@ import {useState} from 'react';
 import Link from 'next/link';
 import {AnimatePresence, motion} from 'motion/react';
 import {Car, Ticket, Building2, X, LayoutGrid, ChevronRight, Sparkles, Code2} from 'lucide-react';
+import {DEMO_ADMIN, DEMO_PERMISIONARIO} from '@/lib/auth-demo/credenciales';
 
 type Pantalla = {label: string; href: string};
 type Grupo = {
@@ -39,7 +40,7 @@ const GRUPOS: Grupo[] = [
   },
   {
     rol: 'Permisionario',
-    detalle: 'Ingresar con DNI 20184567 · clave test123',
+    detalle: `Ingresar con DNI ${DEMO_PERMISIONARIO.dni} · clave ${DEMO_PERMISIONARIO.password}`,
     icon: Ticket,
     pantallas: [
       {label: 'Ingresar', href: '/login'},
@@ -47,7 +48,7 @@ const GRUPOS: Grupo[] = [
   },
   {
     rol: 'Municipalidad',
-    detalle: 'admin@municipalidadsalta.gob.ar · clave muni2026',
+    detalle: `${DEMO_ADMIN.email} · clave ${DEMO_ADMIN.password}`,
     icon: Building2,
     pantallas: [
       {label: 'Login admin', href: '/admin/login'},

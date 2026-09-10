@@ -3,7 +3,8 @@
 import {useState, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import {Sparkles} from 'lucide-react';
-import {createClient} from '@/lib/supabase/client';
+import {cerrarSesion, iniciarSesionAdmin} from '@/lib/auth-demo/actions';
+import {DEMO_ADMIN} from '@/lib/auth-demo/credenciales';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
@@ -34,7 +35,7 @@ export default function LoginAdminForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    createClient().auth.signOut().catch(() => {});
+    cerrarSesion().catch(() => {});
   }, []);
 
   async function autocompletarDemo() {
@@ -43,9 +44,9 @@ export default function LoginAdminForm() {
     setTyping(true);
     setEmail('');
     setPassword('');
-    await typeInto(setEmail, 'admin@municipalidadsalta.gob.ar', 30);
+    await typeInto(setEmail, DEMO_ADMIN.email, 30);
     await wait(170);
-    await typeInto(setPassword, 'muni2026', 70);
+    await typeInto(setPassword, DEMO_ADMIN.password, 70);
     setTyping(false);
   }
 
@@ -54,14 +55,10 @@ export default function LoginAdminForm() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const {error: authError} = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const res = await iniciarSesionAdmin(email, password);
 
-    if (authError) {
-      setError('Credenciales incorrectas. Verificá tu email y contraseña.');
+    if (!res.ok) {
+      setError(res.error);
       setLoading(false);
       return;
     }

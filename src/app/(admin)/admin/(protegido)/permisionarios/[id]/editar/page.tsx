@@ -1,6 +1,6 @@
 import type {Metadata} from 'next';
 import Link from 'next/link';
-import {createServiceClient} from '@/lib/supabase/server';
+import {permisionarioPorId} from '@/lib/datos';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/badge';
 import {ArrowLeft} from 'lucide-react';
@@ -29,15 +29,9 @@ export default async function EditarPermisionarioPage({
   params: Promise<{id: string}>;
 }) {
   const {id} = await params;
-  const supabase = createServiceClient();
+  const p = permisionarioPorId(id);
 
-  const {data: p, error} = await supabase
-    .from('permisionarios')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error || !p) {
+  if (!p) {
     return (
       <div className="space-y-6 max-w-2xl">
         <Link href="/admin/permisionarios">

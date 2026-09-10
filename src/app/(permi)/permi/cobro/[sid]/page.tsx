@@ -1,6 +1,10 @@
 import {notFound, redirect} from 'next/navigation';
-import {createClient} from '@/lib/supabase/server';
+import {permisionarioLogueado} from '@/lib/auth-demo/servidor';
+import {obtenerSesion} from '@/lib/datos';
+import {rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import CobroQRClient from './CobroQRClient';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{sid: string}>;
@@ -8,30 +12,12 @@ interface Props {
 
 export default async function CobroQRPage({params}: Props) {
   const {sid} = await params;
-  const supabase = await createClient();
+  const permisionario = await permisionarioLogueado();
+  if (!permisionario) redirect('/login');
 
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect('/login');
-
-  const {data: permisionario} = await supabase
-    .from('permisionarios')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!permisionario) redirect('/permi');
-
-  const {data: sesion} = await supabase
-    .from('parking_sessions')
-    .select('id, patente, monto, duracion_minutos, status, medio_pago')
-    .eq('id', sid)
-    .eq('permisionario_id', permisionario.id)
-    .maybeSingle();
-
-  if (!sesion) notFound();
+  await rehidratarSesionesPropias();
+  const sesion = obtenerSesion(sid);
+  if (!sesion || sesion.permisionario_id !== permisionario.id) notFound();
 
   // Si ya está activa (pago confirmado), redirigir a éxito
   if (sesion.status === 'active') {

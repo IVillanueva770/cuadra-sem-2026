@@ -1,8 +1,8 @@
 'use server';
 
-import {createServiceClient} from '@/lib/supabase/server';
+import {actualizarSesion, asignacionDelDia, contextoValidacion, crearSesion, fechaISO} from '@/lib/datos';
+import {recordarSesionPropia, rehidratarSesionesPropias} from '@/lib/datos/sesiones-propias';
 import {motorReglas} from '@/lib/motor-reglas';
-import {cargarContextoValidacion} from '@/lib/motor-reglas/db-helpers';
 import {mpClient, Payment} from '@/lib/mp/server';
 import {buscarSesionVigente} from '@/lib/sesiones/patente-vigente';
 
@@ -34,6 +34,7 @@ export async function validarYCalcular(input: ValidarInput): Promise<
   }
 
   // Verificar que no hay sesión activa y vigente para esa patente (D12)
+  await rehidratarSesionesPropias();
   const sesionVigente = await buscarSesionVigente(input.patente);
   if (sesionVigente) {
     const hasta = new Date(sesionVigente.cubierta_hasta).toLocaleTimeString('es-AR', {
@@ -48,7 +49,7 @@ export async function validarYCalcular(input: ValidarInput): Promise<
   }
 
   // Cargar contexto y validar con motor
-  const ctx = await cargarContextoValidacion(input.cuadraId);
+  const ctx = contextoValidacion(input.cuadraId);
   const validacion = motorReglas.validarCobro(ctx);
 
   if (!validacion.permitido) {
@@ -92,10 +93,8 @@ interface IniciarPagoInput {
 export async function iniciarPago(input: IniciarPagoInput): Promise<
   {ok: true; sessionId: string; paymentId: number} | {ok: false; error: string}
 > {
-  const supabase = createServiceClient();
-
   // Re-validar (timing attacks, double submit)
-  const ctx = await cargarContextoValidacion(input.cuadraId);
+  const ctx = contextoValidacion(input.cuadraId);
   const validacion = motorReglas.validarCobro(ctx);
   if (!validacion.permitido) {
     return {ok: false, error: validacion.mensaje_user};
@@ -108,47 +107,28 @@ export async function iniciarPago(input: IniciarPagoInput): Promise<
     tarifas: ctx.tarifas,
   });
 
-  // Crear parking_session ANTES de procesar pago (para tener un ID de referencia)
+  // Crear la sesión ANTES de procesar el pago (para tener un ID de referencia)
   const ahora = new Date();
   const cubiertaHasta = new Date(ahora.getTime() + input.duracionMinutos * 60_000);
-
-  // Buscar asignación
-  const hoy = ahora.toISOString().slice(0, 10);
-  const {data: asignacion} = await supabase
-    .from('asignaciones_diarias')
-    .select('id')
-    .eq('permisionario_id', input.permisionarioId)
-    .eq('fecha', hoy)
-    .order('created_at', {ascending: false})
-    .limit(1)
-    .maybeSingle();
+  const asignacion = asignacionDelDia(input.permisionarioId, fechaISO(ahora));
 
   const externalReference = `cuadra-${crypto.randomUUID()}`;
 
-  const {data: session, error: sessionError} = await supabase
-    .from('parking_sessions')
-    .insert({
-      patente: input.patente,
-      tipo_vehiculo: input.tipoVehiculo,
-      permisionario_id: input.permisionarioId,
-      cuadra_id: input.cuadraId,
-      asignacion_id: asignacion?.id,
-      iniciada_a: ahora.toISOString(),
-      cubierta_hasta: cubiertaHasta.toISOString(),
-      duracion_minutos: input.duracionMinutos,
-      monto: calculo.monto_total,
-      monto_sin_descuento: calculo.monto_sin_descuento,
-      medio_pago: 'digital_mp',
-      status: 'extended_pending', // hasta que MP confirme
-      conductor_email: input.email || input.paymentData.payer.email,
-    })
-    .select('id')
-    .single();
-
-  if (sessionError || !session) {
-    console.error('Session create error:', sessionError);
-    return {ok: false, error: 'Error al crear sesión. Probá de nuevo.'};
-  }
+  const session = crearSesion({
+    patente: input.patente,
+    tipo_vehiculo: input.tipoVehiculo,
+    permisionario_id: input.permisionarioId,
+    cuadra_id: input.cuadraId,
+    asignacion_id: asignacion?.id ?? null,
+    iniciada_a: ahora.toISOString(),
+    cubierta_hasta: cubiertaHasta.toISOString(),
+    duracion_minutos: input.duracionMinutos,
+    monto: calculo.monto_total,
+    monto_sin_descuento: calculo.monto_sin_descuento,
+    medio_pago: 'digital_mp',
+    status: 'extended_pending', // hasta que MP confirme
+    conductor_email: input.email || input.paymentData.payer.email,
+  });
 
   // Crear payment en MP con X-Idempotency-Key
   try {
@@ -188,23 +168,19 @@ export async function iniciarPago(input: IniciarPagoInput): Promise<
           ? 'extended_pending'
           : 'rejected';
 
-    await supabase
-      .from('parking_sessions')
-      .update({
-        mp_payment_id: String(payment.id),
-        mp_payment_status: payment.status,
-        status: newStatus,
-      })
-      .eq('id', session.id);
+    const actualizada = actualizarSesion(session.id, {
+      mp_payment_id: String(payment.id),
+      mp_payment_status: payment.status ?? null,
+      status: newStatus,
+    });
+    await recordarSesionPropia(actualizada ?? session);
 
     return {ok: true, sessionId: session.id, paymentId: payment.id!};
   } catch (error) {
     console.error('MP payment error:', error);
     // Marcar sesión como rejected
-    await supabase
-      .from('parking_sessions')
-      .update({status: 'rejected'})
-      .eq('id', session.id);
+    const rechazada = actualizarSesion(session.id, {status: 'rejected'});
+    await recordarSesionPropia(rechazada ?? session);
     return {ok: false, error: 'Error al procesar el pago. Probá de nuevo.'};
   }
 }

@@ -3,7 +3,8 @@
 import {useState, useTransition, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import {LogIn, AlertCircle, Eye, EyeOff, Sparkles} from 'lucide-react';
-import {createClient} from '@/lib/supabase/client';
+import {cerrarSesion, iniciarSesionPermisionario} from '@/lib/auth-demo/actions';
+import {DEMO_PERMISIONARIO} from '@/lib/auth-demo/credenciales';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
@@ -41,15 +42,15 @@ export default function LoginForm() {
     setTyping(true);
     setDni('');
     setPassword('');
-    await typeInto(setDni, '20184567', 55);
+    await typeInto(setDni, DEMO_PERMISIONARIO.dni, 55);
     await wait(170);
-    await typeInto(setPassword, 'test123', 70);
+    await typeInto(setPassword, DEMO_PERMISIONARIO.password, 70);
     setTyping(false);
   }
 
   // Limpiar cualquier sesión previa (ej: si venías logueado como admin) al entrar al login
   useEffect(() => {
-    createClient().auth.signOut().catch(() => {});
+    cerrarSesion().catch(() => {});
   }, []);
 
   function handleSubmit(e: React.FormEvent) {
@@ -62,16 +63,10 @@ export default function LoginForm() {
     }
 
     startTransition(async () => {
-      const supabase = createClient();
-      const email = `${dni.trim()}@cuadra.local`;
+      const res = await iniciarSesionPermisionario(dni, password);
 
-      const {error: authError} = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) {
-        setError('DNI o contraseña incorrectos. Intentá de nuevo.');
+      if (!res.ok) {
+        setError(res.error);
         return;
       }
 

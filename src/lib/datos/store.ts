@@ -62,7 +62,6 @@ interface Estado {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __cuadraStore: Estado | undefined;
 }
 
