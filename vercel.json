@@ -3,8 +3,5 @@
   "framework": "nextjs",
   "regions": ["gru1"],
   "buildCommand": "pnpm build",
-  "installCommand": "pnpm install",
-  "crons": [
-    {"path": "/api/keep-alive", "schedule": "0 6 * * *"}
-  ]
+  "installCommand": "pnpm install"
 }
