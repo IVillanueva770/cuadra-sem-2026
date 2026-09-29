@@ -2,6 +2,8 @@
 
 ## Estado Actual
 
+**Resultado del hackathon (PunaTech 2026, equipo Ignacio + Sofía): no ganó; descalificado por el video pitch (~7 min contra el límite de 5), aunque los jueces dijeron que "estaba para ganar". Terminado y conservado como pieza de portfolio; el bloque que lo contaba en el CONTEXT del vault está en la sesión del 2026-09-28.**
+
 **Sin Supabase desde el 2026-09-10 (decision del user, ejecutada entera en una sesion).**
 - **Por que**: Supabase free tiene un CUPO de 2 proyectos activos por cuenta y son 4. `cuadra-sem` quedo pausado por cupo desde julio; los dos keep-alive (cron de Vercel + GitHub Action) fallaban en silencio desde el 2026-07-11 porque un keep-alive no puede resucitar un proyecto pausado. La app entera era ya una simulacion (MP en sandbox, datos sembrados), asi que sacarla de Supabase no destruye nada real. Revoca la decision del 05/06 ("no desacoplar, no rinde"): lo que cambio no fue el costo de desacoplar sino que la base dejo de existir.
 - **Como**: una sola capa `src/lib/datos/` (tipos + semilla + store). La **semilla es determinista por fecha** (PRNG sembrado con la fecha): cualquier instancia de Vercel genera exactamente la misma actividad para un mismo dia, sin compartir nada. Lo que la app escribe (cobros, tarifas editadas, cierres) vive en memoria de la instancia; el flujo pagar/comprobante del mismo navegador no depende de caer en la misma lambda porque las sesiones propias van tambien en una cookie (`sesiones-propias.ts`, ultimas 5) que rehidrata la memoria al leer. El estado active/expired se **deriva del reloj al leer** (reemplaza la funcion SQL `expirar_sesiones_vencidas`).
@@ -77,6 +79,13 @@ El bug de redirect loop en `/login` está RESUELTO: se movió `login/` del grupo
 Cascada de planes COMPLETA (07, 08, 11 + fix). Único pendiente: Plan 10 (Deploy Vercel), que requiere presencia del usuario (login Vercel, env vars, webhook MP HMAC).
 
 ## Sesiones
+
+### [2026-09-28] - Estado mudado desde el CONTEXT del vault
+**Objetivo:** que el resultado del hackathon viva en el proyecto y no en el `CONTEXT.md` del vault, que lo sacó de su Estado vivo (el CONTEXT conserva a Cuadra y Quipu en su lista de recursos quietos).
+**Hecho:**
+- El bloque que el CONTEXT tenía sobre los dos proyectos del hackathon (Cuadra y Quipu, que no tiene DEVLOG ni git), verbatim:
+
+**Hackathones PunaTech 2026 (Cuadra + Quipu)**: ambos TERMINADOS, ninguno ganó (equipo Ignacio + Sofía). Cuadra (track SEM): LIVE `cuadra-sem.vercel.app`, descalificado por el video pitch (~7 min vs límite 5) pese a que los jueces dijeron que "estaba para ganar". Quipu (ideathon): infra sobre Stellar para cooperativas de artesanos del NOA, LIVE `quipu-stellar.vercel.app`. **🧬 Aprendizaje durable**: respetar las specs formales de entrega es tan crítico como la calidad técnica + faltó validación en territorio + faltó delivery/más manos. Memoria `feedback_validar_ideas_en_territorio`.
 
 ### [2026-09-10] - Salida de Supabase
 **Objetivo:** que la demo no dependa de Supabase (cupo de 2 proyectos free) y libere el slot, manteniendo funcionando todo lo posible.
